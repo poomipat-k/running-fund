@@ -7,8 +7,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/poomipat-k/running-fund/pkg/database"
-
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -22,6 +20,11 @@ func main() {
 	}
 	defer db.Close()
 
+	// Do migration
+	// goose.Run()
+
+	fmt.Println("Migrations success!")
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Welcome"))
 	})
@@ -31,20 +34,20 @@ func main() {
 			w.Write([]byte("API landing page"))
 		})
 
-		r.Post("/signup", func(w http.ResponseWriter, r *http.Request) {
-			sqlStatement := `
-			INSERT INTO users (age, email, first_name, last_name)
-			VALUES ($1, $2, $3, $4)
-			RETURNING id`
-			id := 0
-			err = db.QueryRow(sqlStatement, 30, "jon@calhoun.io", "Jonathan", "Calhoun").Scan(&id)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Println("New record ID is:", id)
-			w.WriteHeader(http.StatusCreated)
-			w.Write([]byte("From Signup"))
-		})
+		// r.Post("/signup", func(w http.ResponseWriter, r *http.Request) {
+		// 	sqlStatement := `
+		// 	INSERT INTO users (age, email, first_name, last_name)
+		// 	VALUES ($1, $2, $3, $4)
+		// 	RETURNING id`
+		// 	id := 0
+		// 	err = db.QueryRow(sqlStatement, 30, "jon@calhoun.io", "Jonathan", "Calhoun").Scan(&id)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	fmt.Println("New record ID is:", id)
+		// 	w.WriteHeader(http.StatusCreated)
+		// 	w.Write([]byte("From Signup"))
+		// })
 	})
 
 	http.ListenAndServe(":4000", r)

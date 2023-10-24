@@ -30,3 +30,11 @@ clear:
 	@echo "Deleting unused images..."
 	docker image prune -a
 	@echo "Done!"
+
+## Migration database
+
+migration_up:
+	migrate -path database/migration/ -database "postgresql://postgres:password@localhost:5432/running_fund?sslmode=disable" -verbose up
+
+migration_down:
+	migrate -path database/migration/ -database "postgresql://postgres:password@localhost:5432/running_fund?sslmode=disable" -verbose down
