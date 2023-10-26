@@ -3,21 +3,17 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "compose_postgres"
-	port     = 5432
-	user     = "postgres"
-	password = "password"
-	dbname   = "running_fund"
-)
+var counter int64
 
-func GetDbConnection() (*sql.DB, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -28,4 +24,28 @@ func GetDbConnection() (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func ConnectToDB() *sql.DB {
+	dsn := os.Getenv("DSN")
+	fmt.Println("DSN: " + dsn)
+
+	for {
+		connection, err := openDB(dsn)
+		if err != nil {
+			log.Println("Postgres not yet ready...")
+			counter++
+		} else {
+			log.Println("Connected  to Postgres!")
+			return connection
+		}
+
+		if counter > 10 {
+			log.Println(err)
+			return nil
+		}
+
+		log.Println("Backing off for two seconds...")
+		time.Sleep(2 * time.Second)
+	}
 }

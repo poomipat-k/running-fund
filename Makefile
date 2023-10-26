@@ -13,6 +13,7 @@ up_build: build_running
 	@echo "Building (when required) and starting docker images..."
 	docker compose up --build
 	@echo "Docker images built and started!"
+	migration_up
 
 ## down: stop docker compose
 down:
@@ -34,7 +35,15 @@ clear:
 ## Migration database
 
 migration_up:
-	migrate -path database/migration/ -database "postgresql://postgres:password@localhost:5432/running_fund?sslmode=disable" -verbose up
+	cd migrations; echo "Inside migrations, Start migration"; \
+	goose postgres "host=localhost port=5432 user=postgres password=password dbname=running_fund sslmode=disable" up
+	@echo "Migration Done!"
 
 migration_down:
-	migrate -path database/migration/ -database "postgresql://postgres:password@localhost:5432/running_fund?sslmode=disable" -verbose down
+	cd migrations; echo "Inside migrations, Start migration"; \
+	goose postgres "host=localhost port=5432 user=postgres password=password dbname=running_fund sslmode=disable" down
+	@echo "Migration Done!"
+
+migration_status:
+	cd migrations; echo "Inside migrations, Start migration"; \
+	goose postgres "host=localhost port=5432 user=postgres password=password dbname=running_fund sslmode=disable" status
