@@ -132,6 +132,13 @@ func TestGetReviewerDashboard(t *testing.T) {
 			projectHandler.GetReviewerDashboard(response, request)
 
 			assertStatus(t, response.Code, tt.expectedHTTPStatus)
+			gotContentType := response.Header().Get("Content-Type")
+			wantContentType := "application/json"
+			if gotContentType != wantContentType {
+				t.Errorf("Wrong content type, got %s, want %s", gotContentType, wantContentType)
+			}
+			assertContentTypeHeader(t, gotContentType, "application/json")
+
 			var got []projects.Project
 			err := json.Unmarshal(response.Body.Bytes(), &got)
 			if err != nil {
@@ -146,6 +153,13 @@ func assertStatus(t testing.TB, got, want int) {
 	t.Helper()
 	if got != want {
 		t.Errorf("did not get correct status, got %d, want %d", got, want)
+	}
+}
+
+func assertContentTypeHeader(t testing.TB, got, want string) {
+	t.Helper()
+	if got != want {
+		t.Errorf("Wrong content type, got %s, want %s", got, want)
 	}
 }
 
