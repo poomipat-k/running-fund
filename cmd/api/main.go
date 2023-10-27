@@ -12,19 +12,17 @@ import (
 const webPort = "8080"
 
 func main() {
-	conn := database.ConnectToDB()
-	if conn == nil {
+	db := database.ConnectToDB()
+	if db == nil {
 		log.Panic("Can't connect to Postgres!")
 	}
-	defer conn.Close()
+	defer db.Close()
 
-	app := server.Server{
-		DB: conn,
-	}
+	app := server.Server{}
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
-		Handler: app.Routes(),
+		Handler: app.Routes(db),
 	}
 
 	err := srv.ListenAndServe()

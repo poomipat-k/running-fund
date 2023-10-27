@@ -11,13 +11,10 @@ import (
 	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
 )
 
-type Server struct {
-	DB *sql.DB
-}
+type Server struct{}
 
-func (app *Server) Routes() http.Handler {
+func (app *Server) Routes(db *sql.DB) http.Handler {
 	mux := chi.NewRouter()
-
 	mux.Use(middleware.Logger)
 	// specify who is allowed to connect
 	mux.Use(cors.Handler(cors.Options{
@@ -29,7 +26,7 @@ func (app *Server) Routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	store := projects.NewStore(app.DB)
+	store := projects.NewStore(db)
 	projectHandler := server.NewProjectHandler(store)
 
 	mux.Route("/api", func(r chi.Router) {

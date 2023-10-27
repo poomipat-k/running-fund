@@ -1,6 +1,11 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
+	"log"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -11,31 +16,41 @@ type StubProjectStore struct {
 	list []projects.Project
 }
 
-func (s *StubProjectStore) GetReviewerDashboard() ([]projects.Project, error) {
-	return s.list, nil
+func (s *StubProjectStore) GetReviewerDashboard(from time.Time, to time.Time) ([]projects.Project, error) {
+	var matched []projects.Project
+	for i := 0; i < len(s.list); i++ {
+		if !(s.list[i].CreatedAt.Before(from) || s.list[i].CreatedAt.After(to)) {
+			matched = append(matched, s.list[i])
+		}
+	}
+	return matched, nil
 }
 
 func TestGetReviewerDashboard(t *testing.T) {
+	now := time.Now()
+	tmr := time.Now().Add(time.Duration(24) * time.Hour)
+	next2days := time.Now().Add(time.Duration(48) * time.Hour)
+	next3days := time.Now().Add(time.Duration(72) * time.Hour)
 	p1 := projects.Project{
 		Id:             1,
 		ProjectCode:    "A",
 		ProjectName:    "Project_A",
 		ProjectVersion: 1,
-		CreatedAt:      time.Now(),
+		CreatedAt:      now,
 	}
 	p2 := projects.Project{
 		Id:             2,
 		ProjectCode:    "B",
 		ProjectName:    "Project_B",
 		ProjectVersion: 1,
-		CreatedAt:      time.Now().Add(time.Duration(24) * time.Hour),
+		CreatedAt:      tmr,
 	}
 	p3 := projects.Project{
 		Id:             3,
 		ProjectCode:    "C",
 		ProjectName:    "Project_C",
 		ProjectVersion: 1,
-		CreatedAt:      time.Now().Add(time.Duration(48) * time.Hour),
+		CreatedAt:      next2days,
 	}
 	store := StubProjectStore{
 		list: []projects.Project{
@@ -44,6 +59,128 @@ func TestGetReviewerDashboard(t *testing.T) {
 			p3,
 		},
 	}
-	// server := &Server{}
 
+	projectHandler := NewProjectHandler(&store)
+
+	tests := []struct {
+		name               string
+		payload            projects.GetReviewerDashboardRequest
+		expectedHTTPStatus int
+		expectedResponse   []projects.Project
+	}{
+		{
+			name: "Return all 3 projects",
+			payload: projects.GetReviewerDashboardRequest{
+				From: now,
+				To:   next3days,
+			},
+			expectedHTTPStatus: 200,
+			expectedResponse:   []projects.Project{p1, p2, p3},
+		},
+		{
+			name: "Return all projects created today and tomorrow",
+			payload: projects.GetReviewerDashboardRequest{
+				From: now,
+				To:   tmr,
+			},
+			expectedHTTPStatus: 200,
+			expectedResponse:   []projects.Project{p1, p2},
+		},
+		{
+			name: "Return all projects created tomorrow and the next 2 days",
+			payload: projects.GetReviewerDashboardRequest{
+				From: tmr,
+				To:   next2days,
+			},
+			expectedHTTPStatus: 200,
+			expectedResponse:   []projects.Project{p2, p3},
+		},
+		{
+			name: "Return all the project created tomorrow",
+			payload: projects.GetReviewerDashboardRequest{
+				From: tmr.Add(time.Duration(-1) * time.Hour),
+				To:   tmr.Add(time.Duration(1) * time.Hour),
+			},
+			expectedHTTPStatus: 200,
+			expectedResponse:   []projects.Project{p2},
+		},
+		{
+			name: "Return none (to  is earlier than today)",
+			payload: projects.GetReviewerDashboardRequest{
+				From: tmr.Add(time.Duration(-24) * time.Hour),
+				To:   tmr.Add(time.Duration(-1) * time.Hour),
+			},
+			expectedHTTPStatus: 200,
+			expectedResponse:   nil,
+		},
+		{
+			name: "Return none (from  is later than the next2days)",
+			payload: projects.GetReviewerDashboardRequest{
+				From: tmr.Add(time.Duration(-24) * time.Hour),
+				To:   tmr.Add(time.Duration(-1) * time.Hour),
+			},
+			expectedHTTPStatus: 200,
+			expectedResponse:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			request := newGetReviewerDashboardRequest(tt.payload)
+			response := httptest.NewRecorder()
+
+			projectHandler.GetReviewerDashboard(response, request)
+
+			assertStatus(t, response.Code, tt.expectedHTTPStatus)
+			var got []projects.Project
+			err := json.Unmarshal(response.Body.Bytes(), &got)
+			if err != nil {
+				log.Fatal(err)
+			}
+			assertSliceResponseBody(t, got, tt.expectedResponse)
+		})
+	}
+}
+
+func assertStatus(t testing.TB, got, want int) {
+	t.Helper()
+	if got != want {
+		t.Errorf("did not get correct status, got %d, want %d", got, want)
+	}
+}
+
+func assertSliceResponseBody(t testing.TB, got, want []projects.Project) {
+	t.Helper()
+	if got == nil && want == nil {
+		return
+	}
+	if got == nil && want != nil {
+		t.Errorf("Failed_1: response body is wrong, got %v want %v", got, want)
+		return
+	}
+	if got != nil && want == nil {
+		t.Errorf("Failed_2: response body is wrong, got %v want %v", got, want)
+		return
+	}
+	if len(got) != len(want) {
+		t.Errorf("Failed_3: response body size is not equal, got has %d, want has %d", len(got), len(want))
+		return
+	}
+	for i := 0; i < len(got); i++ {
+		if got[i].ProjectCode != want[i].ProjectCode {
+			t.Errorf("Failed_4: response body is wrong, got %v want %v", got[i], want[i])
+		}
+	}
+}
+
+func newGetReviewerDashboardRequest(body projects.GetReviewerDashboardRequest) *http.Request {
+	out, err := json.Marshal(body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req, err := http.NewRequest(http.MethodPost, "/api/projects/reviewer", bytes.NewBuffer(out))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return req
 }

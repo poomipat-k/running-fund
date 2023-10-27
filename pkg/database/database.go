@@ -43,7 +43,7 @@ func ConnectToDB() *sql.DB {
 			return nil
 		}
 
-		log.Println("Backing off for two seconds...")
-		time.Sleep(2 * time.Second)
+		log.Println("Backing off for one second...")
+		time.Sleep(1 * time.Second)
 	}
 }
