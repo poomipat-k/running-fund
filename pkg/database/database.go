@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -28,7 +27,6 @@ func openDB(dsn string) (*sql.DB, error) {
 
 func ConnectToDB() *sql.DB {
 	dsn := os.Getenv("DSN")
-	fmt.Println("DSN: " + dsn)
 
 	for {
 		connection, err := openDB(dsn)

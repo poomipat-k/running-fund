@@ -47,3 +47,6 @@ migration_down:
 migration_status:
 	cd migrations; echo "Inside migrations, Start migration"; \
 	goose postgres "host=localhost port=5432 user=postgres password=password dbname=running_fund sslmode=disable" status
+
+test:
+	go test ./pkg/...
