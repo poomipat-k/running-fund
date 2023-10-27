@@ -3,6 +3,7 @@ package projects
 import (
 	"database/sql"
 	"log"
+	"time"
 )
 
 type store struct {
@@ -15,8 +16,8 @@ func NewStore(db *sql.DB) *store {
 	}
 }
 
-func (s *store) GetAll() ([]Project, error) {
-	rows, err := s.db.Query("SELECT id, project_code, project_version, created_at FROM project")
+func (s *store) GetReviewerDashboard(from, to time.Time) ([]Project, error) {
+	rows, err := s.db.Query("SELECT id,project_code, project_name, project_version, created_at FROM project WHERE created_at >= $1 AND created_at < $2", from, to)
 	if err != nil {
 		log.Println("Error on Query: ", err)
 		return nil, err
@@ -26,7 +27,7 @@ func (s *store) GetAll() ([]Project, error) {
 	var row Project
 	var data []Project
 	for rows.Next() {
-		err = rows.Scan(&row.Id, &row.ProjectCode, &row.ProjectVersion, &row.CreatedAt)
+		err = rows.Scan(&row.Id, &row.ProjectCode, &row.ProjectName, &row.ProjectVersion, &row.CreatedAt)
 		if err != nil {
 			log.Println("Error on Scan: ", err)
 			return nil, err

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
@@ -17,6 +18,7 @@ type Server struct {
 func (app *Server) Routes() http.Handler {
 	mux := chi.NewRouter()
 
+	mux.Use(middleware.Logger)
 	// specify who is allowed to connect
 	mux.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -27,7 +29,6 @@ func (app *Server) Routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	// store := projects.NewMemStore(app.DB)
 	store := projects.NewStore(app.DB)
 	projectHandler := server.NewProjectHandler(store)
 
@@ -36,7 +37,7 @@ func (app *Server) Routes() http.Handler {
 			w.Write([]byte("API landing page"))
 		})
 
-		r.Get("/projects", projectHandler.GetAll)
+		r.Post("/projects/reviewer", projectHandler.GetReviewerDashboard)
 	})
 
 	return mux

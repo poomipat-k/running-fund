@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
 type projectStore interface {
-	GetAll() ([]projects.Project, error)
+	GetReviewerDashboard(from time.Time, to time.Time) ([]projects.Project, error)
 }
 
 type ProjectHandler struct {
@@ -22,8 +23,15 @@ func NewProjectHandler(s projectStore) *ProjectHandler {
 	}
 }
 
-func (h *ProjectHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	projects, err := h.store.GetAll()
+func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var payload projects.GetReviewerDashboardRequest
+	err := decoder.Decode(&payload)
+	if err != nil {
+		panic(err)
+	}
+
+	projects, err := h.store.GetReviewerDashboard(payload.From, payload.To)
 	if err != nil {
 		log.Panic(err)
 	}
