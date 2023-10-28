@@ -31,7 +31,7 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		panic(err)
 	}
 
-	projects, err := h.store.GetReviewerDashboard(payload.From, payload.To)
+	projects, err := h.store.GetReviewerDashboard(payload.FromDate, payload.ToDate)
 	if err != nil {
 		log.Panic(err)
 	}

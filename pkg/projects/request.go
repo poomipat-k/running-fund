@@ -3,6 +3,6 @@ package projects
 import "time"
 
 type GetReviewerDashboardRequest struct {
-	From time.Time `json:"from"`
-	To   time.Time `json:"to"`
+	FromDate time.Time `json:"fromDate"`
+	ToDate   time.Time `json:"toDate"`
 }

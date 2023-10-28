@@ -16,10 +16,10 @@ type StubProjectStore struct {
 	list []projects.Project
 }
 
-func (s *StubProjectStore) GetReviewerDashboard(from time.Time, to time.Time) ([]projects.Project, error) {
+func (s *StubProjectStore) GetReviewerDashboard(fromDate time.Time, toDate time.Time) ([]projects.Project, error) {
 	var matched []projects.Project
 	for i := 0; i < len(s.list); i++ {
-		if !(s.list[i].CreatedAt.Before(from) || s.list[i].CreatedAt.After(to)) {
+		if !(s.list[i].CreatedAt.Before(fromDate) || s.list[i].CreatedAt.After(toDate)) {
 			matched = append(matched, s.list[i])
 		}
 	}
@@ -71,8 +71,8 @@ func TestGetReviewerDashboard(t *testing.T) {
 		{
 			name: "Return all 3 projects",
 			payload: projects.GetReviewerDashboardRequest{
-				From: now,
-				To:   next3days,
+				FromDate: now,
+				ToDate:   next3days,
 			},
 			expectedHTTPStatus: 200,
 			expectedResponse:   []projects.Project{p1, p2, p3},
@@ -80,8 +80,8 @@ func TestGetReviewerDashboard(t *testing.T) {
 		{
 			name: "Return all projects created today and tomorrow",
 			payload: projects.GetReviewerDashboardRequest{
-				From: now,
-				To:   tmr,
+				FromDate: now,
+				ToDate:   tmr,
 			},
 			expectedHTTPStatus: 200,
 			expectedResponse:   []projects.Project{p1, p2},
@@ -89,8 +89,8 @@ func TestGetReviewerDashboard(t *testing.T) {
 		{
 			name: "Return all projects created tomorrow and the next 2 days",
 			payload: projects.GetReviewerDashboardRequest{
-				From: tmr,
-				To:   next2days,
+				FromDate: tmr,
+				ToDate:   next2days,
 			},
 			expectedHTTPStatus: 200,
 			expectedResponse:   []projects.Project{p2, p3},
@@ -98,8 +98,8 @@ func TestGetReviewerDashboard(t *testing.T) {
 		{
 			name: "Return all the project created tomorrow",
 			payload: projects.GetReviewerDashboardRequest{
-				From: tmr.Add(time.Duration(-1) * time.Hour),
-				To:   tmr.Add(time.Duration(1) * time.Hour),
+				FromDate: tmr.Add(time.Duration(-1) * time.Hour),
+				ToDate:   tmr.Add(time.Duration(1) * time.Hour),
 			},
 			expectedHTTPStatus: 200,
 			expectedResponse:   []projects.Project{p2},
@@ -107,8 +107,8 @@ func TestGetReviewerDashboard(t *testing.T) {
 		{
 			name: "Return none (to  is earlier than today)",
 			payload: projects.GetReviewerDashboardRequest{
-				From: tmr.Add(time.Duration(-24) * time.Hour),
-				To:   tmr.Add(time.Duration(-1) * time.Hour),
+				FromDate: tmr.Add(time.Duration(-24) * time.Hour),
+				ToDate:   tmr.Add(time.Duration(-1) * time.Hour),
 			},
 			expectedHTTPStatus: 200,
 			expectedResponse:   nil,
@@ -116,8 +116,8 @@ func TestGetReviewerDashboard(t *testing.T) {
 		{
 			name: "Return none (from  is later than the next2days)",
 			payload: projects.GetReviewerDashboardRequest{
-				From: tmr.Add(time.Duration(-24) * time.Hour),
-				To:   tmr.Add(time.Duration(-1) * time.Hour),
+				FromDate: tmr.Add(time.Duration(-24) * time.Hour),
+				ToDate:   tmr.Add(time.Duration(-1) * time.Hour),
 			},
 			expectedHTTPStatus: 200,
 			expectedResponse:   nil,
