@@ -17,7 +17,10 @@ func NewStore(db *sql.DB) *store {
 }
 
 func (s *store) GetReviewerDashboard(fromDate, toDate time.Time) ([]Project, error) {
-	rows, err := s.db.Query("SELECT id,project_code, project_name, project_version, created_at FROM project WHERE created_at >= $1 AND created_at <= $2", fromDate, toDate)
+	rows, err := s.db.Query(`
+	SELECT id,project_code, project_name, project_version, created_at 
+	FROM project 
+	WHERE created_at >= $1 AND created_at <= $2`, fromDate, toDate)
 	if err != nil {
 		log.Println("Error on Query: ", err)
 		return nil, err

@@ -13,7 +13,6 @@ up_build: build_running
 	@echo "Building (when required) and starting docker images..."
 	docker compose up --build
 	@echo "Docker images built and started!"
-	migration_up
 
 ## down: stop docker compose
 down:

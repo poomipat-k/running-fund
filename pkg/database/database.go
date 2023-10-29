@@ -34,7 +34,7 @@ func ConnectToDB() *sql.DB {
 			log.Println("Postgres not yet ready...")
 			counter++
 		} else {
-			log.Println("Connected  to Postgres!")
+			log.Println("Connected to Postgres!")
 			return connection
 		}
 
