@@ -1,5 +1,4 @@
 -- +goose Up
--- +goose StatementBegin
 CREATE TABLE users (
   id SERIAL PRIMARY KEY NOT NULL,
   first_name VARCHAR(255),
@@ -7,9 +6,6 @@ CREATE TABLE users (
   email VARCHAR(255) UNIQUE NOT NULL,
   user_role VARCHAR(64)
 );
--- +goose StatementEnd
 
 -- +goose Down
--- +goose StatementBegin
 DROP TABLE users;
--- +goose StatementEnd
