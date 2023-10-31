@@ -1,11 +1,15 @@
 package projects
 
-import "time"
+import (
+	"time"
+)
 
-type Project struct {
-	Id             int       `json:"id"`
-	ProjectCode    string    `json:"project_code"`
-	ProjectName    string    `json:"project_name"`
-	ProjectVersion int       `json:"project_version"`
-	CreatedAt      time.Time `json:"created_at"`
+type ReviewDashboardRow struct {
+	ProjectId        int        `json:"project_id"`
+	ProjectCode      string     `json:"project_code"`
+	ProjectCreatedAt *time.Time `json:"project_created_at"`
+	ProjectName      string     `json:"project_name"`
+	ReviewId         int        `json:"review_id,omitempty"`
+	ReviewedAt       *time.Time `json:"reviewed_at,omitempty"`
+	DownloadLink     string     `json:"download_link,omitempty"`
 }

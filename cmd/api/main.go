@@ -25,6 +25,7 @@ func main() {
 		Handler: app.Routes(db),
 	}
 
+	log.Println("Ready on port", webPort)
 	err := srv.ListenAndServe()
 	if err != nil {
 		log.Panic(err)

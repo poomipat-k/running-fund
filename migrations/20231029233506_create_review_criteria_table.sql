@@ -5,7 +5,7 @@ CREATE TABLE review_criteria (
   group_number SMALLINT,
   in_group_number SMALLINT,
   order_number SMALLINT,
-  question_text TEXT
+  question_text VARCHAR(512)
 );
 
 -- +goose Down

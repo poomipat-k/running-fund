@@ -10,11 +10,11 @@ CREATE TABLE project (
 CREATE TABLE project_history(
   id SERIAL PRIMARY KEY NOT NULL,
   project_code VARCHAR(255)  NOT NULL,
-  project_name Text NOT NULL,
+  project_name VARCHAR(512) NOT NULL,
   project_version  SMALLINT DEFAULT 1,
   created_at  TIMESTAMP WITH TIME ZONE  DEFAULT now(),
-  download_link TEXT,
-  admin_comment TEXT,
+  download_link VARCHAR(512),
+  admin_comment VARCHAR(512),
   project_id INT
 );
 

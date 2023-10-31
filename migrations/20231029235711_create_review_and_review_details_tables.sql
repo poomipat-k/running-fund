@@ -3,7 +3,8 @@ CREATE TABLE review (
   id SERIAL PRIMARY KEY NOT NULL,
   user_id INT REFERENCES users(id),
   project_history_id INT REFERENCES project_history(id),
-  review_details_id INT
+  review_details_id INT,
+  created_at  TIMESTAMP WITH TIME ZONE  DEFAULT now()
 );
 
 CREATE TABLE review_details (

@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
 type projectStore interface {
-	GetReviewerDashboard(from time.Time, to time.Time) ([]projects.Project, error)
+	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
 }
 
 type ProjectHandler struct {
@@ -24,6 +26,13 @@ func NewProjectHandler(s projectStore) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	splits := strings.Split(authHeader, " ")
+	var token string
+	if len(splits) > 1 {
+		token = splits[1]
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	var payload projects.GetReviewerDashboardRequest
 	err := decoder.Decode(&payload)
@@ -31,7 +40,11 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		panic(err)
 	}
 
-	projects, err := h.store.GetReviewerDashboard(payload.FromDate, payload.ToDate)
+	userId, err := strconv.Atoi(token)
+	if err != nil {
+		panic(err)
+	}
+	projects, err := h.store.GetReviewerDashboard(userId, payload.FromDate, payload.ToDate)
 	if err != nil {
 		log.Panic(err)
 	}

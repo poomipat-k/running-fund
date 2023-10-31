@@ -16,25 +16,48 @@ func NewStore(db *sql.DB) *store {
 	}
 }
 
-func (s *store) GetReviewerDashboard(fromDate, toDate time.Time) ([]Project, error) {
+func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]ReviewDashboardRow, error) {
 	rows, err := s.db.Query(`
-	SELECT id,project_code, project_name, project_version, created_at 
-	FROM project 
-	WHERE created_at >= $1 AND created_at <= $2`, fromDate, toDate)
+	SELECT project.id as project_id, project.project_code, 
+	project.created_at, project_history.project_name, 
+	review.id as review_id, review.created_at as reviewed_at,
+	project_history.download_link
+	FROM project
+	INNER JOIN project_history
+	ON project.project_history_id = project_history.id
+	LEFT JOIN review
+	ON project.project_history_id = review.project_history_id AND user_id = $1
+	WHERE project.created_at >= $2
+	AND project.created_at <= $3`, userId, fromDate, toDate)
 	if err != nil {
 		log.Println("Error on Query: ", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var row Project
-	var data []Project
+	var data []ReviewDashboardRow
 	for rows.Next() {
-		err = rows.Scan(&row.Id, &row.ProjectCode, &row.ProjectName, &row.ProjectVersion, &row.CreatedAt)
+		var row ReviewDashboardRow
+		// Nullable columns
+		var reviewId sql.NullInt64
+		var reviewedAt sql.NullTime
+		var dowloadLink sql.NullString
+		err = rows.Scan(&row.ProjectId, &row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &reviewId, &reviewedAt, &dowloadLink)
 		if err != nil {
 			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
+		// Check Nullable columns
+		if reviewId.Valid {
+			row.ReviewId = int(reviewId.Int64)
+		}
+		if reviewedAt.Valid {
+			row.ReviewedAt = &reviewedAt.Time
+		}
+		if dowloadLink.Valid {
+			row.DownloadLink = dowloadLink.String
+		}
+
 		data = append(data, row)
 	}
 	// get any error cncountered during iteration
