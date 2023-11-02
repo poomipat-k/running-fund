@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
+	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
 type Server struct{}
@@ -26,8 +27,11 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		MaxAge:           300,
 	}))
 
-	store := projects.NewStore(db)
-	projectHandler := server.NewProjectHandler(store)
+	projectStore := projects.NewStore(db)
+	projectHandler := server.NewProjectHandler(projectStore)
+
+	userStore := users.NewStore(db)
+	userHandler := server.NewUserHandler(userStore)
 
 	mux.Route("/api", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +39,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		})
 
 		r.Post("/projects/reviewer", projectHandler.GetReviewerDashboard)
+
+		r.Get("/reviewers", userHandler.GetReviewers)
 	})
 
 	return mux
