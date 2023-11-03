@@ -13,3 +13,9 @@ type ReviewDashboardRow struct {
 	ReviewedAt       *time.Time `json:"reviewed_at,omitempty"`
 	DownloadLink     string     `json:"download_link,omitempty"`
 }
+
+type ReviewPeriod struct {
+	Id       int        `json:"id"`
+	FromDate *time.Time `json:"from_date"`
+	ToDate   *time.Time `json:"to_date"`
+}

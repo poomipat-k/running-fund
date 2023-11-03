@@ -43,3 +43,18 @@ func (s *store) GetReviewers() ([]User, error) {
 	}
 	return data, nil
 }
+
+func (s *store) GetReviewerById(userId int) (User, error) {
+	var user User
+	row := s.db.QueryRow(`SELECT id, first_name, last_name, email FROM users WHERE id = $1 and  user_role = 'reviewer'`, userId)
+	err := row.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email)
+	switch err {
+	case sql.ErrNoRows:
+		log.Println("No row were returned!")
+		return User{}, err
+	case nil:
+		return user, nil
+	default:
+		panic(err)
+	}
+}

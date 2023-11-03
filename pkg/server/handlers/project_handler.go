@@ -13,6 +13,7 @@ import (
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
+	GetReviewPeriod() (projects.ReviewPeriod, error)
 }
 
 type ProjectHandler struct {
@@ -40,6 +41,7 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		panic(err)
 	}
 
+	// To check if the user exists in the db
 	userId, err := strconv.Atoi(token)
 	if err != nil {
 		panic(err)
@@ -50,6 +52,20 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	}
 
 	jsonBytes, err := json.Marshal(projects)
+	if err != nil {
+		panic(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonBytes)
+}
+
+func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
+	period, err := h.store.GetReviewPeriod()
+	if err != nil {
+		panic(err)
+	}
+	jsonBytes, err := json.Marshal(period)
 	if err != nil {
 		panic(err)
 	}

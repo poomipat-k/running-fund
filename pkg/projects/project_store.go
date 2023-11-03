@@ -16,6 +16,22 @@ func NewStore(db *sql.DB) *store {
 	}
 }
 
+func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
+	var period ReviewPeriod
+	row := s.db.QueryRow("SELECT id, from_date, to_date FROM review_period ORDER BY id DESC LIMIT 1;")
+	err := row.Scan(&period.Id, &period.FromDate, &period.ToDate)
+	switch err {
+	case sql.ErrNoRows:
+		log.Println("No row were returned!")
+		return ReviewPeriod{}, err
+	case nil:
+		return period, nil
+	default:
+		panic(err)
+	}
+}
+
+// Get project [fromDate, toDate)
 func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]ReviewDashboardRow, error) {
 	rows, err := s.db.Query(`
 	SELECT project.id as project_id, project.project_code, 
@@ -28,7 +44,7 @@ func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]
 	LEFT JOIN review
 	ON project.project_history_id = review.project_history_id AND user_id = $1
 	WHERE project.created_at >= $2
-	AND project.created_at <= $3`, userId, fromDate, toDate)
+	AND project.created_at < $3`, userId, fromDate, toDate)
 	if err != nil {
 		log.Println("Error on Query: ", err)
 		return nil, err

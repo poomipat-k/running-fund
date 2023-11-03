@@ -39,8 +39,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		})
 
 		r.Post("/projects/reviewer", projectHandler.GetReviewerDashboard)
+		r.Get("/projects/period", projectHandler.GetReviewPeriod)
 
 		r.Get("/reviewers", userHandler.GetReviewers)
+		r.Get("/reviewer", userHandler.GetReviewerById)
 	})
 
 	return mux
