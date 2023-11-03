@@ -44,7 +44,9 @@ func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]
 	LEFT JOIN review
 	ON project.project_history_id = review.project_history_id AND user_id = $1
 	WHERE project.created_at >= $2
-	AND project.created_at < $3`, userId, fromDate, toDate)
+	AND project.created_at < $3
+	ORDER BY project_name;
+	`, userId, fromDate, toDate)
 	if err != nil {
 		log.Println("Error on Query: ", err)
 		return nil, err
