@@ -19,7 +19,7 @@ services:
     image: 'postgres:16.0'
     container_name: compose_postgres
     ports:
-      - "5432:5432"
+      - "5431:5432"
     restart: always
     deploy:
       mode: replicated
