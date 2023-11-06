@@ -16,10 +16,7 @@ func NewStore(db *sql.DB) *store {
 }
 
 func (s *store) GetReviewers() ([]User, error) {
-	rows, err := s.db.Query(`
-	SELECT id, first_name, last_name, email, user_role, created_at
-	FROM users WHERE user_role = $1
-	`, "reviewer")
+	rows, err := s.db.Query(getReviewersSQL, "reviewer")
 	if err != nil {
 		log.Println("Error on Query: ", err)
 		return nil, err
@@ -46,7 +43,7 @@ func (s *store) GetReviewers() ([]User, error) {
 
 func (s *store) GetReviewerById(userId int) (User, error) {
 	var user User
-	row := s.db.QueryRow(`SELECT id, first_name, last_name, email FROM users WHERE id = $1 and  user_role = 'reviewer'`, userId)
+	row := s.db.QueryRow(getReviewerByIdSQL, userId)
 	err := row.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email)
 	switch err {
 	case sql.ErrNoRows:

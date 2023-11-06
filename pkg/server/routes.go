@@ -41,6 +41,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/projects/reviewer", projectHandler.GetReviewerDashboard)
 		r.Get("/projects/review-period", projectHandler.GetReviewPeriod)
 
+		r.Get("/review/project/{projectCode}", projectHandler.GetReviewerProejctDetails)
+
 		r.Get("/reviewers", userHandler.GetReviewers)
 		r.Get("/reviewer", userHandler.GetReviewerById)
 	})

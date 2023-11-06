@@ -19,3 +19,9 @@ type ReviewPeriod struct {
 	FromDate *time.Time `json:"from_date"`
 	ToDate   *time.Time `json:"to_date"`
 }
+
+type ProjectReviewDetails struct {
+	ProjectId   int    `json:"project_id"`
+	ProjectCode string `json:"project_code"`
+	ProjectName string `json:"project_name"`
+}

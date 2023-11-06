@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -30,13 +29,7 @@ func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	jsonBytes, err := json.Marshal(reviewers)
-	if err != nil {
-		panic(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonBytes)
+	ResposeJson(w, reviewers, http.StatusOK)
 }
 
 func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
@@ -48,14 +41,7 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-
-	jsonBytes, err := json.Marshal(reviewer)
-	if err != nil {
-		panic(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonBytes)
+	ResposeJson(w, reviewer, http.StatusOK)
 }
 
 func getAuthUserId(r *http.Request) (int, error) {

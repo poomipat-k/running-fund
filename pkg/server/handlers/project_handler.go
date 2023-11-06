@@ -8,12 +8,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
 	GetReviewPeriod() (projects.ReviewPeriod, error)
+	GetReviewerProejctDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
 }
 
 type ProjectHandler struct {
@@ -33,6 +35,9 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	if len(splits) > 1 {
 		token = splits[1]
 	}
+	if token == "" {
+		panic("Token not found")
+	}
 
 	decoder := json.NewDecoder(r.Body)
 	var payload projects.GetReviewerDashboardRequest
@@ -51,13 +56,25 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		log.Panic(err)
 	}
 
-	jsonBytes, err := json.Marshal(projects)
+	ResposeJson(w, projects, http.StatusAccepted)
+}
+
+func (h *ProjectHandler) GetReviewerProejctDetails(w http.ResponseWriter, r *http.Request) {
+	// To check if the user exists in the db
+	userId, err := getAuthUserId(r)
 	if err != nil {
 		panic(err)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonBytes)
+
+	projectCode := chi.URLParam(r, "projectCode")
+	if len(projectCode) == 0 {
+		panic("Please provide a project code.")
+	}
+	projectDetails, err := h.store.GetReviewerProejctDetails(userId, projectCode)
+	if err != nil {
+		panic(err)
+	}
+	ResposeJson(w, projectDetails, http.StatusOK)
 }
 
 func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
@@ -65,11 +82,5 @@ func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		panic(err)
 	}
-	jsonBytes, err := json.Marshal(period)
-	if err != nil {
-		panic(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonBytes)
+	ResposeJson(w, period, http.StatusOK)
 }
