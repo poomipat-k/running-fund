@@ -77,7 +77,20 @@ func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]
 func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (ProjectReviewDetails, error) {
 	var details ProjectReviewDetails
 	row := s.db.QueryRow(getReviewerProejctDetailsSQL, userId, projectCode)
-	err := row.Scan(&details.ProjectId, &details.ProjectCode, &details.ProjectName)
+	// Nullable
+	var reviewId sql.NullInt64
+	var reviewedAt sql.NullTime
+	var reviewDetailsId sql.NullInt64
+	err := row.Scan(&details.ProjectId, &details.ProjectCode, &details.ProjectName, &reviewId, &reviewedAt, &reviewDetailsId)
+	if reviewId.Valid {
+		details.ReviewId = int(reviewId.Int64)
+	}
+	if reviewedAt.Valid {
+		details.ReviewedAt = &reviewedAt.Time
+	}
+	if reviewDetailsId.Valid {
+		details.ReviewDetailsId = int(reviewDetailsId.Int64)
+	}
 	switch err {
 	case sql.ErrNoRows:
 		log.Println("No row were returned!")
