@@ -3,7 +3,7 @@ CREATE TABLE project (
   id SERIAL PRIMARY KEY NOT NULL,
   project_code VARCHAR(255) UNIQUE NOT NULL,
   project_version  SMALLINT DEFAULT 1,
-  created_at  TIMESTAMP WITH TIME ZONE  DEFAULT now(),
+  created_at  TIMESTAMP WITH TIME ZONE NOT NULL  DEFAULT now(),
   project_history_id INT
 );
 
@@ -12,7 +12,7 @@ CREATE TABLE project_history(
   project_code VARCHAR(255)  NOT NULL,
   project_name VARCHAR(512) NOT NULL,
   project_version  SMALLINT DEFAULT 1,
-  created_at  TIMESTAMP WITH TIME ZONE  DEFAULT now(),
+  created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   download_link VARCHAR(512),
   admin_comment VARCHAR(512),
   project_id INT
