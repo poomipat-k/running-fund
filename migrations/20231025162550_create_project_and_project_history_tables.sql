@@ -22,6 +22,8 @@ ALTER TABLE project ADD CONSTRAINT fk_project_history_project FOREIGN KEY (proje
 
 ALTER TABLE project_history ADD CONSTRAINT fk_project_project_history FOREIGN KEY (project_id) REFERENCES project(id);
 
+CREATE INDEX project_created_at ON project (created_at);
+
 -- +goose Down
 ALTER TABLE project DROP COLUMN project_history_id;
 ALTER TABLE project_history DROP COLUMN project_id;

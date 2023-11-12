@@ -1,11 +1,12 @@
 -- +goose Up
 CREATE TABLE review_criteria (
   id SERIAL PRIMARY KEY NOT NULL,
-  criteria_version  SMALLINT,
+  criteria_version  SMALLINT NOT NULL,
   group_number SMALLINT,
   in_group_number SMALLINT,
   order_number SMALLINT,
-  question_text VARCHAR(512)
+  question_text VARCHAR(512),
+  display_text VARCHAR(512)
 );
 
 -- +goose Down
