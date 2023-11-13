@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -16,6 +15,7 @@ type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
 	GetReviewPeriod() (projects.ReviewPeriod, error)
 	GetReviewerProejctDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
+	GetProjectCriteria(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
 }
 
 type ProjectHandler struct {
@@ -29,28 +29,19 @@ func NewProjectHandler(s projectStore) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Request) {
-	authHeader := r.Header.Get("Authorization")
-	splits := strings.Split(authHeader, " ")
-	var token string
-	if len(splits) > 1 {
-		token = splits[1]
-	}
-	if token == "" {
-		panic("Token not found")
+	// To check if the user exists in the db
+	userId, err := getAuthUserId(r)
+	if err != nil {
+		panic(err)
 	}
 
 	decoder := json.NewDecoder(r.Body)
 	var payload projects.GetReviewerDashboardRequest
-	err := decoder.Decode(&payload)
+	err = decoder.Decode(&payload)
 	if err != nil {
 		panic(err)
 	}
 
-	// To check if the user exists in the db
-	userId, err := strconv.Atoi(token)
-	if err != nil {
-		panic(err)
-	}
 	projects, err := h.store.GetReviewerDashboard(userId, payload.FromDate, payload.ToDate)
 	if err != nil {
 		log.Panic(err)
@@ -83,4 +74,16 @@ func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request)
 		panic(err)
 	}
 	ResposeJson(w, period, http.StatusOK)
+}
+
+func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Request) {
+	criteriaVersion, err := strconv.Atoi(chi.URLParam(r, "criteriaVersion"))
+	if err != nil {
+		criteriaVersion = 1
+	}
+	criteria, err := h.store.GetProjectCriteria(criteriaVersion)
+	if err != nil {
+		panic(err)
+	}
+	ResposeJson(w, criteria, http.StatusOK)
 }

@@ -25,3 +25,7 @@ LEFT JOIN review ON project.project_history_id = review.project_history_id AND u
 WHERE project.project_code = $2
 LIMIT 1;
 `
+const getProjectCriteriaSQL = `
+SELECT criteria_version ,order_number, group_number, in_group_number, display_text
+FROM review_criteria WHERE criteria_version = $1;
+`

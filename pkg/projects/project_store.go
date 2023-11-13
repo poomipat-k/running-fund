@@ -97,3 +97,53 @@ func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (Proje
 		panic(err)
 	}
 }
+
+func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error) {
+	if criteriaVersion == 0 {
+		criteriaVersion = 1
+	}
+	rows, err := s.db.Query(getProjectCriteriaSQL, criteriaVersion)
+	if err != nil {
+		log.Println("Error on Query: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ProjectReviewCriteria
+	for rows.Next() {
+		var row ProjectReviewCriteria
+		var orderNumber sql.NullInt64
+		var groupNumber sql.NullInt64
+		var inGroupNumber sql.NullInt64
+		var displayText sql.NullString
+
+		err := rows.Scan(&row.CriteriaVersion, &orderNumber, &groupNumber, &inGroupNumber, &displayText)
+		if err != nil {
+			log.Println("Error on Scan: ", err)
+			return nil, err
+		}
+
+		// Check Nullable columns
+		if orderNumber.Valid {
+			row.OrderNumber = int(orderNumber.Int64)
+		}
+		if groupNumber.Valid {
+			row.GroupNumber = int(groupNumber.Int64)
+		}
+		if inGroupNumber.Valid {
+			row.InGroupNumber = int(inGroupNumber.Int64)
+		}
+		if displayText.Valid {
+			row.DisplayText = displayText.String
+		}
+
+		data = append(data, row)
+	}
+	// get any error cncountered during iteration
+	err = rows.Err()
+	if err != nil {
+		log.Println("Error on rows.Err: ", err)
+		return nil, err
+	}
+	return data, nil
+}
