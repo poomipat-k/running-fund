@@ -27,5 +27,5 @@ LIMIT 1;
 `
 const getProjectCriteriaSQL = `
 SELECT criteria_version ,order_number, group_number, in_group_number, display_text
-FROM review_criteria WHERE criteria_version = $1;
+FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
 `
