@@ -7,7 +7,7 @@ CREATE TABLE review_period (
 );
 
 INSERT INTO review_period (from_date, to_date)
-VALUES ('2023-11-01 17:00:00.000000+00', '2023-12-31 17:00:00.000000+00');
+VALUES ('2023-09-01 17:00:00.000000+00', '2023-12-31 17:00:00.000000+00');
 
 -- +goose Down
 DROP TABLE review_period;

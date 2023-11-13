@@ -21,10 +21,9 @@ type ReviewPeriod struct {
 }
 
 type ProjectReviewDetails struct {
-	ProjectId       int        `json:"project_id"`
-	ProjectCode     string     `json:"project_code"`
-	ProjectName     string     `json:"project_name"`
-	ReviewId        int        `json:"review_id,omitempty"`
-	ReviewedAt      *time.Time `json:"reviewed_at,omitempty"`
-	ReviewDetailsId int        `json:"review_details_id,omitempty"`
+	ProjectId   int        `json:"project_id"`
+	ProjectCode string     `json:"project_code"`
+	ProjectName string     `json:"project_name"`
+	ReviewId    int        `json:"review_id,omitempty"`
+	ReviewedAt  *time.Time `json:"reviewed_at,omitempty"`
 }
