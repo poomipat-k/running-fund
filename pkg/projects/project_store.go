@@ -112,21 +112,17 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	var data []ProjectReviewCriteria
 	for rows.Next() {
 		var row ProjectReviewCriteria
-		var orderNumber sql.NullInt64
 		var groupNumber sql.NullInt64
 		var inGroupNumber sql.NullInt64
 		var displayText sql.NullString
 
-		err := rows.Scan(&row.CriteriaVersion, &orderNumber, &groupNumber, &inGroupNumber, &displayText)
+		err := rows.Scan(&row.CriteriaVersion, &row.OrderNumber, &groupNumber, &inGroupNumber, &displayText)
 		if err != nil {
 			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
 
 		// Check Nullable columns
-		if orderNumber.Valid {
-			row.OrderNumber = int(orderNumber.Int64)
-		}
 		if groupNumber.Valid {
 			row.GroupNumber = int(groupNumber.Int64)
 		}
