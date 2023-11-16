@@ -27,7 +27,7 @@ type ProjectReviewDetails struct {
 	ProjectName          string          `json:"projectName,omitempty"`
 	ReviewId             int             `json:"reviewId,omitempty"`
 	ReviewedAt           *time.Time      `json:"reviewedAt,omitempty"`
-	IsInterestedPerson   bool            `json:"isInterestedPerson,omitempty"`
+	IsInterestedPerson   *bool           `json:"isInterestedPerson,omitempty"`
 	InterestedPersonType string          `json:"interestedPersonType,omitempty"`
 	ReviewDetails        []ReviewDetails `json:"reviewDetails,omitempty"`
 }

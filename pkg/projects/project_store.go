@@ -90,7 +90,7 @@ func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (Proje
 		details.ReviewedAt = &reviewedAt.Time
 	}
 	if isInterestedPerson.Valid {
-		details.IsInterestedPerson = isInterestedPerson.Bool
+		details.IsInterestedPerson = &isInterestedPerson.Bool
 	}
 	if interestedPersonType.Valid {
 		details.InterestedPersonType = interestedPersonType.String
