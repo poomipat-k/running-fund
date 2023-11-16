@@ -80,14 +80,21 @@ func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (Proje
 	// Nullable
 	var reviewId sql.NullInt64
 	var reviewedAt sql.NullTime
-	err := row.Scan(&details.ProjectId, &details.ProjectCode, &details.ProjectCreatedAt, &details.ProjectName, &reviewId, &reviewedAt)
+	var isInterestedPerson sql.NullBool
+	var interestedPersonType sql.NullString
+	err := row.Scan(&details.ProjectId, &details.ProjectCode, &details.ProjectCreatedAt, &details.ProjectName, &reviewId, &reviewedAt, &isInterestedPerson, &interestedPersonType)
 	if reviewId.Valid {
 		details.ReviewId = int(reviewId.Int64)
 	}
 	if reviewedAt.Valid {
 		details.ReviewedAt = &reviewedAt.Time
 	}
-	log.Println(details)
+	if isInterestedPerson.Valid {
+		details.IsInterestedPerson = isInterestedPerson.Bool
+	}
+	if interestedPersonType.Valid {
+		details.InterestedPersonType = interestedPersonType.String
+	}
 	if details.ReviewId > 0 {
 		rd, err := s.GetReviewDetailsByReviewId(details.ReviewId)
 		if err != nil {
