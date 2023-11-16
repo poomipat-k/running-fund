@@ -5,45 +5,45 @@ import (
 )
 
 type ReviewDashboardRow struct {
-	ProjectId        int        `json:"project_id,omitempty"`
-	ProjectCode      string     `json:"project_code,omitempty"`
-	ProjectCreatedAt *time.Time `json:"project_created_at,omitempty"`
-	ProjectName      string     `json:"project_name,omitempty"`
-	ReviewId         int        `json:"review_id,omitempty"`
-	ReviewedAt       *time.Time `json:"reviewed_at,omitempty"`
-	DownloadLink     string     `json:"download_link,omitempty"`
+	ProjectId        int        `json:"projectId,omitempty"`
+	ProjectCode      string     `json:"projectCode,omitempty"`
+	ProjectCreatedAt *time.Time `json:"projectCreatedAt,omitempty"`
+	ProjectName      string     `json:"projectName,omitempty"`
+	ReviewId         int        `json:"reviewId,omitempty"`
+	ReviewedAt       *time.Time `json:"reviewedAt,omitempty"`
+	DownloadLink     string     `json:"downloadLink,omitempty"`
 }
 
 type ReviewPeriod struct {
 	Id       int        `json:"id,omitempty"`
-	FromDate *time.Time `json:"from_date,omitempty"`
-	ToDate   *time.Time `json:"to_date,omitempty"`
+	FromDate *time.Time `json:"fromDate,omitempty"`
+	ToDate   *time.Time `json:"toDate,omitempty"`
 }
 
 type ProjectReviewDetails struct {
-	ProjectId            int             `json:"project_id,omitempty"`
-	ProjectCode          string          `json:"project_code,omitempty"`
-	ProjectCreatedAt     *time.Time      `json:"project_created_at,omitempty"`
-	ProjectName          string          `json:"project_name,omitempty"`
-	ReviewId             int             `json:"review_id,omitempty"`
-	ReviewedAt           *time.Time      `json:"reviewed_at,omitempty"`
-	IsInterestedPerson   bool            `json:"is_interested_person,omitempty"`
-	InterestedPersonType string          `json:"interested_person_type,omitempty"`
-	ReviewDetails        []ReviewDetails `json:"review_details,omitempty"`
+	ProjectId            int             `json:"projectId,omitempty"`
+	ProjectCode          string          `json:"projectCode,omitempty"`
+	ProjectCreatedAt     *time.Time      `json:"projectCreatedAt,omitempty"`
+	ProjectName          string          `json:"projectName,omitempty"`
+	ReviewId             int             `json:"reviewId,omitempty"`
+	ReviewedAt           *time.Time      `json:"reviewedAt,omitempty"`
+	IsInterestedPerson   bool            `json:"isInterestedPerson,omitempty"`
+	InterestedPersonType string          `json:"interestedPersonType,omitempty"`
+	ReviewDetails        []ReviewDetails `json:"reviewDetails,omitempty"`
 }
 
 type ProjectReviewCriteria struct {
-	CriteriaId      int    `json:"review_criteria_id,omitempty"`
-	CriteriaVersion int    `json:"criteria_version,omitempty"`
-	GroupNumber     int    `json:"group_number,omitempty"`
-	InGroupNumber   int    `json:"in_group_number,omitempty"`
-	OrderNumber     int    `json:"order_number,omitempty"`
-	DisplayText     string `json:"display_text,omitempty"`
+	CriteriaId      int    `json:"reviewCriteriaId,omitempty"`
+	CriteriaVersion int    `json:"criteriaVersion,omitempty"`
+	GroupNumber     int    `json:"groupNumber,omitempty"`
+	InGroupNumber   int    `json:"inGroupNumber,omitempty"`
+	OrderNumber     int    `json:"orderNumber,omitempty"`
+	DisplayText     string `json:"displayText,omitempty"`
 }
 
 type ReviewDetails struct {
-	ReviewDetailsId     int `json:"review_details_id,omitempty"`
-	CriteriaVersion     int `json:"criteria_version,omitempty"`
-	CriteriaOrderNumber int `json:"criteria_order_number,omitempty"`
+	ReviewDetailsId     int `json:"reviewDetailsId,omitempty"`
+	CriteriaVersion     int `json:"criteriaVersion,omitempty"`
+	CriteriaOrderNumber int `json:"criteriaOrderNumber,omitempty"`
 	Score               int `json:"score,omitempty"`
 }

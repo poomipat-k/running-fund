@@ -137,7 +137,6 @@ func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error
 		log.Println("Error on rows.Err: ", err)
 		return nil, err
 	}
-	log.Println(data)
 	return data, nil
 }
 
