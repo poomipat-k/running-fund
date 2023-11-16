@@ -21,15 +21,27 @@ type ReviewPeriod struct {
 }
 
 type ProjectReviewDetails struct {
-	ProjectId            int             `json:"projectId,omitempty"`
-	ProjectCode          string          `json:"projectCode,omitempty"`
-	ProjectCreatedAt     *time.Time      `json:"projectCreatedAt,omitempty"`
-	ProjectName          string          `json:"projectName,omitempty"`
-	ReviewId             int             `json:"reviewId,omitempty"`
-	ReviewedAt           *time.Time      `json:"reviewedAt,omitempty"`
-	IsInterestedPerson   *bool           `json:"isInterestedPerson,omitempty"`
-	InterestedPersonType string          `json:"interestedPersonType,omitempty"`
-	ReviewDetails        []ReviewDetails `json:"reviewDetails,omitempty"`
+	ProjectId            int                `json:"projectId,omitempty"`
+	ProjectCode          string             `json:"projectCode,omitempty"`
+	ProjectCreatedAt     *time.Time         `json:"projectCreatedAt,omitempty"`
+	ProjectName          string             `json:"projectName,omitempty"`
+	ReviewId             int                `json:"reviewId,omitempty"`
+	ReviewedAt           *time.Time         `json:"reviewedAt,omitempty"`
+	IsInterestedPerson   *bool              `json:"isInterestedPerson,omitempty"`
+	InterestedPersonType string             `json:"interestedPersonType,omitempty"`
+	ReviewDetails        []ReviewDetails    `json:"reviewDetails,omitempty"`
+	ReviewSummary        string             `json:"reviewSummary,omitempty"`
+	ReviewerComment      string             `json:"reviewerComment,omitempty"`
+	ReviewImprovement    *ReviewImprovement `json:"reviewImprovement,omitempty"`
+}
+
+type ReviewImprovement struct {
+	Benefit                  *bool `json:"benefit,omitempty"`
+	ExperienceAndReliability *bool `json:"experienceAndReliability,omitempty"`
+	FundAndOutput            *bool `json:"fundAndOutput,omitempty"`
+	ProjectQuality           *bool `json:"projectQuality,omitempty"`
+	ProjectStandard          *bool `json:"projectStandard,omitempty"`
+	VisionAndImage           *bool `json:"visionAndImage,omitempty"`
 }
 
 type ProjectReviewCriteria struct {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func ResposeJson(w http.ResponseWriter, body any, httpStatus int) {
+func ResponseJson(w http.ResponseWriter, body any, httpStatus int) {
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
 		panic(err)

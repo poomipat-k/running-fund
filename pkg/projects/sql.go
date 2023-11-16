@@ -16,12 +16,16 @@ WHERE project.created_at >= $2
 AND project.created_at < $3
 ORDER BY project_name;
 `
-const getReviewerProejctDetailsSQL = `
+const getReviewerProjectDetailsSQL = `
 SELECT project.id as project_id, project.project_code, project.created_at as project_created_at, project_history.project_name, 
-review.id as review_id, review.created_at as reviewed_at, review.is_interested_person, review.interested_person_type
+review.id as review_id, review.created_at as reviewed_at, review.is_interested_person, review.interested_person_type,
+review.summary as review_summary, review.comment as reviewer_comment, improvement.benefit, improvement.experience_and_reliability,
+improvement.fund_and_output, improvement.project_quality, improvement.project_standard,
+improvement.vision_and_image
 FROM project
 INNER JOIN project_history ON project.project_history_id = project_history.id
 LEFT JOIN review ON project.project_history_id = review.project_history_id AND user_id = $1
+LEFT JOIN improvement ON review.improvement_id = improvement.id
 WHERE project.project_code = $2
 LIMIT 1;
 `

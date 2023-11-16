@@ -49,12 +49,20 @@ UPDATE project SET project_history_id = (
     WHERE project_code = 'OCT66_21' ;
 -- END project_history
 
+-- improvement
+INSERT INTO improvement (benefit, experience_and_reliability, fund_and_output, project_quality, project_standard, vision_and_image)
+VALUES (TRUE, TRUE, FALSE, FALSE, TRUE, TRUE);
+
 -- review
-INSERT INTO review (user_id, project_history_id, is_interested_person, interested_person_type)
+INSERT INTO review (user_id, project_history_id, is_interested_person, interested_person_type, summary, improvement_id, comment)
 VALUES (
     (SELECT id FROM users WHERE email = 'r1@test.com'), 
     (SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1),
-    true, 'connection');
+    TRUE, 'connection',
+    'to_be_revised',
+    (SELECT id FROM improvement WHERE benefit = TRUE AND experience_and_reliability = TRUE AND fund_and_output = FALSE AND project_quality = FALSE AND project_standard = TRUE AND vision_and_image = TRUE),
+    'Test DB comment'
+    );
 
 
 -- review_details

@@ -14,7 +14,7 @@ import (
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
 	GetReviewPeriod() (projects.ReviewPeriod, error)
-	GetReviewerProejctDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
+	GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
 }
 
@@ -47,10 +47,10 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		log.Panic(err)
 	}
 
-	ResposeJson(w, projects, http.StatusAccepted)
+	ResponseJson(w, projects, http.StatusAccepted)
 }
 
-func (h *ProjectHandler) GetReviewerProejctDetails(w http.ResponseWriter, r *http.Request) {
+func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
 	// To check if the user exists in the db
 	userId, err := getAuthUserId(r)
 	if err != nil {
@@ -61,11 +61,11 @@ func (h *ProjectHandler) GetReviewerProejctDetails(w http.ResponseWriter, r *htt
 	if len(projectCode) == 0 {
 		panic("Please provide a project code.")
 	}
-	projectDetails, err := h.store.GetReviewerProejctDetails(userId, projectCode)
+	projectDetails, err := h.store.GetReviewerProjectDetails(userId, projectCode)
 	if err != nil {
 		panic(err)
 	}
-	ResposeJson(w, projectDetails, http.StatusOK)
+	ResponseJson(w, projectDetails, http.StatusOK)
 }
 
 func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +73,7 @@ func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		panic(err)
 	}
-	ResposeJson(w, period, http.StatusOK)
+	ResponseJson(w, period, http.StatusOK)
 }
 
 func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Request) {
@@ -85,5 +85,5 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		panic(err)
 	}
-	ResposeJson(w, criteria, http.StatusOK)
+	ResponseJson(w, criteria, http.StatusOK)
 }

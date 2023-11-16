@@ -29,7 +29,7 @@ func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	ResposeJson(w, reviewers, http.StatusOK)
+	ResponseJson(w, reviewers, http.StatusOK)
 }
 
 func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +41,7 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	ResposeJson(w, reviewer, http.StatusOK)
+	ResponseJson(w, reviewer, http.StatusOK)
 }
 
 func getAuthUserId(r *http.Request) (int, error) {
