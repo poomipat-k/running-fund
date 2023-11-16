@@ -29,3 +29,12 @@ const getProjectCriteriaSQL = `
 SELECT criteria_version ,order_number, group_number, in_group_number, display_text
 FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
 `
+
+const getReviewDetailsByReviewIdSQL = `
+SELECT review_details.id as review_details_id, review_criteria.criteria_version,
+review_criteria.order_number as criteria_order_number, review_details.score
+FROM review_details INNER JOIN review_criteria 
+ON review_criteria.id = review_details.review_criteria_id 
+WHERE review_details.review_id = $1
+ORDER BY criteria_order_number ASC;
+`

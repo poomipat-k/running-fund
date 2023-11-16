@@ -21,12 +21,13 @@ type ReviewPeriod struct {
 }
 
 type ProjectReviewDetails struct {
-	ProjectId        int        `json:"project_id,omitempty"`
-	ProjectCode      string     `json:"project_code,omitempty"`
-	ProjectCreatedAt *time.Time `json:"project_created_at,omitempty"`
-	ProjectName      string     `json:"project_name,omitempty"`
-	ReviewId         int        `json:"review_id,omitempty"`
-	ReviewedAt       *time.Time `json:"reviewed_at,omitempty"`
+	ProjectId        int             `json:"project_id,omitempty"`
+	ProjectCode      string          `json:"project_code,omitempty"`
+	ProjectCreatedAt *time.Time      `json:"project_created_at,omitempty"`
+	ProjectName      string          `json:"project_name,omitempty"`
+	ReviewId         int             `json:"review_id,omitempty"`
+	ReviewedAt       *time.Time      `json:"reviewed_at,omitempty"`
+	ReviewDetails    []ReviewDetails `json:"review_details,omitempty"`
 }
 
 type ProjectReviewCriteria struct {
@@ -36,4 +37,11 @@ type ProjectReviewCriteria struct {
 	InGroupNumber   int    `json:"in_group_number,omitempty"`
 	OrderNumber     int    `json:"order_number,omitempty"`
 	DisplayText     string `json:"display_text,omitempty"`
+}
+
+type ReviewDetails struct {
+	ReviewDetailsId     int `json:"review_details_id,omitempty"`
+	CriteriaVersion     int `json:"criteria_version,omitempty"`
+	CriteriaOrderNumber int `json:"criteria_order_number,omitempty"`
+	Score               int `json:"score,omitempty"`
 }

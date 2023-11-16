@@ -1,37 +1,28 @@
 -- users
 INSERT INTO users (first_name, last_name, email, user_role)
-VALUES ('reviewer1', 'x', 'r1@test.com', 'reviewer');
+VALUES ('John', 'Doe', 'r1@test.com', 'reviewer');
 
 INSERT INTO users (first_name, last_name, email, user_role)
-VALUES ('reviewer2', 'x', 'r2@test.com', 'reviewer');
+VALUES ('Jane', 'Doe', 'r2@test.com', 'reviewer');
 
 INSERT INTO users (first_name, last_name, email, user_role)
-VALUES ('user1', 'x', 'u1@test.com', 'user');
+VALUES ('user1', 'userLastname', 'u1@test.com', 'user');
 
 -- project
 -- 2023-11-12 16:47:25.152158+00
 INSERT INTO project (project_code, created_at)
-VALUES ('OCT66_15', '2023-10-15 19:47:25.152158+00');
+VALUES ('OCT66_16', '2023-10-15 19:47:25.152158+00');
 
 INSERT INTO project (project_code, created_at)
-VALUES ('OCT66_16', '2023-10-16 20:47:25.152158+00');
+VALUES ('OCT66_17', '2023-10-16 20:47:25.152158+00');
 
 INSERT INTO project (project_code, created_at)
-VALUES ('OCT66_20', '2023-10-20 22:47:25.152158+00');
+VALUES ('OCT66_21', '2023-10-20 22:47:25.152158+00');
 
 
 -- project_history
 INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
-VALUES ('OCT66_15', 'Project_A', '2023-10-15 19:47:25.152158+00', 'https://google.com', 'Admin comment1', (SELECT id FROM project where project_code = 'OCT66_15'));
-
-UPDATE project SET project_history_id = (
-    SELECT id FROM project_history WHERE project_code = 'OCT66_15'
-    AND project_version = (SELECT project_version FROM project WHERE project_code = 'OCT66_15')) 
-    WHERE project_code = 'OCT66_15' ;
-
-
-INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
-VALUES ('OCT66_16', 'Project_B', '2023-10-16 20:47:25.152158+00', 'https://youtube.com', 'Admin comment2', (SELECT id FROM project where project_code = 'OCT66_16'));
+VALUES ('OCT66_16', 'Project_A', '2023-10-15 19:47:25.152158+00', 'https://google.com', 'Admin comment1', (SELECT id FROM project where project_code = 'OCT66_16'));
 
 UPDATE project SET project_history_id = (
     SELECT id FROM project_history WHERE project_code = 'OCT66_16'
@@ -39,139 +30,151 @@ UPDATE project SET project_history_id = (
     WHERE project_code = 'OCT66_16' ;
 
 
-
 INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
-VALUES ('OCT66_20', 'Project_A', '2023-10-20 22:47:25.152158+00', NULL, NULL, (SELECT id FROM project where project_code = 'OCT66_20'));
+VALUES ('OCT66_17', 'Project_B', '2023-10-16 20:47:25.152158+00', 'https://youtube.com', 'Admin comment2', (SELECT id FROM project where project_code = 'OCT66_17'));
 
 UPDATE project SET project_history_id = (
-    SELECT id FROM project_history WHERE project_code = 'OCT66_20'
-    AND project_version = (SELECT project_version FROM project WHERE project_code = 'OCT66_20')) 
-    WHERE project_code = 'OCT66_20' ;
+    SELECT id FROM project_history WHERE project_code = 'OCT66_17'
+    AND project_version = (SELECT project_version FROM project WHERE project_code = 'OCT66_17')) 
+    WHERE project_code = 'OCT66_17' ;
+
+
+
+INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
+VALUES ('OCT66_21', 'Project_A', '2023-10-20 22:47:25.152158+00', NULL, NULL, (SELECT id FROM project where project_code = 'OCT66_21'));
+
+UPDATE project SET project_history_id = (
+    SELECT id FROM project_history WHERE project_code = 'OCT66_21'
+    AND project_version = (SELECT project_version FROM project WHERE project_code = 'OCT66_21')) 
+    WHERE project_code = 'OCT66_21' ;
 -- END project_history
 
 -- review
-INSERT INTO review (user_id, project_history_id)
-VALUES ((SELECT id FROM users WHERE email = 'r1@test.com'), (SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1));
+INSERT INTO review (user_id, project_history_id, is_interested_person, interested_person_type)
+VALUES (
+    (SELECT id FROM users WHERE email = 'r1@test.com'), 
+    (SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1),
+    true, 'connection');
 
 
 -- review_details
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 1)
     , 4);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 2)
     , 3);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 3)
     , 4);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 4)
     , 5);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 5)
     , 4);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 6)
     , 3);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 7)
     , 2);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 8)
     , 1);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 9)
     , 2);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 10)
     , 3);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 11)
     , 4);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 12)
     , 5);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 13)
     , 4);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 14)
     , 3);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 15)
     , 2);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 16)
     , 1);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 17)
     , 2);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 18)
     , 3);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 19)
     , 4);
 
 INSERT INTO review_details (review_id, review_criteria_id, score)
 VALUES (
-    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_15' AND project_version=1)), 
+    (SELECT id  FROM review WHERE user_id=(SELECT id FROM users WHERE email = 'r1@test.com') AND project_history_id=(SELECT id FROM project_history WHERE project_code='OCT66_16' AND project_version=1)), 
     (SELECT id FROM review_criteria WHERE criteria_version = 1 AND order_number = 20)
     , 5);
 -- End Review details

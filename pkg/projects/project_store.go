@@ -87,6 +87,15 @@ func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (Proje
 	if reviewedAt.Valid {
 		details.ReviewedAt = &reviewedAt.Time
 	}
+	log.Println(details)
+	if details.ReviewId > 0 {
+		rd, err := s.GetReviewDetailsByReviewId(details.ReviewId)
+		if err != nil {
+			panic(err)
+		}
+		details.ReviewDetails = rd
+	}
+
 	switch err {
 	case sql.ErrNoRows:
 		log.Println("No row were returned!")
@@ -96,6 +105,33 @@ func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (Proje
 	default:
 		panic(err)
 	}
+}
+
+func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error) {
+	rows, err := s.db.Query(getReviewDetailsByReviewIdSQL, reviewId)
+	if err != nil {
+		log.Println("Error on Query: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+	var data []ReviewDetails
+	for rows.Next() {
+		var row ReviewDetails
+		err := rows.Scan(&row.ReviewDetailsId, &row.CriteriaVersion, &row.CriteriaOrderNumber, &row.Score)
+		if err != nil {
+			log.Println("Error on Scan: ", err)
+			return nil, err
+		}
+
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Println("Error on rows.Err: ", err)
+		return nil, err
+	}
+	log.Println(data)
+	return data, nil
 }
 
 func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error) {
