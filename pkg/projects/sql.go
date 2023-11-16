@@ -17,7 +17,7 @@ AND project.created_at < $3
 ORDER BY project_name;
 `
 const getReviewerProejctDetailsSQL = `
-SELECT project.id as project_id, project.project_code, project_history.project_name, 
+SELECT project.id as project_id, project.project_code, project.created_at as project_created_at, project_history.project_name, 
 review.id as review_id, review.created_at as reviewed_at
 FROM project
 INNER JOIN project_history ON project.project_history_id = project_history.id

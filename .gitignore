@@ -25,5 +25,8 @@ go.work
 
 /db-data
 
+# VS code
+.vscode
+
 # Personal notes
 notes

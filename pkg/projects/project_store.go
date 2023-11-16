@@ -80,7 +80,7 @@ func (s *store) GetReviewerProejctDetails(userId int, projectCode string) (Proje
 	// Nullable
 	var reviewId sql.NullInt64
 	var reviewedAt sql.NullTime
-	err := row.Scan(&details.ProjectId, &details.ProjectCode, &details.ProjectName, &reviewId, &reviewedAt)
+	err := row.Scan(&details.ProjectId, &details.ProjectCode, &details.ProjectCreatedAt, &details.ProjectName, &reviewId, &reviewedAt)
 	if reviewId.Valid {
 		details.ReviewId = int(reviewId.Int64)
 	}

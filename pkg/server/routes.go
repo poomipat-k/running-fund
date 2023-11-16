@@ -17,6 +17,7 @@ type Server struct{}
 func (app *Server) Routes(db *sql.DB) http.Handler {
 	mux := chi.NewRouter()
 	mux.Use(middleware.Logger)
+	mux.Use(middleware.Recoverer)
 	// specify who is allowed to connect
 	mux.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
