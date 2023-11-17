@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/poomipat-k/running-fund/pkg/projects"
+	"github.com/poomipat-k/running-fund/pkg/review"
 	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
@@ -34,19 +35,23 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	userStore := users.NewStore(db)
 	userHandler := server.NewUserHandler(userStore)
 
+	reviewStore := review.NewStore(db)
+	reviewHandler := server.NewReviewHandler(reviewStore)
+
 	mux.Route("/api", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("API landing page"))
 		})
 
-		r.Post("/projects/reviewer", projectHandler.GetReviewerDashboard)
-		r.Get("/projects/review-period", projectHandler.GetReviewPeriod)
-
-		r.Get("/review/project/{projectCode}", projectHandler.GetReviewerProjectDetails)
+		r.Post("/project/reviewer", projectHandler.GetReviewerDashboard)
+		r.Get("/project/review-period", projectHandler.GetReviewPeriod)
+		r.Get("/project/review/{projectCode}", projectHandler.GetReviewerProjectDetails)
 		r.Get("/review/criteria/{criteriaVersion}", projectHandler.GetProjectCriteria)
 
-		r.Get("/reviewers", userHandler.GetReviewers)
-		r.Get("/reviewer", userHandler.GetReviewerById)
+		r.Get("/user/reviewers", userHandler.GetReviewers)
+		r.Get("/user/reviewer", userHandler.GetReviewerById)
+
+		r.Post("/review", reviewHandler.AddReview)
 	})
 
 	return mux
