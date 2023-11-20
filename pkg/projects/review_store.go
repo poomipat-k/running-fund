@@ -4,12 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 )
 
-const dbTimeout = time.Second * 3
+const dbTimeout = time.Second * 5
 
 func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []ProjectReviewCriteriaMinimal) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
@@ -27,15 +26,10 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 
 	defer tx.Rollback()
 
-	log.Println(criteriaList)
-	log.Println("Payload===")
-	log.Println(payload)
-
 	now := time.Now()
 	// Insert improvement if reviewSummary = to_be_revised
 	improvementId := 0
 	if payload.Review.ReviewSummary == "to_be_revised" {
-		log.Println("==Revised")
 		err = tx.QueryRowContext(
 			ctx,
 			insertImprovementSQL,
@@ -76,14 +70,17 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 	}
 
 	// insert review_details
-	reviewCriteriaIds := []int{1, 2, 3, 4, 5}
-	scores := []int{5, 4, 3, 2, 1}
 	valuesString := []string{}
 	values := []any{}
 
-	for i := 0; i < len(scores); i++ {
+	for i := 0; i < len(criteriaList); i++ {
 		valuesString = append(valuesString, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
-		values = append(values, 1, reviewCriteriaIds[i], scores[i])
+		scoreName := fmt.Sprintf("q_%d_%d", criteriaList[i].CriteriaVersion, criteriaList[i].OrderNumber)
+		score, exist := payload.Review.Scores[scoreName]
+		if !exist {
+			return fail(fmt.Errorf("score %s is not exist", scoreName))
+		}
+		values = append(values, 1, criteriaList[i].CriteriaId, score)
 	}
 	customSQL := insertReviewDetailsSQL + strings.Join(valuesString, ",") + ";"
 
@@ -100,6 +97,5 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 	if err != nil {
 		return fail(err)
 	}
-	log.Println("After committed reviewId", reviewId)
 	return reviewId, nil
 }

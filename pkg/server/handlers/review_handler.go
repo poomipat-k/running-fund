@@ -55,7 +55,6 @@ func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 		errorJSON(w, err)
 		return
 	}
-
 	writeJSON(w, http.StatusOK, id)
 }
 
