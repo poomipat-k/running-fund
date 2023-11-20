@@ -8,6 +8,10 @@ import (
 )
 
 func validateAddPayload(payload projects.AddReviewRequest, store projectStore, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
+	if payload.ProjectHistoryId == 0 {
+		return fmt.Errorf("projectHistoryId is required")
+	}
+
 	err := validateInterestedPerson(payload.Ip)
 	if err != nil {
 		return err

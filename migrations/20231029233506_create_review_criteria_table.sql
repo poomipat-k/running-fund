@@ -9,7 +9,7 @@ CREATE TABLE review_criteria (
   display_text VARCHAR(512)
 );
 
-ALTER TABLE review_criteria ADD CONSTRAINT uq_criterria_version_order_number UNIQUE(criteria_version, order_number);
+ALTER TABLE review_criteria ADD CONSTRAINT uq_criteria_version_order_number UNIQUE(criteria_version, order_number);
 
 -- +goose Down
 DROP TABLE review_criteria;

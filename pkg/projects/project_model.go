@@ -22,6 +22,7 @@ type ReviewPeriod struct {
 
 type ProjectReviewDetails struct {
 	ProjectId            int                `json:"projectId,omitempty"`
+	ProjectHistoryId     int                `json:"projectHistoryId,omitempty"`
 	ProjectCode          string             `json:"projectCode,omitempty"`
 	ProjectCreatedAt     *time.Time         `json:"projectCreatedAt,omitempty"`
 	ProjectName          string             `json:"projectName,omitempty"`

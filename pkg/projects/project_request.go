@@ -8,9 +8,10 @@ type GetReviewerDashboardRequest struct {
 }
 
 type AddReviewRequest struct {
-	Comment string `json:"comment"`
-	Ip      Ip     `json:"ip"`
-	Review  Review `json:"review"`
+	ProjectHistoryId int    `json:"projectHistoryId,omitempty"`
+	Comment          string `json:"comment"`
+	Ip               Ip     `json:"ip"`
+	Review           Review `json:"review"`
 }
 
 type Ip struct {

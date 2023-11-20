@@ -17,7 +17,7 @@ AND project.created_at < $3
 ORDER BY project_name;
 `
 const getReviewerProjectDetailsSQL = `
-SELECT project.id as project_id, project.project_code, project.created_at as project_created_at, project_history.project_name, 
+SELECT project.id as project_id, project_history.id as project_history_id, project.project_code, project.created_at as project_created_at, project_history.project_name, 
 review.id as review_id, review.created_at as reviewed_at, review.is_interested_person, review.interested_person_type,
 review.summary as review_summary, review.comment as reviewer_comment, improvement.benefit, improvement.experience_and_reliability,
 improvement.fund_and_output, improvement.project_quality, improvement.project_standard,
@@ -46,6 +46,18 @@ ON review_criteria.id = review_details.review_criteria_id
 WHERE review_details.review_id = $1
 ORDER BY criteria_order_number ASC;
 `
-const addReviewSQL = `
-INSERT INTO review (user_id, project_history_id, is_interested_person, summary) VALUES ($1, $2, $3, $4) RETURNING id;
+
+const insertImprovementSQL = `
+INSERT INTO improvement (benefit, experience_and_reliability, fund_and_output, project_quality, project_standard, vision_and_image)
+VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
+`
+
+const insertReviewSQL = `
+INSERT INTO review (user_id, project_history_id, is_interested_person, interested_person_type, created_at, summary, improvement_id, comment) 
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;
+`
+
+const insertReviewDetailsSQL = `
+INSERT INTO review_details (review_id, review_criteria_id, score)
+VALUES 
 `

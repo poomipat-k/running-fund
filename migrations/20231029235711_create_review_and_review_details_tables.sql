@@ -12,8 +12,8 @@ CREATE TABLE improvement (
 
 CREATE TABLE review (
   id SERIAL PRIMARY KEY NOT NULL,
-  user_id INT REFERENCES users(id),
-  project_history_id INT REFERENCES project_history(id),
+  user_id INT REFERENCES users(id) NOT NULL,
+  project_history_id INT REFERENCES project_history(id) NOT NULL,
   is_interested_person BOOLEAN NOT NULL,
   interested_person_type VARCHAR(64),
   created_at  TIMESTAMP WITH TIME ZONE  DEFAULT now(),
@@ -31,6 +31,8 @@ CREATE TABLE review_details (
 );
 
 ALTER TABLE review_details ADD CONSTRAINT fk_review_review_details FOREIGN KEY (review_id) REFERENCES review (id);
+
+ALTER TABLE review ADD CONSTRAINT uq_user_id_project_history_id UNIQUE(user_id, project_history_id);
 
 -- +goose Down
 ALTER TABLE review DROP COLUMN user_id;

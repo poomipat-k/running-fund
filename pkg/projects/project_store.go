@@ -93,6 +93,7 @@ func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (Proje
 	var vision sql.NullBool
 	err := row.Scan(
 		&details.ProjectId,
+		&details.ProjectHistoryId,
 		&details.ProjectCode,
 		&details.ProjectCreatedAt,
 		&details.ProjectName,
