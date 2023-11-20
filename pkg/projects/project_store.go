@@ -2,6 +2,7 @@ package projects
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"time"
 )
@@ -243,6 +244,44 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	if err != nil {
 		log.Println("Error on rows.Err: ", err)
 		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, errors.New("criteria version not found")
+	}
+	return data, nil
+}
+
+func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteriaMinimal, error) {
+	if cv == 0 {
+		cv = 1
+	}
+	rows, err := s.db.Query(getProjectCriteriaMinimalSQL, cv)
+	if err != nil {
+		log.Println("Error on Query: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ProjectReviewCriteriaMinimal
+	for rows.Next() {
+		var row ProjectReviewCriteriaMinimal
+
+		err := rows.Scan(&row.CriteriaVersion, &row.OrderNumber)
+		if err != nil {
+			log.Println("Error on Scan: ", err)
+			return nil, err
+		}
+
+		data = append(data, row)
+	}
+	// get any error occur during iteration
+	err = rows.Err()
+	if err != nil {
+		log.Println("Error on rows.Err: ", err)
+		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, errors.New("criteria version not found")
 	}
 	return data, nil
 }

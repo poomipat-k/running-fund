@@ -38,12 +38,12 @@ func ConnectToDB() *sql.DB {
 			return connection
 		}
 
-		if counter > 10 {
+		if counter > 20 {
 			log.Println(err)
 			return nil
 		}
 
-		log.Println("Backing off for one second...")
-		time.Sleep(1 * time.Second)
+		log.Println("Backing off for half a second...")
+		time.Sleep(500 * time.Millisecond)
 	}
 }

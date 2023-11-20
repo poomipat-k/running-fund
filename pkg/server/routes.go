@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/poomipat-k/running-fund/pkg/projects"
-	"github.com/poomipat-k/running-fund/pkg/review"
 	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
@@ -29,14 +28,11 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		MaxAge:           300,
 	}))
 
-	projectStore := projects.NewStore(db)
-	projectHandler := server.NewProjectHandler(projectStore)
-
 	userStore := users.NewStore(db)
 	userHandler := server.NewUserHandler(userStore)
 
-	reviewStore := review.NewStore(db)
-	reviewHandler := server.NewReviewHandler(reviewStore)
+	projectStore := projects.NewStore(db)
+	projectHandler := server.NewProjectHandler(projectStore, userStore)
 
 	mux.Route("/api", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -48,10 +44,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/review/{projectCode}", projectHandler.GetReviewerProjectDetails)
 		r.Get("/review/criteria/{criteriaVersion}", projectHandler.GetProjectCriteria)
 
+		r.Post("/project/review", projectHandler.AddReview)
+
 		r.Get("/user/reviewers", userHandler.GetReviewers)
 		r.Get("/user/reviewer", userHandler.GetReviewerById)
-
-		r.Post("/review", reviewHandler.AddReview)
 	})
 
 	return mux

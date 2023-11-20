@@ -34,6 +34,10 @@ SELECT criteria_version ,order_number, group_number, in_group_number, display_te
 FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
 `
 
+const getProjectCriteriaMinimalSQL = `
+SELECT criteria_version ,order_number FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
+`
+
 const getReviewDetailsByReviewIdSQL = `
 SELECT review_details.id as review_details_id, review_criteria.criteria_version,
 review_criteria.order_number as criteria_order_number, review_details.score

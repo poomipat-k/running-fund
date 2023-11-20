@@ -29,7 +29,8 @@ func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	ResponseJson(w, reviewers, http.StatusOK)
+
+	writeJSON(w, http.StatusOK, reviewers)
 }
 
 func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +42,8 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	ResponseJson(w, reviewer, http.StatusOK)
+
+	writeJSON(w, http.StatusOK, reviewer)
 }
 
 func getAuthUserId(r *http.Request) (int, error) {
@@ -56,6 +58,6 @@ func getAuthUserId(r *http.Request) (int, error) {
 		}
 		return userId, nil
 	} else {
-		return 0, errors.New("invalid token")
+		return 0, errors.New("no token provided")
 	}
 }

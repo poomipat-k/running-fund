@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,15 +17,18 @@ type projectStore interface {
 	GetReviewPeriod() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
+	GetProjectCriteriaMinimalDetails(cv int) ([]projects.ProjectReviewCriteriaMinimal, error)
 }
 
 type ProjectHandler struct {
-	store projectStore
+	store  projectStore
+	uStore userStore
 }
 
-func NewProjectHandler(s projectStore) *ProjectHandler {
+func NewProjectHandler(s projectStore, uStore userStore) *ProjectHandler {
 	return &ProjectHandler{
-		store: s,
+		store:  s,
+		uStore: uStore,
 	}
 }
 
@@ -47,7 +51,7 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		log.Panic(err)
 	}
 
-	ResponseJson(w, projects, http.StatusAccepted)
+	writeJSON(w, http.StatusOK, projects)
 }
 
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +69,8 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 	if err != nil {
 		panic(err)
 	}
-	ResponseJson(w, projectDetails, http.StatusOK)
+	// ResponseJson(w, projectDetails, http.StatusOK)
+	writeJSON(w, http.StatusOK, projectDetails)
 }
 
 func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +78,8 @@ func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		panic(err)
 	}
-	ResponseJson(w, period, http.StatusOK)
+
+	writeJSON(w, http.StatusOK, period)
 }
 
 func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +89,10 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 	}
 	criteria, err := h.store.GetProjectCriteria(criteriaVersion)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err, http.StatusBadRequest)
+		return
 	}
-	ResponseJson(w, criteria, http.StatusOK)
+
+	writeJSON(w, http.StatusOK, criteria)
 }
