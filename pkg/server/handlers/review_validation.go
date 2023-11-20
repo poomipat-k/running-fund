@@ -1,33 +1,19 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
-func validateAddPayload(payload projects.AddReviewRequest, store projectStore) error {
+func validateAddPayload(payload projects.AddReviewRequest, store projectStore, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
 	err := validateInterestedPerson(payload.Ip)
 	if err != nil {
 		return err
 	}
-	cv := os.Getenv("CRITERIA_VERSION")
-	v, err := strconv.Atoi(cv)
-	if err != nil {
-		err = errors.New("failed to convert CRITERIA_VERSION to int")
-		return err
-	}
 
-	criteria, err := store.GetProjectCriteriaMinimalDetails(v)
-	if err != nil {
-		return err
-	}
-
-	err = validateReview(payload.Review, criteria)
+	err = validateReview(payload.Review, criteriaList)
 	if err != nil {
 		return err
 	}

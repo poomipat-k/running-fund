@@ -54,6 +54,7 @@ type ProjectReviewCriteria struct {
 }
 
 type ProjectReviewCriteriaMinimal struct {
+	CriteriaId      int `json:"reviewCriteriaId,omitempty"`
 	CriteriaVersion int `json:"criteriaVersion,omitempty"`
 	OrderNumber     int `json:"orderNumber,omitempty"`
 }

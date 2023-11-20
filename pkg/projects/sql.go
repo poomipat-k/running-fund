@@ -35,7 +35,7 @@ FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
 `
 
 const getProjectCriteriaMinimalSQL = `
-SELECT criteria_version ,order_number FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
+SELECT id, criteria_version ,order_number FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
 `
 
 const getReviewDetailsByReviewIdSQL = `
@@ -45,4 +45,7 @@ FROM review_details INNER JOIN review_criteria
 ON review_criteria.id = review_details.review_criteria_id 
 WHERE review_details.review_id = $1
 ORDER BY criteria_order_number ASC;
+`
+const addReviewSQL = `
+INSERT INTO review (user_id, project_history_id, is_interested_person, summary) VALUES ($1, $2, $3, $4) RETURNING id;
 `

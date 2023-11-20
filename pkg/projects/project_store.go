@@ -266,12 +266,11 @@ func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteri
 	for rows.Next() {
 		var row ProjectReviewCriteriaMinimal
 
-		err := rows.Scan(&row.CriteriaVersion, &row.OrderNumber)
+		err := rows.Scan(&row.CriteriaId, &row.CriteriaVersion, &row.OrderNumber)
 		if err != nil {
 			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
-
 		data = append(data, row)
 	}
 	// get any error occur during iteration
