@@ -41,7 +41,7 @@ UPDATE project SET project_history_id = (
 
 
 INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
-VALUES ('OCT66_21', 'Project_A', '2023-10-20 22:47:25.152158+00', NULL, NULL, (SELECT id FROM project where project_code = 'OCT66_21'));
+VALUES ('OCT66_21', 'Project_C', '2023-10-20 22:47:25.152158+00', NULL, NULL, (SELECT id FROM project where project_code = 'OCT66_21'));
 
 UPDATE project SET project_history_id = (
     SELECT id FROM project_history WHERE project_code = 'OCT66_21'

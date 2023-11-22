@@ -80,7 +80,7 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 		if !exist {
 			return fail(fmt.Errorf("score %s is not exist", scoreName))
 		}
-		values = append(values, 1, criteriaList[i].CriteriaId, score)
+		values = append(values, reviewId, criteriaList[i].CriteriaId, score)
 	}
 	customSQL := insertReviewDetailsSQL + strings.Join(valuesString, ",") + ";"
 

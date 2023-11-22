@@ -35,17 +35,17 @@ clear:
 
 migration_up:
 	cd migrations; echo "Inside migrations, Start migration"; \
-	goose postgres "host=localhost port=5431 user=postgres password=password dbname=running_fund sslmode=disable" up
+	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" up
 	@echo "Migration Done!"
 
 migration_down:
 	cd migrations; echo "Inside migrations, Start migration"; \
-	goose postgres "host=localhost port=5431 user=postgres password=password dbname=running_fund sslmode=disable" down
+	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" down
 	@echo "Migration Done!"
 
 migration_status:
 	cd migrations; echo "Inside migrations, Start migration"; \
-	goose postgres "host=localhost port=5431 user=postgres password=password dbname=running_fund sslmode=disable" status
+	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" status
 
 test:
 	go test ./pkg/...
