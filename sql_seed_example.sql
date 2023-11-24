@@ -19,6 +19,12 @@ VALUES ('OCT66_17', '2023-10-16 20:47:25.152158+00');
 INSERT INTO project (project_code, created_at)
 VALUES ('OCT66_21', '2023-10-20 22:47:25.152158+00');
 
+INSERT INTO project (project_code, created_at)
+VALUES ('NOV66_10', '2023-11-10 10:47:25.152158+00');
+
+INSERT INTO project (project_code, created_at)
+VALUES ('NOV66_18', '2023-11-18 11:47:25.152158+00');
+
 
 -- project_history
 INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
@@ -47,6 +53,26 @@ UPDATE project SET project_history_id = (
     SELECT id FROM project_history WHERE project_code = 'OCT66_21'
     AND project_version = (SELECT project_version FROM project WHERE project_code = 'OCT66_21')) 
     WHERE project_code = 'OCT66_21' ;
+
+
+
+INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
+VALUES ('NOV66_10', 'Project_D', '2023-11-10 10:47:25.152158+00', NULL, NULL, (SELECT id FROM project where project_code = 'NOV66_10'));
+
+UPDATE project SET project_history_id = (
+    SELECT id FROM project_history WHERE project_code = 'NOV66_10'
+    AND project_version = (SELECT project_version FROM project WHERE project_code = 'NOV66_10')) 
+    WHERE project_code = 'NOV66_10' ;
+
+
+
+INSERT INTO project_history (project_code, project_name, created_at, download_link, admin_comment, project_id)
+VALUES ('NOV66_18', 'Project_E', '2023-11-18 11:47:25.152158+00', NULL, NULL, (SELECT id FROM project where project_code = 'NOV66_18'));
+
+UPDATE project SET project_history_id = (
+    SELECT id FROM project_history WHERE project_code = 'NOV66_18'
+    AND project_version = (SELECT project_version FROM project WHERE project_code = 'NOV66_18')) 
+    WHERE project_code = 'NOV66_18' ;
 -- END project_history
 
 -- improvement

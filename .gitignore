@@ -30,3 +30,6 @@ go.work
 
 # Personal notes
 notes
+
+# Docker compose
+docker-compose-staging.yaml
