@@ -3,6 +3,7 @@ package users
 import (
 	"database/sql"
 	"log"
+	"log/slog"
 )
 
 type store struct {
@@ -47,11 +48,12 @@ func (s *store) GetReviewerById(userId int) (User, error) {
 	err := row.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Email)
 	switch err {
 	case sql.ErrNoRows:
-		log.Println("No row were returned!")
+		slog.Error("GetReviewerById() no row were returned!")
 		return User{}, err
 	case nil:
 		return user, nil
 	default:
-		panic(err)
+		slog.Error(err.Error())
+		return User{}, err
 	}
 }

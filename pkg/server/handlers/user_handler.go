@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -27,7 +28,9 @@ func NewUserHandler(s userStore) *UserHandler {
 func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
 	reviewers, err := h.store.GetReviewers()
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	writeJSON(w, http.StatusOK, reviewers)
@@ -36,11 +39,15 @@ func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	userId, err := getAuthUserId(r)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 	reviewer, err := h.store.GetReviewerById(userId)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	writeJSON(w, http.StatusOK, reviewer)

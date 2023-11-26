@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -37,19 +36,25 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	// To check if the user exists in the db
 	userId, err := getAuthUserId(r)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	decoder := json.NewDecoder(r.Body)
 	var payload projects.GetReviewerDashboardRequest
 	err = decoder.Decode(&payload)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	projects, err := h.store.GetReviewerDashboard(userId, payload.FromDate, payload.ToDate)
 	if err != nil {
-		log.Panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	writeJSON(w, http.StatusOK, projects)
@@ -59,16 +64,22 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 	// To check if the user exists in the db
 	userId, err := getAuthUserId(r)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	projectCode := chi.URLParam(r, "projectCode")
 	if len(projectCode) == 0 {
-		panic("Please provide a project code.")
+		slog.Error("Please provide a project code.")
+		errorJSON(w, err)
+		return
 	}
 	projectDetails, err := h.store.GetReviewerProjectDetails(userId, projectCode)
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 	// ResponseJson(w, projectDetails, http.StatusOK)
 	writeJSON(w, http.StatusOK, projectDetails)
@@ -77,7 +88,9 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
 	period, err := h.store.GetReviewPeriod()
 	if err != nil {
-		panic(err)
+		slog.Error(err.Error())
+		errorJSON(w, err)
+		return
 	}
 
 	writeJSON(w, http.StatusOK, period)

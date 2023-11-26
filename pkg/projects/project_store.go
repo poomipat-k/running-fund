@@ -3,7 +3,9 @@ package projects
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
+	"log/slog"
 	"time"
 )
 
@@ -23,12 +25,13 @@ func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
 	err := row.Scan(&period.Id, &period.FromDate, &period.ToDate)
 	switch err {
 	case sql.ErrNoRows:
-		log.Println("No row were returned!")
+		slog.Error("GetReviewPeriod(): no row were returned!")
 		return ReviewPeriod{}, err
 	case nil:
 		return period, nil
 	default:
-		panic(err)
+		slog.Error(err.Error())
+		return ReviewPeriod{}, fmt.Errorf("GetReviewPeriod() unknown error")
 	}
 }
 
@@ -129,7 +132,8 @@ func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (Proje
 	if details.ReviewId > 0 {
 		rd, err := s.GetReviewDetailsByReviewId(details.ReviewId)
 		if err != nil {
-			panic(err)
+			slog.Error(err.Error())
+			return ProjectReviewDetails{}, err
 		}
 		details.ReviewDetails = rd
 	}
@@ -168,12 +172,13 @@ func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (Proje
 
 	switch err {
 	case sql.ErrNoRows:
-		log.Println("No row were returned!")
+		slog.Error("GetReviewerProjectDetails() no row were returned!")
 		return ProjectReviewDetails{}, err
 	case nil:
 		return details, nil
 	default:
-		panic(err)
+		slog.Error(err.Error())
+		return ProjectReviewDetails{}, err
 	}
 }
 
