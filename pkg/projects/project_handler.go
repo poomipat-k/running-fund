@@ -1,4 +1,4 @@
-package server
+package projects
 
 import (
 	"log/slog"
@@ -7,18 +7,15 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 type projectStore interface {
-	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
-	GetReviewPeriod() (projects.ReviewPeriod, error)
-	GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
-	GetProjectCriteria(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	// GetProjectCriteriaMinimalDetails(cv int) ([]projects.ProjectReviewCriteriaMinimal, error)
-	// AddReview(payload projects.AddReviewRequest, userId int, criteriaList []projects.ProjectReviewCriteriaMinimal) (int, error)
+	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
+	GetReviewPeriod() (ReviewPeriod, error)
+	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
+	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 }
 
 type ProjectHandler struct {
@@ -42,7 +39,7 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var payload projects.GetReviewerDashboardRequest
+	var payload GetReviewerDashboardRequest
 	err = utils.ReadJSON(w, r, &payload)
 	if err != nil {
 		slog.Error(err.Error())

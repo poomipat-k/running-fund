@@ -11,7 +11,6 @@ import (
 	customMiddleware "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
-	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -38,7 +37,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)
 
 	projectStore := projects.NewStore(db)
-	projectHandler := server.NewProjectHandler(projectStore, userStore)
+	projectHandler := projects.NewProjectHandler(projectStore, userStore)
 
 	mux.Route("/api", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
