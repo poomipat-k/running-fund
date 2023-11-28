@@ -53,6 +53,20 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, reviewer)
 }
 
+func SignUp() {
+	// Hash the users password
+
+	// Generate a salt
+
+	// Hash the salt and the password together
+
+	// Join the hashed result and the salt together
+
+	// Create a new user and save it
+
+	// return the user
+}
+
 func getAuthUserId(r *http.Request) (int, error) {
 	authHeader := r.Header.Get("Authorization")
 	splits := strings.Split(authHeader, " ")

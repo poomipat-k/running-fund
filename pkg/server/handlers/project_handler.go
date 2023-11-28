@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -41,9 +40,8 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	decoder := json.NewDecoder(r.Body)
 	var payload projects.GetReviewerDashboardRequest
-	err = decoder.Decode(&payload)
+	err = readJSON(w, r, &payload)
 	if err != nil {
 		slog.Error(err.Error())
 		errorJSON(w, err)

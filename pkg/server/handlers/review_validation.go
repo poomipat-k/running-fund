@@ -21,7 +21,6 @@ func validateAddPayload(payload projects.AddReviewRequest, criteriaList []projec
 	if err != nil {
 		return err
 	}
-	log.Println("Looks good")
 	return nil
 }
 

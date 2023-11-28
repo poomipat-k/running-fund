@@ -20,6 +20,9 @@ func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
 
 	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	defer r.Body.Close()
+
 	err := dec.Decode(data)
 	if err != nil {
 		return err
