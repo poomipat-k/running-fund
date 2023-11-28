@@ -8,36 +8,38 @@ import (
 	"strconv"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
+	"github.com/poomipat-k/running-fund/pkg/users"
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	// To check if the user exists in the db
-	userId, err := getAuthUserId(r)
+	userId, err := users.GetAuthUserId(r)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err, http.StatusForbidden)
+		utils.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
 	_, err = h.uStore.GetReviewerById(userId)
 	if err != nil {
 		slog.Error("Don't have reviewer permission")
-		errorJSON(w, err, http.StatusForbidden)
+		utils.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
 	var payload projects.AddReviewRequest
-	err = readJSON(w, r, &payload)
+	err = utils.ReadJSON(w, r, &payload)
 
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err)
 		return
 	}
 
 	criteriaList, err := h.getCriteriaList()
 	if err != nil {
-		errorJSON(w, err, http.StatusBadRequest)
+		utils.ErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
@@ -45,17 +47,17 @@ func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	err = validateAddPayload(payload, criteriaList)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err, http.StatusBadRequest)
+		utils.ErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 
 	id, err := h.store.AddReview(payload, userId, criteriaList)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, id)
+	utils.WriteJSON(w, http.StatusOK, id)
 }
 
 func (h *ProjectHandler) getCriteriaList() ([]projects.ProjectReviewCriteriaMinimal, error) {

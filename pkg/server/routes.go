@@ -31,7 +31,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	}))
 
 	userStore := users.NewStore(db)
-	userHandler := server.NewUserHandler(userStore)
+	userHandler := users.NewUserHandler(userStore)
 
 	projectStore := projects.NewStore(db)
 	projectHandler := server.NewProjectHandler(projectStore, userStore)
