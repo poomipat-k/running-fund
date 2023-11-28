@@ -7,7 +7,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
-func validateAddPayload(payload projects.AddReviewRequest, store projectStore, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
+func validateAddPayload(payload projects.AddReviewRequest, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
 	if payload.ProjectHistoryId == 0 {
 		return fmt.Errorf("projectHistoryId is required")
 	}

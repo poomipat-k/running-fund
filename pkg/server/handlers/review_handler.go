@@ -42,7 +42,7 @@ func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate Payload
-	err = validateAddPayload(payload, h.store, criteriaList)
+	err = validateAddPayload(payload, criteriaList)
 	if err != nil {
 		slog.Error(err.Error())
 		errorJSON(w, err, http.StatusBadRequest)
