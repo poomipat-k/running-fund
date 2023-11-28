@@ -10,6 +10,7 @@ import (
 
 	customMiddleware "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
+	"github.com/poomipat-k/running-fund/pkg/review"
 	server "github.com/poomipat-k/running-fund/pkg/server/handlers"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
@@ -33,6 +34,9 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	userStore := users.NewStore(db)
 	userHandler := users.NewUserHandler(userStore)
 
+	reviewStore := review.NewStore(db)
+	reviewHandler := review.NewProjectHandler(reviewStore, userStore)
+
 	projectStore := projects.NewStore(db)
 	projectHandler := server.NewProjectHandler(projectStore, userStore)
 
@@ -46,7 +50,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/review/{projectCode}", customMiddleware.MyFirstMiddleWare(projectHandler.GetReviewerProjectDetails))
 		r.Get("/review/criteria/{criteriaVersion}", projectHandler.GetProjectCriteria)
 
-		r.Post("/project/review", projectHandler.AddReview)
+		r.Post("/project/review", reviewHandler.AddReview)
 
 		r.Get("/user/reviewers", userHandler.GetReviewers)
 		r.Get("/user/reviewer", userHandler.GetReviewerById)

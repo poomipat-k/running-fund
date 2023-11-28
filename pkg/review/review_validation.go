@@ -1,13 +1,11 @@
-package server
+package review
 
 import (
 	"fmt"
 	"log"
-
-	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
-func validateAddPayload(payload projects.AddReviewRequest, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
+func validateAddPayload(payload AddReviewRequest, criteriaList []ProjectReviewCriteriaMinimal) error {
 	if payload.ProjectHistoryId == 0 {
 		return fmt.Errorf("projectHistoryId is required")
 	}
@@ -24,7 +22,7 @@ func validateAddPayload(payload projects.AddReviewRequest, criteriaList []projec
 	return nil
 }
 
-func validateInterestedPerson(ip projects.Ip) error {
+func validateInterestedPerson(ip ip) error {
 	if ip.IsInterestedPerson == nil {
 		return fmt.Errorf("ip.isInterestedPerson is required")
 	}
@@ -34,7 +32,7 @@ func validateInterestedPerson(ip projects.Ip) error {
 	return nil
 }
 
-func validateReview(review projects.Review, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
+func validateReview(review review, criteriaList []ProjectReviewCriteriaMinimal) error {
 	err := validateScores(review.Scores, criteriaList)
 	if err != nil {
 		return err
@@ -46,7 +44,7 @@ func validateReview(review projects.Review, criteriaList []projects.ProjectRevie
 	return nil
 }
 
-func validateScores(scores map[string]int, criteriaList []projects.ProjectReviewCriteriaMinimal) error {
+func validateScores(scores map[string]int, criteriaList []ProjectReviewCriteriaMinimal) error {
 	for _, v := range criteriaList {
 		name := fmt.Sprintf("q_%d_%d", v.CriteriaVersion, v.OrderNumber)
 		score, valid := scores[name]
@@ -60,7 +58,7 @@ func validateScores(scores map[string]int, criteriaList []projects.ProjectReview
 	return nil
 }
 
-func validateReviewSummary(review projects.Review) error {
+func validateReviewSummary(review review) error {
 	log.Println(review)
 	switch review.ReviewSummary {
 	case "":
@@ -80,7 +78,7 @@ func validateReviewSummary(review projects.Review) error {
 	}
 }
 
-func validateImprovement(im projects.ReviewImprovement) error {
+func validateImprovement(im reviewImprovement) error {
 	if im.Benefit == nil {
 		return fmt.Errorf("review.improvement.benefit is required")
 	}

@@ -17,8 +17,8 @@ type projectStore interface {
 	GetReviewPeriod() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	GetProjectCriteriaMinimalDetails(cv int) ([]projects.ProjectReviewCriteriaMinimal, error)
-	AddReview(payload projects.AddReviewRequest, userId int, criteriaList []projects.ProjectReviewCriteriaMinimal) (int, error)
+	// GetProjectCriteriaMinimalDetails(cv int) ([]projects.ProjectReviewCriteriaMinimal, error)
+	// AddReview(payload projects.AddReviewRequest, userId int, criteriaList []projects.ProjectReviewCriteriaMinimal) (int, error)
 }
 
 type ProjectHandler struct {

@@ -1,14 +1,26 @@
-package projects
+package review
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 )
 
 const dbTimeout = time.Second * 5
+
+type store struct {
+	db *sql.DB
+}
+
+func NewStore(db *sql.DB) *store {
+	return &store{
+		db: db,
+	}
+}
 
 func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []ProjectReviewCriteriaMinimal) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
@@ -98,4 +110,38 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 		return fail(err)
 	}
 	return reviewId, nil
+}
+
+func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteriaMinimal, error) {
+	if cv == 0 {
+		cv = 1
+	}
+	rows, err := s.db.Query(getProjectCriteriaMinimalSQL, cv)
+	if err != nil {
+		log.Println("Error on Query: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ProjectReviewCriteriaMinimal
+	for rows.Next() {
+		var row ProjectReviewCriteriaMinimal
+
+		err := rows.Scan(&row.CriteriaId, &row.CriteriaVersion, &row.OrderNumber)
+		if err != nil {
+			log.Println("Error on Scan: ", err)
+			return nil, err
+		}
+		data = append(data, row)
+	}
+	// get any error occur during iteration
+	err = rows.Err()
+	if err != nil {
+		log.Println("Error on rows.Err: ", err)
+		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, errors.New("criteria version not found")
+	}
+	return data, nil
 }

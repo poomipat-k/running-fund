@@ -1,4 +1,4 @@
-package server
+package review
 
 import (
 	"errors"
@@ -7,12 +7,28 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
-func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
+type reviewStore interface {
+	AddReview(payload AddReviewRequest, userId int, criteriaList []ProjectReviewCriteriaMinimal) (int, error)
+	GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteriaMinimal, error)
+}
+
+type ReviewHandler struct {
+	store  reviewStore
+	uStore users.UserStore
+}
+
+func NewProjectHandler(s reviewStore, uStore users.UserStore) *ReviewHandler {
+	return &ReviewHandler{
+		store:  s,
+		uStore: uStore,
+	}
+}
+
+func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	// To check if the user exists in the db
 	userId, err := users.GetAuthUserId(r)
 	if err != nil {
@@ -28,7 +44,7 @@ func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var payload projects.AddReviewRequest
+	var payload AddReviewRequest
 	err = utils.ReadJSON(w, r, &payload)
 
 	if err != nil {
@@ -60,7 +76,7 @@ func (h *ProjectHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, id)
 }
 
-func (h *ProjectHandler) getCriteriaList() ([]projects.ProjectReviewCriteriaMinimal, error) {
+func (h *ReviewHandler) getCriteriaList() ([]ProjectReviewCriteriaMinimal, error) {
 	cv := os.Getenv("CRITERIA_VERSION")
 	v, err := strconv.Atoi(cv)
 	if err != nil {
