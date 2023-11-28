@@ -30,3 +30,22 @@ clear:
 	@echo "Deleting unused images..."
 	docker image prune -a
 	@echo "Done!"
+
+## Migration database
+
+migration_up:
+	cd migrations; echo "Inside migrations, Start migration"; \
+	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" up
+	@echo "Migration Done!"
+
+migration_down:
+	cd migrations; echo "Inside migrations, Start migration"; \
+	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" down
+	@echo "Migration Done!"
+
+migration_status:
+	cd migrations; echo "Inside migrations, Start migration"; \
+	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" status
+
+test:
+	go test ./pkg/...
