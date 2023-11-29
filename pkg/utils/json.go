@@ -14,7 +14,7 @@ type jsonResponse struct {
 }
 
 // readJSON tries to read the body of a request and converts it into JSON
-func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
+func ReadJSON(w http.ResponseWriter, r *http.Request, target any) error {
 	maxBytes := 1048576 // one megabyte
 
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -23,7 +23,7 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	dec.DisallowUnknownFields()
 	defer r.Body.Close()
 
-	err := dec.Decode(data)
+	err := dec.Decode(target)
 	if err != nil {
 		return err
 	}
