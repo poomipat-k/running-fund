@@ -2,7 +2,6 @@ package review
 
 import (
 	"fmt"
-	"log"
 )
 
 func validateAddPayload(payload AddReviewRequest, criteriaList []ProjectReviewCriteriaMinimal) error {
@@ -59,7 +58,6 @@ func validateScores(scores map[string]int, criteriaList []ProjectReviewCriteriaM
 }
 
 func validateReviewSummary(review review) error {
-	log.Println(review)
 	switch review.ReviewSummary {
 	case "":
 		return fmt.Errorf("review.reviewSummary is required")

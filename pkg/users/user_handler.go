@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database/sql"
 	"errors"
 	"log/slog"
 	"math/rand"
@@ -8,6 +9,7 @@ import (
 	"net/mail"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
@@ -19,7 +21,7 @@ type UserStore interface {
 	GetReviewers() ([]User, error)
 	GetReviewerById(id int) (User, error)
 	GetUserByEmail(email string) (User, error)
-	AddUser(user User) (int, error)
+	AddUser(user User, toBeDeletedUserId int) (int, error)
 }
 
 type UserHandler struct {
@@ -60,20 +62,16 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, reviewer)
 }
 
-func (h *UserHandler) GetUserByEmail(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	// Validate if user exists
 	var payload SignUpRequest
 	utils.ReadJSON(w, r, &payload)
-	err := validateSignUpRequest(h.store, payload)
+	toBeDeletedUserId, err := validateSignUpRequest(h.store, payload)
 	if err != nil {
 		signUpFailed(w, err)
 		return
 	}
-	passwordToStore, err := getHashedAndSaltedPassword(payload.Password, 8, "_")
+	passwordToStore, err := generateHashedAndSaltedPassword(payload.Password, 8, "_")
 	if err != nil {
 		signUpFailed(w, err)
 		return
@@ -84,14 +82,15 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		FirstName: payload.FirstName,
 		LastName:  payload.LastName,
 		UserRole:  "applicant",
-		Activated: true,
+		Activated: false,
 	}
 	// Create a new user and save it
-	userId, err := h.store.AddUser(newUser)
+	userId, err := h.store.AddUser(newUser, toBeDeletedUserId)
 	if err != nil {
 		signUpFailed(w, err)
 		return
 	}
+	// TODO: send email to activate account
 
 	// return the created user id
 	utils.WriteJSON(w, http.StatusCreated, userId)
@@ -113,7 +112,7 @@ func GetAuthUserId(r *http.Request) (int, error) {
 	}
 }
 
-func getHashedAndSaltedPassword(password string, saltLen int, delim string) (string, error) {
+func generateHashedAndSaltedPassword(password string, saltLen int, delim string) (string, error) {
 	// Generate a salt
 	salt := randString(saltLen)
 
@@ -128,34 +127,46 @@ func getHashedAndSaltedPassword(password string, saltLen int, delim string) (str
 	return passwordToStore, nil
 }
 
-func validateSignUpRequest(store UserStore, payload SignUpRequest) error {
+func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) {
 	if payload.Email == "" {
-		return errors.New("email is required")
+		return 0, errors.New("email is required")
 	}
 	if !isValidEmail(payload.Email) {
-		return errors.New("email is invalid")
+		return 0, errors.New("email is invalid")
 	}
 
 	if payload.Password == "" {
-		return errors.New("password is required")
+		return 0, errors.New("password is required")
 	}
 	if len(payload.Password) < 8 {
-		return errors.New("password minimum length are 8 characters")
+		return 0, errors.New("password minimum length are 8 characters")
 	}
 	if len(payload.Password) > 60 {
-		return errors.New("password maximum length are 60 characters")
+		return 0, errors.New("password maximum length are 60 characters")
 	}
 	if payload.FirstName == "" {
-		return errors.New("first name is required")
+		return 0, errors.New("first name is required")
 	}
 	if payload.LastName == "" {
-		return errors.New("last name is required")
+		return 0, errors.New("last name is required")
 	}
-	_, err := store.GetUserByEmail(payload.Email)
-	if err == nil {
-		return errors.New("email is already exist")
+
+	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
+	if err != nil {
+		return 0, err
 	}
-	return nil
+	return toBeDeletedUserId, nil
+}
+
+func isDuplicatedEmail(email string, store UserStore) (int, error) {
+	user, err := store.GetUserByEmail(email)
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+	if user.Id > 0 && (!user.Activated && time.Now().After(user.ActivatedBefore)) {
+		return user.Id, nil
+	}
+	return 0, errors.New("email is already exist")
 }
 
 func isValidEmail(email string) bool {

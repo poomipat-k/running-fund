@@ -5,8 +5,9 @@ CREATE TABLE users (
   password VARCHAR(128) NOT NULL,
   first_name VARCHAR(255) NOT NULL,
   last_name VARCHAR(255) NOT NULL,
-  user_role VARCHAR(64) DEFAULT 'user' NOT NULL,
+  user_role VARCHAR(64) DEFAULT 'applicant' NOT NULL,
   activated BOOLEAN DEFAULT false NOT NULL,
+  activate_before TIMESTAMP WITH TIME ZONE DEFAULT now() + '1 day' NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 -- +goose Down

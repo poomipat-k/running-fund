@@ -44,7 +44,7 @@ VALUES (
         'userLastname',
         'u1@test.com',
         'password',
-        'user',
+        'applicant',
         true
     );
 -- project
