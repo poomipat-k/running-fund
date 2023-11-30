@@ -48,4 +48,7 @@ migration_status:
 	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" status
 
 test:
+	go test ./pkg/...
+
+test_v:
 	go test -v ./pkg/...

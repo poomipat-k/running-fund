@@ -55,7 +55,7 @@ func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 
 	criteriaList, err := h.getCriteriaList()
 	if err != nil {
-		utils.ErrorJSON(w, err, http.StatusBadRequest)
+		utils.ErrorJSON(w, err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	err = validateAddPayload(payload, criteriaList)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, http.StatusBadRequest)
+		utils.ErrorJSON(w, err)
 		return
 	}
 

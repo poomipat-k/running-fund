@@ -11,6 +11,7 @@ type jsonResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
+	Name    string `json:"name,omitempty"`
 }
 
 // readJSON tries to read the body of a request and converts it into JSON
