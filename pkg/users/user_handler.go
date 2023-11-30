@@ -73,19 +73,11 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		signUpFailed(w, err)
 		return
 	}
-
-	// Generate a salt
-	salt := randString(8)
-
-	// Hash the salt and the password together
-	toHash := strings.Join([]string{payload.Password, salt}, "")
-	hashed, err := hashPassword(toHash)
+	passwordToStore, err := getHashedAndSaltedPassword(payload.Password, 8, "_")
 	if err != nil {
 		signUpFailed(w, err)
 		return
 	}
-	// Join the hashed result and the salt together
-	passwordToStore := strings.Join([]string{hashed, salt}, "_")
 	newUser := User{
 		Email:     payload.Email,
 		Password:  passwordToStore,
@@ -119,6 +111,21 @@ func GetAuthUserId(r *http.Request) (int, error) {
 	} else {
 		return 0, errors.New("no token provided")
 	}
+}
+
+func getHashedAndSaltedPassword(password string, saltLen int, delim string) (string, error) {
+	// Generate a salt
+	salt := randString(saltLen)
+
+	// Hash the salt and the password together
+	toHash := strings.Join([]string{password, salt}, "")
+	hashed, err := hashPassword(toHash)
+	if err != nil {
+		return "", err
+	}
+	// Join the hashed result and the salt together
+	passwordToStore := strings.Join([]string{hashed, salt}, delim)
+	return passwordToStore, nil
 }
 
 func validateSignUpRequest(store UserStore, payload SignUpRequest) error {

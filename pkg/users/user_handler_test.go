@@ -17,6 +17,7 @@ type MockUserStore struct {
 	Users               map[int]users.User
 	UsersMapByEmail     map[string]users.User
 	GetUserByEmailFunc  func(email string) (users.User, error)
+	AddUserFunc         func(user users.User) (int, error)
 }
 
 func (m *MockUserStore) GetReviewerById(id int) (users.User, error) {
@@ -32,7 +33,7 @@ func (m *MockUserStore) GetUserByEmail(email string) (users.User, error) {
 }
 
 func (m *MockUserStore) AddUser(user users.User) (int, error) {
-	return 1, nil
+	return m.AddUserFunc(user)
 }
 
 type ErrorBody struct {
@@ -226,6 +227,9 @@ func TestSignUp(t *testing.T) {
 			GetUserByEmailFunc: func(email string) (users.User, error) {
 				return users.User{}, sql.ErrNoRows
 			},
+			AddUserFunc: func(user users.User) (int, error) {
+				return 1, nil
+			},
 		}
 		handler := users.NewUserHandler(store)
 
@@ -244,7 +248,15 @@ func TestSignUp(t *testing.T) {
 		handler.SignUp(res, req)
 
 		assertStatus(t, res.Code, http.StatusCreated)
-
+		var got int
+		err := json.Unmarshal(res.Body.Bytes(), &got)
+		if err != nil {
+			t.Errorf("fail to unmarshal err: %+v", err)
+		}
+		want := 1
+		if got != want {
+			t.Errorf("user id did not match, got %d, want %d", got, want)
+		}
 	})
 }
 
