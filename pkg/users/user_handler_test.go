@@ -118,12 +118,13 @@ func TestGetReviewerById(t *testing.T) {
 
 func TestSignUp(t *testing.T) {
 
-	testsErrorCases := []struct {
+	tests := []struct {
 		name                 string
 		payload              users.SignUpRequest
 		store                *MockUserStore
 		expectedStatus       int
 		expectedErrorMessage string
+		expectedReturnId     int
 	}{
 		{
 			name: "should get an error for duplicated email - activated",
@@ -221,8 +222,46 @@ func TestSignUp(t *testing.T) {
 			expectedStatus:       http.StatusBadRequest,
 			expectedErrorMessage: "password maximum length are 60 characters",
 		},
+		{
+			name: "should sign up successfully",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "l",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
+					return 1, nil
+				},
+			},
+			expectedStatus:   http.StatusCreated,
+			expectedReturnId: 1,
+		},
+		{
+			name: "should sign up successfully when email already exist but that user is not activated and activate_before is less than now",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "l",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{Id: 1, Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(-24 * time.Hour))}, nil
+				},
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
+					return 2, nil
+				},
+			},
+			expectedStatus:   http.StatusCreated,
+			expectedReturnId: 2,
+		},
 	}
-	for _, tt := range testsErrorCases {
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := tt.store
 			handler := users.NewUserHandler(store)
@@ -234,88 +273,23 @@ func TestSignUp(t *testing.T) {
 			handler.SignUp(res, req)
 			assertStatus(t, res.Code, tt.expectedStatus)
 
-			errBody := getErrorResponse(t, res)
-			assertErrorMessage(t, errBody.Message, tt.expectedErrorMessage)
+			if tt.expectedErrorMessage != "" {
+				errBody := getErrorResponse(t, res)
+				assertErrorMessage(t, errBody.Message, tt.expectedErrorMessage)
+			}
+			if tt.expectedReturnId > 0 {
+				var got int
+				err := json.Unmarshal(res.Body.Bytes(), &got)
+				if err != nil {
+					t.Errorf("fail to unmarshal err: %+v", err)
+				}
+				if got != tt.expectedReturnId {
+					t.Errorf("user id did not match, got %d, want %d", got, tt.expectedReturnId)
+				}
+			}
 		})
 	}
 
-	// testSuccessCases := struct {
-	// }{}
-
-	t.Run("should sign up successfully", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{}, sql.ErrNoRows
-			},
-			AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-				return 1, nil
-			},
-		}
-		handler := users.NewUserHandler(store)
-
-		payload := users.SignUpRequest{
-			Email:     "a@a.com",
-			Password:  "password",
-			FirstName: "x",
-			LastName:  "l",
-		}
-
-		reqPayload := signUpPayloadToJSON(payload)
-
-		req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
-		res := httptest.NewRecorder()
-
-		handler.SignUp(res, req)
-
-		assertStatus(t, res.Code, http.StatusCreated)
-		var got int
-		err := json.Unmarshal(res.Body.Bytes(), &got)
-		if err != nil {
-			t.Errorf("fail to unmarshal err: %+v", err)
-		}
-		want := 1
-		if got != want {
-			t.Errorf("user id did not match, got %d, want %d", got, want)
-		}
-	})
-
-	t.Run("should sign up successfully when email already exist but that user is not activated and activate_before is less than now", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{Id: 1, Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(-24 * time.Hour))}, nil
-			},
-			AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-				return 2, nil
-			},
-		}
-		handler := users.NewUserHandler(store)
-
-		payload := users.SignUpRequest{
-			Email:     "a@a.com",
-			Password:  "password",
-			FirstName: "x",
-			LastName:  "l",
-		}
-
-		reqPayload := signUpPayloadToJSON(payload)
-
-		req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
-		res := httptest.NewRecorder()
-
-		handler.SignUp(res, req)
-
-		assertStatus(t, res.Code, http.StatusCreated)
-		var got int
-		err := json.Unmarshal(res.Body.Bytes(), &got)
-
-		if err != nil {
-			t.Errorf("fail to unmarshal err: %v", err)
-		}
-		want := 2
-		if got != want {
-			t.Errorf("user id did not match, got %d, want %d", got, want)
-		}
-	})
 }
 
 func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {
