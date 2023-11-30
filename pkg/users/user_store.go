@@ -57,3 +57,11 @@ func (s *store) GetReviewerById(userId int) (User, error) {
 		return User{}, err
 	}
 }
+
+func (s *store) GetUserByEmail(email string) (User, error) {
+	return User{}, nil
+}
+
+func (s *store) AddUser(user User) (int, error) {
+	return 1, nil
+}
