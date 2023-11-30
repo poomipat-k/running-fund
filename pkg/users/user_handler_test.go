@@ -115,139 +115,111 @@ func TestGetReviewerById(t *testing.T) {
 }
 
 func TestSignUp(t *testing.T) {
-	t.Run("should get an error for duplicated email", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{}, nil
+
+	tests := []struct {
+		name                 string
+		payload              users.SignUpRequest
+		store                *MockUserStore
+		expectedStatus       int
+		expectedErrorMessage string
+	}{
+		{
+			name: "should get an error for duplicated email",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "l",
 			},
-		}
-		handler := users.NewUserHandler(store)
-
-		payload := users.SignUpRequest{
-			Email:     "a@a.com",
-			Password:  "password",
-			FirstName: "x",
-			LastName:  "l",
-		}
-		userJson, err := json.Marshal(payload)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		req := httptest.NewRequest(http.MethodPost, "/user/register", strings.NewReader(string(userJson)))
-		res := httptest.NewRecorder()
-
-		handler.SignUp(res, req)
-		assertStatus(t, res.Code, http.StatusBadRequest)
-
-		errBody := getErrorResponse(t, res)
-		assertErrorMessage(t, errBody.Message, "email is already exist")
-
-	})
-
-	t.Run("should get an error for invalid email", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{}, sql.ErrNoRows
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, nil
+				},
 			},
-		}
-		handler := users.NewUserHandler(store)
-
-		payload := users.SignUpRequest{
-			Email:     "abc@",
-			Password:  "bad-example",
-			FirstName: "x",
-			LastName:  "y",
-		}
-		reqPayload := signUpPayloadToJSON(payload)
-
-		req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
-		res := httptest.NewRecorder()
-
-		handler.SignUp(res, req)
-		assertStatus(t, res.Code, http.StatusBadRequest)
-
-		errBody := getErrorResponse(t, res)
-		assertErrorMessage(t, errBody.Message, "email is invalid")
-	})
-
-	t.Run("should get an error for missing last name", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{}, sql.ErrNoRows
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "email is already exist",
+		},
+		{
+			name: "should get an error for invalid email",
+			payload: users.SignUpRequest{
+				Email:     "abc@",
+				Password:  "bad-example",
+				FirstName: "x",
+				LastName:  "y",
 			},
-		}
-		handler := users.NewUserHandler(store)
-
-		payload := users.SignUpRequest{
-			Email:     "a@a.com",
-			Password:  "password",
-			FirstName: "x",
-			LastName:  "",
-		}
-		reqPayload := signUpPayloadToJSON(payload)
-
-		req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
-		res := httptest.NewRecorder()
-
-		handler.SignUp(res, req)
-		assertStatus(t, res.Code, http.StatusBadRequest)
-
-		errBody := getErrorResponse(t, res)
-		assertErrorMessage(t, errBody.Message, "last name is required")
-	})
-
-	t.Run("should get an error for too short password", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{}, sql.ErrNoRows
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
 			},
-		}
-		handler := users.NewUserHandler(store)
-
-		payload := users.SignUpRequest{
-			Email:     "a@a.com",
-			Password:  "x",
-			FirstName: "x",
-			LastName:  "y",
-		}
-		reqPayload := signUpPayloadToJSON(payload)
-
-		req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
-		res := httptest.NewRecorder()
-
-		handler.SignUp(res, req)
-		assertStatus(t, res.Code, http.StatusBadRequest)
-
-		errBody := getErrorResponse(t, res)
-		assertErrorMessage(t, errBody.Message, "password minimum length are 8 characters")
-	})
-
-	t.Run("should get an error for too long password", func(t *testing.T) {
-		store := &MockUserStore{
-			GetUserByEmailFunc: func(email string) (users.User, error) {
-				return users.User{}, sql.ErrNoRows
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "email is invalid",
+		},
+		{
+			name: "should get an error for missing last name",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "",
 			},
-		}
-		handler := users.NewUserHandler(store)
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "last name is required",
+		},
+		{
+			name: "should get an error for too short password",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "x",
+				FirstName: "x",
+				LastName:  "y",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "password minimum length are 8 characters",
+		},
+		{
+			name: "should get an error for too long password",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxw",
+				FirstName: "x",
+				LastName:  "y",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "password maximum length are 60 characters",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			store := tt.store
+			handler := users.NewUserHandler(store)
 
-		payload := users.SignUpRequest{
-			Email:     "a@a.com",
-			Password:  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxw",
-			FirstName: "x",
-			LastName:  "y",
-		}
-		reqPayload := signUpPayloadToJSON(payload)
+			reqPayload := signUpPayloadToJSON(tt.payload)
+			req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
+			res := httptest.NewRecorder()
 
-		req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)
-		res := httptest.NewRecorder()
+			handler.SignUp(res, req)
+			assertStatus(t, res.Code, tt.expectedStatus)
 
-		handler.SignUp(res, req)
-		assertStatus(t, res.Code, http.StatusBadRequest)
-
-		errBody := getErrorResponse(t, res)
-		assertErrorMessage(t, errBody.Message, "password maximum length are 60 characters")
-	})
+			errBody := getErrorResponse(t, res)
+			assertErrorMessage(t, errBody.Message, tt.expectedErrorMessage)
+		})
+	}
 
 	t.Run("should sign up successfully", func(t *testing.T) {
 		store := &MockUserStore{
