@@ -90,8 +90,7 @@ func (s *store) AddUser(user User, toBeDeletedUserId int) (int, error) {
 
 	// Email already used but we want to replace
 	if toBeDeletedUserId > 0 {
-		var deletedId int
-		err = tx.QueryRowContext(ctx, DeleteUserByIdSQL, toBeDeletedUserId).Scan(&deletedId)
+		_, err := s.DeleteUserById(toBeDeletedUserId, ctx, tx)
 		if err != nil {
 			return failAddUser(err)
 		}
@@ -107,6 +106,23 @@ func (s *store) AddUser(user User, toBeDeletedUserId int) (int, error) {
 		return failAddUser(err)
 	}
 	return userId, nil
+}
+
+func (s *store) DeleteUserById(id int, ctx context.Context, tx *sql.Tx) (int, error) {
+	var deletedId int
+	if tx != nil {
+		err := tx.QueryRowContext(ctx, DeleteUserByIdSQL, id).Scan(&deletedId)
+		if err != nil {
+			return failAddUser(err)
+		}
+		return deletedId, nil
+	}
+
+	err := s.db.QueryRowContext(ctx, DeleteUserByIdSQL, id).Scan(&deletedId)
+	if err != nil {
+		return failAddUser(err)
+	}
+	return deletedId, nil
 }
 
 func failAddUser(err error) (int, error) {
