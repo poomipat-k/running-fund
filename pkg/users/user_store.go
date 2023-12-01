@@ -65,7 +65,7 @@ func (s *store) GetReviewerById(userId int) (User, error) {
 func (s *store) GetUserByEmail(email string) (User, error) {
 	var user User
 	row := s.db.QueryRow(getUserByEmailSQL, email)
-	err := row.Scan(&user.Id, &user.Email, &user.FirstName, &user.LastName, &user.UserRole, &user.Activated, &user.ActivatedBefore, &user.CreatedAt)
+	err := row.Scan(&user.Id, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.UserRole, &user.Activated, &user.ActivatedBefore, &user.CreatedAt)
 	switch err {
 	case sql.ErrNoRows:
 		slog.Error("GetUserByEmail() no row were returned!")

@@ -53,7 +53,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Get("/user/reviewers", userHandler.GetReviewers)
 		r.Get("/user/reviewer", userHandler.GetReviewerById)
-		r.Post("/user/sign-up", userHandler.SignUp)
+		r.Post("/user/register", userHandler.SignUp)
 	})
 
 	return mux
