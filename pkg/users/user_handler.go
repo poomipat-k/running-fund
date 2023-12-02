@@ -148,33 +148,39 @@ func GetAuthUserId(r *http.Request) (int, error) {
 }
 
 func generateHashedAndSaltedPassword(password string, saltLen int, delim string) (string, error) {
-	// Generate a salt
 	salt := randString(saltLen)
 
-	// Hash the salt and the password together
 	toHash := strings.Join([]string{password, salt}, "")
 	hashed, err := hashPassword(toHash)
 	if err != nil {
 		return "", err
 	}
-	// Join the hashed result and the salt together
+
 	passwordToStore := strings.Join([]string{hashed, salt}, delim)
 	return passwordToStore, nil
 }
 
 func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) {
-	if err := validateEmail(payload.Email); err != nil {
+	err := validateEmail(payload.Email)
+	if err != nil {
 		return 0, err
 	}
 
-	if err := validatePassword(payload.Password); err != nil {
+	err = validatePassword(payload.Password)
+	if err != nil {
 		return 0, err
 	}
 	if payload.FirstName == "" {
 		return 0, errors.New("first name is required")
 	}
+	if len(payload.FirstName) > 255 {
+		return 0, errors.New("first name is too long")
+	}
 	if payload.LastName == "" {
 		return 0, errors.New("last name is required")
+	}
+	if len(payload.LastName) > 255 {
+		return 0, errors.New("last name is too long")
 	}
 
 	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
@@ -187,6 +193,9 @@ func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) 
 func validateEmail(email string) error {
 	if email == "" {
 		return &EmailRequiredError{}
+	}
+	if len(email) > 255 {
+		return errors.New("email is too long")
 	}
 	if !isValidEmail(email) {
 		return errors.New("email is invalid")

@@ -72,6 +72,78 @@ func TestSignUp(t *testing.T) {
 			expectedErrorMessage: "email is invalid",
 		},
 		{
+			name: "should get an error for too long email",
+			payload: users.SignUpRequest{
+				Email: `abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeab
+				cdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdea
+				bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
+				abcde12345123451234512345123451234512345123451234512@test.com`,
+				Password:  "bad-example",
+				FirstName: "x",
+				LastName:  "y",
+			},
+			store:                &MockUserStore{},
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "email is too long",
+		},
+
+		{
+			name: "should get an error for too long first name",
+			payload: users.SignUpRequest{
+				Email:    "abc@test.com",
+				Password: "password",
+				FirstName: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+				It has survived not only five centuries, but also the leap into electronic typesetting,
+				remaining essentially unchanged. It was popularised in the 1960s with
+				the release of Letraset sheets containing Lorem Ipsum passages, and more recently
+				with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
+				LastName: "test",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
+					return 1, nil
+				},
+			},
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "first name is too long",
+		},
+		{
+			name: "should get an error for too long last name",
+			payload: users.SignUpRequest{
+				Email:     "abc@test.com",
+				Password:  "password",
+				FirstName: "last",
+				LastName: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+				It has survived not only five centuries, but also the leap into electronic typesetting,
+				remaining essentially unchanged. It was popularised in the 1960s with
+				the release of Letraset sheets containing Lorem Ipsum passages, and more recently
+				with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
+					return 1, nil
+				},
+			},
+			expectedStatus:       http.StatusBadRequest,
+			expectedErrorMessage: "last name is too long",
+		},
+		{
 			name: "should get an error for missing last name",
 			payload: users.SignUpRequest{
 				Email:     "a@a.com",
