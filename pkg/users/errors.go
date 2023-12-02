@@ -54,6 +54,12 @@ func (e *PasswordTooShortError) Error() string {
 	return "password minimum length are 8 characters"
 }
 
+type PasswordRequiredError struct{}
+
+func (e *PasswordRequiredError) Error() string {
+	return "password is required"
+}
+
 type PasswordTooLongError struct{}
 
 func (e *PasswordTooLongError) Error() string {

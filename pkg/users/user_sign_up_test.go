@@ -23,69 +23,33 @@ func TestSignUp(t *testing.T) {
 		expectedError    error
 		expectedReturnId int
 	}{
+		// Basic email validation
 		{
-			name: "should get an error for missing first name",
+			name: "should get an error for missing email",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
+				Email:     "",
 				Password:  "password",
-				FirstName: "",
+				FirstName: "abc",
 				LastName:  "ab",
 			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{}, sql.ErrNoRows
-				},
-			},
+			store:          &MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.FirstNameRequiredError{},
+			expectedError:  &users.EmailRequiredError{},
 		},
 		{
-			name: "should get an error for missing last name",
+			name: "should get an error for too long email",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
+				Email: `abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeab
+				cdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdea
+				bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
+				abcde12345123451234512345123451234512345123451234512@test.com`,
+				Password:  "bad-example",
 				FirstName: "x",
-				LastName:  "",
+				LastName:  "y",
 			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{}, sql.ErrNoRows
-				},
-			},
+			store:          &MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.LastNameRequiredError{},
-		},
-		{
-			name: "should get an error for duplicated email - activated",
-			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "l",
-			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{Activated: true}, nil
-				},
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.DuplicatedEmailError{},
-		},
-		{
-			name: "should get an error for duplicated email - not activated but before activate_before ends",
-			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "l",
-			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(24 * time.Hour))}, nil
-				},
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.DuplicatedEmailError{},
+			expectedError:  &users.EmailTooLongError{},
 		},
 		{
 			name: "should get an error for invalid email",
@@ -103,77 +67,18 @@ func TestSignUp(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.InvalidEmailError{},
 		},
+		// Password validation
 		{
-			name: "should get an error for too long email",
+			name: "should get an error for missing password",
 			payload: users.SignUpRequest{
-				Email: `abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeab
-				cdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdea
-				bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
-				abcde12345123451234512345123451234512345123451234512@test.com`,
-				Password:  "bad-example",
-				FirstName: "x",
-				LastName:  "y",
+				Email:     "a@a.com",
+				Password:  "",
+				FirstName: "abc",
+				LastName:  "ab",
 			},
 			store:          &MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.EmailTooLongError{},
-		},
-
-		{
-			name: "should get an error for too long first name",
-			payload: users.SignUpRequest{
-				Email:    "abc@test.com",
-				Password: "password",
-				FirstName: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-				when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-				It has survived not only five centuries, but also the leap into electronic typesetting,
-				remaining essentially unchanged. It was popularised in the 1960s with
-				the release of Letraset sheets containing Lorem Ipsum passages, and more recently
-				with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
-				LastName: "test",
-			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{}, sql.ErrNoRows
-				},
-				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-					return 1, nil
-				},
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.FirstNameTooLongError{},
-		},
-		{
-			name: "should get an error for too long last name",
-			payload: users.SignUpRequest{
-				Email:     "abc@test.com",
-				Password:  "password",
-				FirstName: "last",
-				LastName: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-				when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-				It has survived not only five centuries, but also the leap into electronic typesetting,
-				remaining essentially unchanged. It was popularised in the 1960s with
-				the release of Letraset sheets containing Lorem Ipsum passages, and more recently
-				with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
-			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{}, sql.ErrNoRows
-				},
-				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-					return 1, nil
-				},
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.LastNameTooLongError{},
+			expectedError:  &users.PasswordRequiredError{},
 		},
 		{
 			name: "should get an error for too short password",
@@ -207,6 +112,130 @@ func TestSignUp(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooLongError{},
 		},
+		// Validate first name
+		{
+			name: "should get an error for missing first name",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "",
+				LastName:  "ab",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.FirstNameRequiredError{},
+		},
+		{
+			name: "should get an error for too long first name",
+			payload: users.SignUpRequest{
+				Email:    "abc@test.com",
+				Password: "password",
+				FirstName: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+				It has survived not only five centuries, but also the leap into electronic typesetting,
+				remaining essentially unchanged. It was popularised in the 1960s with
+				the release of Letraset sheets containing Lorem Ipsum passages, and more recently
+				with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
+				LastName: "test",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
+					return 1, nil
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.FirstNameTooLongError{},
+		},
+		// Validate last name
+		{
+			name: "should get an error for missing last name",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.LastNameRequiredError{},
+		},
+		{
+			name: "should get an error for too long last name",
+			payload: users.SignUpRequest{
+				Email:     "abc@test.com",
+				Password:  "password",
+				FirstName: "last",
+				LastName: `Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+				It has survived not only five centuries, but also the leap into electronic typesetting,
+				remaining essentially unchanged. It was popularised in the 1960s with
+				the release of Letraset sheets containing Lorem Ipsum passages, and more recently
+				with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
+					return 1, nil
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.LastNameTooLongError{},
+		},
+		// Validate duplicated email
+		{
+			name: "should get an error for duplicated email - found activated email",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "l",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{Activated: true}, nil
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.DuplicatedEmailError{},
+		},
+		{
+			name: "should get an error for duplicated email - not activated but before activate_before ends",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "l",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(24 * time.Hour))}, nil
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.DuplicatedEmailError{},
+		},
+		// Success sign up
 		{
 			name: "should sign up successfully",
 			payload: users.SignUpRequest{

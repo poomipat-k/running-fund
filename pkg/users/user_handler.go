@@ -170,17 +170,15 @@ func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) 
 	if err != nil {
 		return 0, err
 	}
-	if payload.FirstName == "" {
-		return 0, &FirstNameRequiredError{}
+
+	err = validateFirstName(payload.FirstName)
+	if err != nil {
+		return 0, err
 	}
-	if len(payload.FirstName) > 255 {
-		return 0, &FirstNameTooLongError{}
-	}
-	if payload.LastName == "" {
-		return 0, &LastNameRequiredError{}
-	}
-	if len(payload.LastName) > 255 {
-		return 0, &LastNameTooLongError{}
+
+	err = validateLastName(payload.LastName)
+	if err != nil {
+		return 0, err
 	}
 
 	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
@@ -205,13 +203,33 @@ func validateEmail(email string) error {
 
 func validatePassword(password string) error {
 	if password == "" {
-		return errors.New("password is required")
+		return &PasswordRequiredError{}
 	}
 	if len(password) < 8 {
 		return &PasswordTooShortError{}
 	}
 	if len(password) > 60 {
 		return &PasswordTooLongError{}
+	}
+	return nil
+}
+
+func validateFirstName(firstName string) error {
+	if firstName == "" {
+		return &FirstNameRequiredError{}
+	}
+	if len(firstName) > 255 {
+		return &FirstNameTooLongError{}
+	}
+	return nil
+}
+
+func validateLastName(lastName string) error {
+	if lastName == "" {
+		return &LastNameRequiredError{}
+	}
+	if len(lastName) > 255 {
+		return &LastNameTooLongError{}
 	}
 	return nil
 }
