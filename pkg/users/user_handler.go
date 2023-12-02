@@ -171,16 +171,16 @@ func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) 
 		return 0, err
 	}
 	if payload.FirstName == "" {
-		return 0, errors.New("first name is required")
+		return 0, &FirstNameRequiredError{}
 	}
 	if len(payload.FirstName) > 255 {
-		return 0, errors.New("first name is too long")
+		return 0, &FirstNameTooLongError{}
 	}
 	if payload.LastName == "" {
-		return 0, errors.New("last name is required")
+		return 0, &LastNameRequiredError{}
 	}
 	if len(payload.LastName) > 255 {
-		return 0, errors.New("last name is too long")
+		return 0, &LastNameTooLongError{}
 	}
 
 	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
@@ -195,10 +195,10 @@ func validateEmail(email string) error {
 		return &EmailRequiredError{}
 	}
 	if len(email) > 255 {
-		return errors.New("email is too long")
+		return &EmailTooLongError{}
 	}
 	if !isValidEmail(email) {
-		return errors.New("email is invalid")
+		return &InvalidEmailError{}
 	}
 	return nil
 }
@@ -208,10 +208,10 @@ func validatePassword(password string) error {
 		return errors.New("password is required")
 	}
 	if len(password) < 8 {
-		return errors.New("password minimum length are 8 characters")
+		return &PasswordTooShortError{}
 	}
 	if len(password) > 60 {
-		return errors.New("password maximum length are 60 characters")
+		return &PasswordTooLongError{}
 	}
 	return nil
 }
@@ -231,7 +231,7 @@ func isDuplicatedEmail(email string, store UserStore) (int, error) {
 	if user.Id > 0 && (!user.Activated && time.Now().After(user.ActivatedBefore)) {
 		return user.Id, nil
 	}
-	return 0, errors.New("email is already exist")
+	return 0, &DuplicatedEmailError{}
 }
 
 func isValidEmail(email string) bool {

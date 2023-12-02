@@ -29,5 +29,4 @@ func (m *MockUserStore) AddUser(user users.User, toBeDeletedId int) (int, error)
 type ErrorBody struct {
 	Error   bool
 	Message string
-	Field   string
 }

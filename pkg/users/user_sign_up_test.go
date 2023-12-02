@@ -16,13 +16,45 @@ import (
 func TestSignUp(t *testing.T) {
 
 	tests := []struct {
-		name                 string
-		payload              users.SignUpRequest
-		store                *MockUserStore
-		expectedStatus       int
-		expectedErrorMessage string
-		expectedReturnId     int
+		name             string
+		payload          users.SignUpRequest
+		store            *MockUserStore
+		expectedStatus   int
+		expectedError    error
+		expectedReturnId int
 	}{
+		{
+			name: "should get an error for missing first name",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "",
+				LastName:  "ab",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.FirstNameRequiredError{},
+		},
+		{
+			name: "should get an error for missing last name",
+			payload: users.SignUpRequest{
+				Email:     "a@a.com",
+				Password:  "password",
+				FirstName: "x",
+				LastName:  "",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.LastNameRequiredError{},
+		},
 		{
 			name: "should get an error for duplicated email - activated",
 			payload: users.SignUpRequest{
@@ -36,8 +68,8 @@ func TestSignUp(t *testing.T) {
 					return users.User{Activated: true}, nil
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "email is already exist",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.DuplicatedEmailError{},
 		},
 		{
 			name: "should get an error for duplicated email - not activated but before activate_before ends",
@@ -52,8 +84,8 @@ func TestSignUp(t *testing.T) {
 					return users.User{Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(24 * time.Hour))}, nil
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "email is already exist",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.DuplicatedEmailError{},
 		},
 		{
 			name: "should get an error for invalid email",
@@ -68,8 +100,8 @@ func TestSignUp(t *testing.T) {
 					return users.User{}, sql.ErrNoRows
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "email is invalid",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.InvalidEmailError{},
 		},
 		{
 			name: "should get an error for too long email",
@@ -82,9 +114,9 @@ func TestSignUp(t *testing.T) {
 				FirstName: "x",
 				LastName:  "y",
 			},
-			store:                &MockUserStore{},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "email is too long",
+			store:          &MockUserStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.EmailTooLongError{},
 		},
 
 		{
@@ -112,8 +144,8 @@ func TestSignUp(t *testing.T) {
 					return 1, nil
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "first name is too long",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.FirstNameTooLongError{},
 		},
 		{
 			name: "should get an error for too long last name",
@@ -140,24 +172,8 @@ func TestSignUp(t *testing.T) {
 					return 1, nil
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "last name is too long",
-		},
-		{
-			name: "should get an error for missing last name",
-			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "",
-			},
-			store: &MockUserStore{
-				GetUserByEmailFunc: func(email string) (users.User, error) {
-					return users.User{}, sql.ErrNoRows
-				},
-			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "last name is required",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.LastNameTooLongError{},
 		},
 		{
 			name: "should get an error for too short password",
@@ -172,8 +188,8 @@ func TestSignUp(t *testing.T) {
 					return users.User{}, sql.ErrNoRows
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "password minimum length are 8 characters",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.PasswordTooShortError{},
 		},
 		{
 			name: "should get an error for too long password",
@@ -188,8 +204,8 @@ func TestSignUp(t *testing.T) {
 					return users.User{}, sql.ErrNoRows
 				},
 			},
-			expectedStatus:       http.StatusBadRequest,
-			expectedErrorMessage: "password maximum length are 60 characters",
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.PasswordTooLongError{},
 		},
 		{
 			name: "should sign up successfully",
@@ -242,9 +258,9 @@ func TestSignUp(t *testing.T) {
 			handler.SignUp(res, req)
 			assertStatus(t, res.Code, tt.expectedStatus)
 
-			if tt.expectedErrorMessage != "" {
+			if tt.expectedError != nil {
 				errBody := getErrorResponse(t, res)
-				assertErrorMessage(t, errBody.Message, tt.expectedErrorMessage)
+				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
 			}
 			if tt.expectedReturnId > 0 {
 				var got int
@@ -289,6 +305,6 @@ func assertStatus(t testing.TB, got, want int) {
 func assertErrorMessage(t testing.TB, got, want string) {
 	t.Helper()
 	if got != want {
-		t.Errorf("did not get correct error message, got %v, want %v", got, want)
+		t.Errorf("did not get correct error, got %v, want %v", got, want)
 	}
 }
