@@ -39,7 +39,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	projectStore := projects.NewStore(db)
 	projectHandler := projects.NewProjectHandler(projectStore, userStore)
 
-	mux.Route("/api", func(r chi.Router) {
+	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("API landing page"))
 		})
@@ -55,6 +55,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/user/reviewer", userHandler.GetReviewerById)
 
 		r.Post("/auth/register", userHandler.SignUp)
+		r.Post("/auth/login", userHandler.SignIn)
 	})
 
 	return mux

@@ -1,6 +1,7 @@
 package users_test
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -85,7 +86,38 @@ func TestSignIn(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooLongError{},
 		},
-		// Auth fail
+		// End of payload validation
+		{
+			name: "should fail to login when user not found",
+			payload: users.SignInRequest{
+				Email:    "not-exist@test.com",
+				Password: "password",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name: "should fail to login when user is not activated",
+			payload: users.SignInRequest{
+				Email:    "not-activated@test.com",
+				Password: "password",
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{
+						Email:     "a@a.com",
+						Password:  "$2a$10$sC6PANC9sIqpQWGVHku7Fu9vw4En4fGHLAioOkHPbJ7lZxOeKdB8G_testSalt",
+						Activated: false,
+					}, nil
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.UserNotActivatedError{},
+		},
 		{
 			name: "should fail to login when password doesn't match",
 			payload: users.SignInRequest{
@@ -95,14 +127,14 @@ func TestSignIn(t *testing.T) {
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{
-						Email:    "a@a.com",
-						Password: "$2a$10$sC6PANC9sIqpQWGVHku7Fu9vw4En4fGHLAioOkHPbJ7lZxOeKdB8G_testSalt",
+						Email:     "a@a.com",
+						Password:  "$2a$10$sC6PANC9sIqpQWGVHku7Fu9vw4En4fGHLAioOkHPbJ7lZxOeKdB8G_testSalt",
+						Activated: true,
 					}, nil
 				},
 			},
 			expectedStatus: http.StatusUnauthorized,
 		},
-		// Auth success
 		{
 			name: "should login successfully",
 			payload: users.SignInRequest{
@@ -112,8 +144,9 @@ func TestSignIn(t *testing.T) {
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{
-						Email:    "a@a.com",
-						Password: "$2a$10$sC6PANC9sIqpQWGVHku7Fu9vw4En4fGHLAioOkHPbJ7lZxOeKdB8G_testSalt",
+						Email:     "a@a.com",
+						Password:  "$2a$10$sC6PANC9sIqpQWGVHku7Fu9vw4En4fGHLAioOkHPbJ7lZxOeKdB8G_testSalt",
+						Activated: true,
 					}, nil
 				},
 			},
@@ -125,7 +158,7 @@ func TestSignIn(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := users.NewUserHandler(tt.store)
 			reqPayload := signInPayloadToJSON(tt.payload)
-			req := httptest.NewRequest(http.MethodPost, "/auth/login", reqPayload)
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", reqPayload)
 			res := httptest.NewRecorder()
 			handler.SignIn(res, req)
 			assertStatus(t, res.Code, tt.expectedStatus)

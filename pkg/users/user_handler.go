@@ -121,6 +121,11 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !user.Activated {
+		fail(w, &UserNotActivatedError{})
+		return
+	}
+
 	// get hash and salt from user.password
 	splitStr := strings.Split(user.Password, "_")
 	if len(splitStr) != 2 {

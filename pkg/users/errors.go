@@ -65,3 +65,9 @@ type PasswordTooLongError struct{}
 func (e *PasswordTooLongError) Error() string {
 	return "password maximum length are 60 characters"
 }
+
+type UserNotActivatedError struct{}
+
+func (e *UserNotActivatedError) Error() string {
+	return "user is not activated"
+}
