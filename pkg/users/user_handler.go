@@ -65,7 +65,12 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	// Validate if user exists
 	var payload SignUpRequest
-	utils.ReadJSON(w, r, &payload)
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+
 	toBeDeletedUserId, err := validateSignUpRequest(h.store, payload)
 	if err != nil {
 		fail(w, err)
@@ -99,8 +104,12 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	// Find user from email
 	var payload SignInRequest
-	utils.ReadJSON(w, r, &payload)
-	err := validateSignInRequest(payload)
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	err = validateSignInRequest(payload)
 	if err != nil {
 		fail(w, err)
 		return
@@ -115,7 +124,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	// get hash and salt from user.password
 	splitStr := strings.Split(user.Password, "_")
 	if len(splitStr) != 2 {
-		fail(w, errors.New("something wrong with user password"))
+		fail(w, errors.New("password is invalid"))
 		return
 	}
 	hash := splitStr[0]
@@ -188,6 +197,18 @@ func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) 
 	return toBeDeletedUserId, nil
 }
 
+func validateSignInRequest(payload SignInRequest) error {
+	err := validateEmail(payload.Email)
+	if err != nil {
+		return err
+	}
+	err = validatePassword(payload.Password)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func validateEmail(email string) error {
 	if email == "" {
 		return &EmailRequiredError{}
@@ -230,13 +251,6 @@ func validateLastName(lastName string) error {
 	}
 	if len(lastName) > 255 {
 		return &LastNameTooLongError{}
-	}
-	return nil
-}
-
-func validateSignInRequest(payload SignInRequest) error {
-	if payload.Email == "" {
-		return &EmailRequiredError{}
 	}
 	return nil
 }
