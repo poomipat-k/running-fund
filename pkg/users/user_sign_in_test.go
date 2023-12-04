@@ -99,6 +99,7 @@ func TestSignIn(t *testing.T) {
 				},
 			},
 			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.InvalidLoginCredentialError{},
 		},
 		{
 			name: "should fail to login when user is not activated",
@@ -134,6 +135,7 @@ func TestSignIn(t *testing.T) {
 				},
 			},
 			expectedStatus: http.StatusUnauthorized,
+			expectedError:  &users.InvalidLoginCredentialError{},
 		},
 		{
 			name: "should login successfully",

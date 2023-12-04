@@ -117,7 +117,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
-		fail(w, err)
+		fail(w, &InvalidLoginCredentialError{})
 		return
 	}
 
@@ -126,18 +126,9 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// get hash and salt from user.password
-	splitStr := strings.Split(user.Password, "_")
-	if len(splitStr) != 2 {
-		fail(w, errors.New("password is invalid"))
-		return
-	}
-	hash := splitStr[0]
-	salt := splitStr[1]
-	// user provided password + salt compare to hashed
-	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(strings.Join([]string{payload.Password, salt}, "")))
+	err = comparePassword(payload.Password, user.Password)
 	if err != nil {
-		fail(w, err, http.StatusUnauthorized)
+		fail(w, &InvalidLoginCredentialError{}, http.StatusUnauthorized)
 		return
 	}
 
@@ -159,6 +150,21 @@ func GetAuthUserId(r *http.Request) (int, error) {
 	} else {
 		return 0, errors.New("no token provided")
 	}
+}
+
+func comparePassword(inputPassword string, userPassword string) error {
+	splitStr := strings.Split(userPassword, "_")
+	if len(splitStr) != 2 {
+		return errors.New("password is invalid")
+	}
+	hash := splitStr[0]
+	salt := splitStr[1]
+	// user provided password + salt compare to hashed
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(strings.Join([]string{inputPassword, salt}, "")))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func generateHashedAndSaltedPassword(password string, saltLen int, delim string) (string, error) {

@@ -71,3 +71,9 @@ type UserNotActivatedError struct{}
 func (e *UserNotActivatedError) Error() string {
 	return "user is not activated"
 }
+
+type InvalidLoginCredentialError struct{}
+
+func (e *InvalidLoginCredentialError) Error() string {
+	return "login credential is not valid"
+}
