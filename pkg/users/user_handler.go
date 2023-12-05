@@ -165,7 +165,7 @@ func generateJwtToken(user User) (string, error) {
 		"userId":   user.Id,
 		"userRole": user.UserRole,
 		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(5 * time.Second).Unix(),
+		"exp":      time.Now().Add(5 * time.Hour).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret

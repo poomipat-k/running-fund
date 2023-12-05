@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -31,6 +32,7 @@ func NewProjectHandler(s projectStore, uStore users.UserStore) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Request) {
+	log.Println("====[GetReviewerDashboard]")
 	// To check if the user exists in the db
 	userId, err := users.GetAuthUserId(r)
 	if err != nil {

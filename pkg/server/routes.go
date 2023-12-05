@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
-	customMiddleware "github.com/poomipat-k/running-fund/pkg/middleware"
+	appMiddleware "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
 	"github.com/poomipat-k/running-fund/pkg/users"
@@ -44,9 +44,9 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 			w.Write([]byte("API landing page"))
 		})
 
-		r.Post("/project/reviewer", customMiddleware.MyFirstMiddleWare(projectHandler.GetReviewerDashboard))
+		r.Post("/project/reviewer", appMiddleware.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Get("/project/review-period", projectHandler.GetReviewPeriod)
-		r.Get("/project/review/{projectCode}", customMiddleware.MyFirstMiddleWare(projectHandler.GetReviewerProjectDetails))
+		r.Get("/project/review/{projectCode}", appMiddleware.IsReviewer(projectHandler.GetReviewerProjectDetails))
 		r.Get("/review/criteria/{criteriaVersion}", projectHandler.GetProjectCriteria)
 
 		r.Post("/project/review", reviewHandler.AddReview)
