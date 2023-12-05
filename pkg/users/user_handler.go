@@ -7,10 +7,12 @@ import (
 	"math/rand"
 	"net/http"
 	"net/mail"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -133,7 +135,11 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return jwt token when log in successfully
-	utils.WriteJSON(w, http.StatusOK, "logged in")
+	token, err := generateJwtToken(user)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+	}
+	utils.WriteJSON(w, http.StatusOK, SignInResponse{Token: token})
 }
 
 func GetAuthUserId(r *http.Request) (int, error) {
@@ -152,10 +158,28 @@ func GetAuthUserId(r *http.Request) (int, error) {
 	}
 }
 
+func generateJwtToken(user User) (string, error) {
+	secretKey := []byte(os.Getenv("JWT_SECRET_KEY"))
+
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId":   user.Id,
+		"userRole": user.UserRole,
+		"iat":      time.Now().Unix(),
+		"exp":      time.Now().Add(5 * time.Second).Unix(),
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := t.SignedString(secretKey)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
 func comparePassword(inputPassword string, userPassword string) error {
 	splitStr := strings.Split(userPassword, "_")
 	if len(splitStr) != 2 {
-		return errors.New("password is invalid")
+		return errors.New("user password is invalid")
 	}
 	hash := splitStr[0]
 	salt := splitStr[1]
