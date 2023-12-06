@@ -139,6 +139,16 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 	}
+	tokenCookie := http.Cookie{
+		Name:     "authToken",
+		Value:    token,
+		HttpOnly: true,
+		// SameSite: http.SameSiteNoneMode,
+		Secure: true,
+		Path:   "/api",
+	}
+
+	http.SetCookie(w, &tokenCookie)
 	utils.WriteJSON(w, http.StatusOK, SignInResponse{Token: token})
 }
 

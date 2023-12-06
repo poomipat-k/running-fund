@@ -24,7 +24,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	mux.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "withCredentials"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300,
@@ -45,7 +45,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		})
 
 		r.Post("/project/reviewer", appMiddleware.IsReviewer(projectHandler.GetReviewerDashboard))
-		r.Get("/project/review-period", projectHandler.GetReviewPeriod)
+		r.Get("/project/review-period", appMiddleware.IsReviewer(projectHandler.GetReviewPeriod))
 		r.Get("/project/review/{projectCode}", appMiddleware.IsReviewer(projectHandler.GetReviewerProjectDetails))
 		r.Get("/review/criteria/{criteriaVersion}", projectHandler.GetProjectCriteria)
 

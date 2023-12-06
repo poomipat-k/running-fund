@@ -32,9 +32,13 @@ func NewProjectHandler(s projectStore, uStore users.UserStore) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Request) {
-	log.Println("====[GetReviewerDashboard]")
-	// To check if the user exists in the db
-	userId, err := users.GetAuthUserId(r)
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err)
+		return
+	}
+
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err)
@@ -60,8 +64,13 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 }
 
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
-	// To check if the user exists in the db
-	userId, err := users.GetAuthUserId(r)
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err)
+		return
+	}
+	log.Println("====userId", userId)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err)

@@ -10,8 +10,8 @@ INSERT INTO users (
 VALUES (
         'John',
         'Doe',
-        'r1@test.com',
-        'password',
+        'reviewer1@test.com',
+        '$2a$10$TakkT.8E/YedwJ1iUAz7/OeZM6WTaXQnYVEb3UNS8yu2Hq9lE2vO._ayc1TQyw',
         'reviewer',
         true
     );
@@ -26,8 +26,8 @@ INSERT INTO users (
 VALUES (
         'Jane',
         'Doe',
-        'r2@test.com',
-        'password',
+        'reviewer2@test.com',
+        '$2a$10$pmoaZfX/NBdBl9fhuammOeuS9YpbaUwqccaNIzFlfLLPYBiNhjfyu_AIStMEmR',
         'reviewer',
         true
     );
@@ -40,10 +40,10 @@ INSERT INTO users (
         activated
     )
 VALUES (
-        'user1',
-        'userLastname',
-        'u1@test.com',
-        'password',
+        'applicant1',
+        'test',
+        'applicant1@test.com',
+        '$2a$10$tm0vILIvIUUaKz0dlf3Fl.4vg0bs9WLwYW2zyog2pudjMT7yloWN2_jjQ3JlHC',
         'applicant',
         true
     );
@@ -245,7 +245,7 @@ VALUES (
         (
             SELECT id
             FROM users
-            WHERE email = 'r1@test.com'
+            WHERE email = 'reviewer1@test.com'
         ),
         (
             SELECT id
@@ -277,7 +277,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -302,7 +302,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -327,7 +327,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -352,7 +352,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -377,7 +377,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -402,7 +402,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -427,7 +427,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -452,7 +452,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -477,7 +477,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -502,7 +502,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -527,7 +527,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -552,7 +552,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -577,7 +577,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -602,7 +602,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -627,7 +627,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -652,7 +652,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -677,7 +677,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -702,7 +702,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -727,7 +727,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
@@ -752,7 +752,7 @@ VALUES (
             WHERE user_id =(
                     SELECT id
                     FROM users
-                    WHERE email = 'r1@test.com'
+                    WHERE email = 'reviewer1@test.com'
                 )
                 AND project_history_id =(
                     SELECT id
