@@ -30,23 +30,15 @@ func NewProjectHandler(s reviewStore, uStore users.UserStore) *ReviewHandler {
 
 func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	// To check if the user exists in the db
-	userId, err := users.GetAuthUserId(r)
+	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, http.StatusForbidden)
 		return
 	}
 
-	_, err = h.uStore.GetReviewerById(userId)
-	if err != nil {
-		slog.Error("Don't have reviewer permission")
-		utils.ErrorJSON(w, err, http.StatusForbidden)
-		return
-	}
-
 	var payload AddReviewRequest
 	err = utils.ReadJSON(w, r, &payload)
-
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err)

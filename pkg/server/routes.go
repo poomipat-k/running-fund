@@ -49,7 +49,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/review/{projectCode}", appMiddleware.IsReviewer(projectHandler.GetReviewerProjectDetails))
 		r.Get("/review/criteria/{criteriaVersion}", projectHandler.GetProjectCriteria)
 
-		r.Post("/project/review", reviewHandler.AddReview)
+		r.Post("/project/review", appMiddleware.IsReviewer(reviewHandler.AddReview))
 
 		r.Get("/user/reviewers", userHandler.GetReviewers)
 		r.Get("/user/reviewer", userHandler.GetReviewerById)
