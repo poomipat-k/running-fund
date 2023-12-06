@@ -29,3 +29,7 @@ type SignInRequest struct {
 type SignInResponse struct {
 	Success bool `json:"success"`
 }
+
+type SignOutResponse struct {
+	Success bool `json:"success"`
+}

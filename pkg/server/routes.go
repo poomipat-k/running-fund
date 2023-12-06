@@ -55,6 +55,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/auth/register", userHandler.SignUp)
 		r.Post("/auth/login", userHandler.SignIn)
+		r.Post("/auth/logout", userHandler.SignOut)
 	})
 
 	return mux

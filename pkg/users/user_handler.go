@@ -147,6 +147,18 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, SignInResponse{Success: true})
 }
 
+func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
+	tokenCookie := http.Cookie{
+		Name:     "authToken",
+		Value:    "",
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/api",
+	}
+	http.SetCookie(w, &tokenCookie)
+	utils.WriteJSON(w, http.StatusOK, SignOutResponse{Success: true})
+}
+
 func GetAuthUserId(r *http.Request) (int, error) {
 	authHeader := r.Header.Get("Authorization")
 	splits := strings.Split(authHeader, " ")
