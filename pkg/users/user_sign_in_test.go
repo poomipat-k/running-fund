@@ -15,12 +15,12 @@ import (
 func TestSignIn(t *testing.T) {
 
 	tests := []struct {
-		name                string
-		payload             users.SignInRequest
-		store               *MockUserStore
-		expectedStatus      int
-		expectedError       error
-		expectedReturnToken bool
+		name                 string
+		payload              users.SignInRequest
+		store                *MockUserStore
+		expectedStatus       int
+		expectedError        error
+		expectedLoginSuccess bool
 	}{
 		// Validate email
 		{
@@ -153,8 +153,8 @@ func TestSignIn(t *testing.T) {
 					}, nil
 				},
 			},
-			expectedStatus:      http.StatusOK,
-			expectedReturnToken: true,
+			expectedStatus:       http.StatusOK,
+			expectedLoginSuccess: true,
 		},
 	}
 
@@ -171,16 +171,14 @@ func TestSignIn(t *testing.T) {
 				errBody := getErrorResponse(t, res)
 				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
 			}
-			if tt.expectedReturnToken {
-				var got struct{ Token string }
+			if tt.expectedLoginSuccess {
+				var got struct{ Success bool }
 				err := json.Unmarshal(res.Body.Bytes(), &got)
 				if err != nil {
 					t.Errorf("fail to unmarshal err: %+v", err)
 				}
-				if len(got.Token) == 0 {
-					t.Errorf("Expected jwt token got %v", got.Token)
-				} else if len(strings.Split(got.Token, ".")) != 3 {
-					t.Errorf("Invalid jwt format got %v, want {header}.{payload}.{signature}", got.Token)
+				if !got.Success {
+					t.Errorf("Expected login success, got %v ", got.Success)
 				}
 			}
 

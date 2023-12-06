@@ -3,16 +3,11 @@ package users_test
 import "github.com/poomipat-k/running-fund/pkg/users"
 
 type MockUserStore struct {
-	GetReviewerByIdFunc func(id int) (users.User, error)
-	Users               map[int]users.User
-	UsersMapByEmail     map[string]users.User
-	GetUserByEmailFunc  func(email string) (users.User, error)
-	AddUserFunc         func(user users.User, toBeDeletedId int) (int, error)
-	GetUserByIdFunc     func(id int) (users.User, error)
-}
-
-func (m *MockUserStore) GetReviewerById(id int) (users.User, error) {
-	return m.GetReviewerByIdFunc(id)
+	Users              map[int]users.User
+	UsersMapByEmail    map[string]users.User
+	GetUserByEmailFunc func(email string) (users.User, error)
+	AddUserFunc        func(user users.User, toBeDeletedId int) (int, error)
+	GetUserByIdFunc    func(id int) (users.User, error)
 }
 
 func (m *MockUserStore) GetUserById(id int) (users.User, error) {

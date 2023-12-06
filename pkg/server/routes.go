@@ -52,8 +52,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/project/review", appMiddleware.IsReviewer(reviewHandler.AddReview))
 
 		r.Get("/user/current", appMiddleware.IsLoggedIn(userHandler.GetCurrentUser))
-		r.Get("/user/reviewers", userHandler.GetReviewers)   // To verify if still need this
-		r.Get("/user/reviewer", userHandler.GetReviewerById) // To verify if still need this
+		r.Get("/user/reviewers", userHandler.GetReviewers) // To verify if still need this
 
 		r.Post("/auth/register", userHandler.SignUp)
 		r.Post("/auth/login", userHandler.SignIn)

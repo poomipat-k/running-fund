@@ -21,7 +21,6 @@ const alphaNumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0
 
 type UserStore interface {
 	GetReviewers() ([]User, error)
-	GetReviewerById(id int) (User, error)
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
 	AddUser(user User, toBeDeletedUserId int) (int, error)
@@ -46,23 +45,6 @@ func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, reviewers)
-}
-
-func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
-	userId, err := GetAuthUserId(r)
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, http.StatusBadRequest)
-		return
-	}
-	reviewer, err := h.store.GetReviewerById(userId)
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, reviewer)
 }
 
 func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
