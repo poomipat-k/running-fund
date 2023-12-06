@@ -8,10 +8,15 @@ type MockUserStore struct {
 	UsersMapByEmail     map[string]users.User
 	GetUserByEmailFunc  func(email string) (users.User, error)
 	AddUserFunc         func(user users.User, toBeDeletedId int) (int, error)
+	GetUserByIdFunc     func(id int) (users.User, error)
 }
 
 func (m *MockUserStore) GetReviewerById(id int) (users.User, error) {
 	return m.GetReviewerByIdFunc(id)
+}
+
+func (m *MockUserStore) GetUserById(id int) (users.User, error) {
+	return m.GetUserByIdFunc(id)
 }
 
 func (m *MockUserStore) GetReviewers() ([]users.User, error) {

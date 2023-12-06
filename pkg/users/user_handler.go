@@ -23,6 +23,7 @@ type UserStore interface {
 	GetReviewers() ([]User, error)
 	GetReviewerById(id int) (User, error)
 	GetUserByEmail(email string) (User, error)
+	GetUserById(id int) (User, error)
 	AddUser(user User, toBeDeletedUserId int) (int, error)
 }
 
@@ -51,7 +52,7 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	userId, err := GetAuthUserId(r)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, 400)
+		utils.ErrorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 	reviewer, err := h.store.GetReviewerById(userId)
@@ -62,6 +63,30 @@ func (h *UserHandler) GetReviewerById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.WriteJSON(w, http.StatusOK, reviewer)
+}
+
+func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+	userRole := r.Header.Get("userRole")
+	if userRole == "" {
+		err = errors.New("user role is invalid")
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+	user, err := h.store.GetUserById(userId)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, user)
 }
 
 func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +174,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &tokenCookie)
-	utils.WriteJSON(w, http.StatusOK, SignInResponse{Token: token})
+	utils.WriteJSON(w, http.StatusOK, SignInResponse{Success: true})
 }
 
 func GetAuthUserId(r *http.Request) (int, error) {

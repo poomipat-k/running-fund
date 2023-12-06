@@ -27,5 +27,5 @@ type SignInRequest struct {
 }
 
 type SignInResponse struct {
-	Token string `json:"token"`
+	Success bool `json:"success"`
 }
