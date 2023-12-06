@@ -14,10 +14,6 @@ func (m *MockUserStore) GetUserById(id int) (users.User, error) {
 	return m.GetUserByIdFunc(id)
 }
 
-func (m *MockUserStore) GetReviewers() ([]users.User, error) {
-	return []users.User{}, nil
-}
-
 func (m *MockUserStore) GetUserByEmail(email string) (users.User, error) {
 	return m.GetUserByEmailFunc(email)
 }

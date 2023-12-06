@@ -20,7 +20,6 @@ import (
 const alphaNumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 type UserStore interface {
-	GetReviewers() ([]User, error)
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
 	AddUser(user User, toBeDeletedUserId int) (int, error)
@@ -34,17 +33,6 @@ func NewUserHandler(s UserStore) *UserHandler {
 	return &UserHandler{
 		store: s,
 	}
-}
-
-func (h *UserHandler) GetReviewers(w http.ResponseWriter, r *http.Request) {
-	reviewers, err := h.store.GetReviewers()
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, reviewers)
 }
 
 func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {

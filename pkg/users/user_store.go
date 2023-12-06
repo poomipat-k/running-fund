@@ -20,32 +20,6 @@ func NewStore(db *sql.DB) *store {
 	}
 }
 
-func (s *store) GetReviewers() ([]User, error) {
-	rows, err := s.db.Query(getReviewersSQL, "reviewer")
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-	defer rows.Close()
-
-	var data []User
-	for rows.Next() {
-		var row User
-		err = rows.Scan(&row.Id, &row.FirstName, &row.LastName, &row.Email, &row.UserRole, &row.CreatedAt)
-		if err != nil {
-			slog.Error(err.Error())
-			return nil, err
-		}
-		data = append(data, row)
-	}
-	err = rows.Err()
-	if err != nil {
-		slog.Error(err.Error())
-		return nil, err
-	}
-	return data, nil
-}
-
 func (s *store) GetUserById(userId int) (User, error) {
 	var user User
 	row := s.db.QueryRow(getUserByIdSQL, userId)
