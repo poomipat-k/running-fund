@@ -19,6 +19,8 @@ import (
 
 const alphaNumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+const expireDurationMinute = 5
+
 type UserStore interface {
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
@@ -130,7 +132,8 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return jwt token when log in successfully
-	token, err := generateJwtToken(user)
+	expiredAtUnix := time.Now().Add(expireDurationMinute * time.Second).Unix()
+	token, err := generateJwtToken(user, expiredAtUnix)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 	}
@@ -139,8 +142,9 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		HttpOnly: true,
 		// SameSite: http.SameSiteNoneMode,
-		Secure: true,
-		Path:   "/api",
+		Secure:  true,
+		Path:    "/api",
+		Expires: time.Unix(expiredAtUnix, 0),
 	}
 
 	http.SetCookie(w, &tokenCookie)
@@ -154,6 +158,7 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		Path:     "/api",
+		Expires:  time.Now(),
 	}
 	http.SetCookie(w, &tokenCookie)
 	utils.WriteJSON(w, http.StatusOK, SignOutResponse{Success: true})
@@ -175,14 +180,14 @@ func GetAuthUserId(r *http.Request) (int, error) {
 	}
 }
 
-func generateJwtToken(user User) (string, error) {
+func generateJwtToken(user User, expiredAtUnix int64) (string, error) {
 	secretKey := []byte(os.Getenv("JWT_SECRET_KEY"))
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   user.Id,
 		"userRole": user.UserRole,
 		"iat":      time.Now().Unix(),
-		"exp":      time.Now().Add(5 * time.Hour).Unix(),
+		"exp":      expiredAtUnix,
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
