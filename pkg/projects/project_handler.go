@@ -1,7 +1,6 @@
 package projects
 
 import (
-	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -70,7 +69,6 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		utils.ErrorJSON(w, err)
 		return
 	}
-	log.Println("====userId", userId)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err)

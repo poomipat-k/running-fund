@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
-	appMiddleware "github.com/poomipat-k/running-fund/pkg/middleware"
+	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
 	"github.com/poomipat-k/running-fund/pkg/users"
@@ -44,15 +44,14 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 			w.Write([]byte("API landing page"))
 		})
 
-		r.Post("/project/reviewer", appMiddleware.IsReviewer(projectHandler.GetReviewerDashboard))
-		r.Get("/project/review-period", appMiddleware.IsReviewer(projectHandler.GetReviewPeriod))
-		r.Get("/project/review/{projectCode}", appMiddleware.IsReviewer(projectHandler.GetReviewerProjectDetails))
-		r.Get("/review/criteria/{criteriaVersion}", appMiddleware.IsReviewer(projectHandler.GetProjectCriteria))
+		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
+		r.Get("/project/review-period", mw.IsReviewer(projectHandler.GetReviewPeriod))
+		r.Get("/project/review/{projectCode}", mw.IsReviewer(projectHandler.GetReviewerProjectDetails))
+		r.Get("/review/criteria/{criteriaVersion}", mw.IsReviewer(projectHandler.GetProjectCriteria))
 
-		r.Post("/project/review", appMiddleware.IsReviewer(reviewHandler.AddReview))
+		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
-		r.Get("/user/current", appMiddleware.IsLoggedIn(userHandler.GetCurrentUser))
-
+		r.Get("/auth/current", mw.IsLoggedIn(userHandler.GetCurrentUser))
 		r.Post("/auth/register", userHandler.SignUp)
 		r.Post("/auth/login", userHandler.SignIn)
 		r.Post("/auth/logout", userHandler.SignOut)

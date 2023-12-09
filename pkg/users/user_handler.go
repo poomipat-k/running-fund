@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/mail"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +18,8 @@ import (
 
 const alphaNumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-const expireDurationMinute = 5
+const accessExpireDurationMinute = 5
+const refreshExpireDurationHour = 2160 // 90 days
 
 type UserStore interface {
 	GetUserByEmail(email string) (User, error)
@@ -131,28 +131,43 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return jwt token when log in successfully
-	expiredAtUnix := time.Now().Add(expireDurationMinute * time.Second).Unix()
-	token, err := generateJwtToken(user, expiredAtUnix)
+	accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Second).Unix()
+	accessToken, err := generateAccessToken(user, accessExpiredAtUnix)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 	}
-	tokenCookie := http.Cookie{
+	accessTokenCookie := http.Cookie{
 		Name:     "authToken",
-		Value:    token,
+		Value:    accessToken,
 		HttpOnly: true,
-		// SameSite: http.SameSiteNoneMode,
-		Secure:  true,
-		Path:    "/api",
-		Expires: time.Unix(expiredAtUnix, 0),
+		Secure:   true,
+		Path:     "/api",
+		Expires:  time.Unix(accessExpiredAtUnix, 0),
 	}
 
-	http.SetCookie(w, &tokenCookie)
+	// refreshExpiredAtUnix := time.Now().Add(refreshExpireDurationHour * time.Hour).Unix()
+	refreshExpiredAtUnix := time.Now().Add(20 * time.Second).Unix()
+	refreshToken, err := generateRefreshToken(user, refreshExpiredAtUnix)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+	}
+	refreshTokenCookie := http.Cookie{
+		Name:     "refreshToken",
+		Value:    refreshToken,
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/api/v1/auth",
+		Expires:  time.Unix(refreshExpiredAtUnix, 0),
+	}
+
+	http.SetCookie(w, &accessTokenCookie)
+	http.SetCookie(w, &refreshTokenCookie)
+
 	utils.WriteJSON(w, http.StatusOK, SignInResponse{Success: true})
 }
 
 func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
-	tokenCookie := http.Cookie{
+	accessTokenCookie := http.Cookie{
 		Name:     "authToken",
 		Value:    "",
 		HttpOnly: true,
@@ -160,28 +175,39 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Path:     "/api",
 		Expires:  time.Now(),
 	}
-	http.SetCookie(w, &tokenCookie)
+	http.SetCookie(w, &accessTokenCookie)
+	refreshTokenCookie := http.Cookie{
+		Name:     "refreshToken",
+		Value:    "",
+		HttpOnly: true,
+		Secure:   true,
+		Path:     "/api/v1/auth",
+		Expires:  time.Now(),
+	}
+	http.SetCookie(w, &refreshTokenCookie)
+
 	utils.WriteJSON(w, http.StatusOK, SignOutResponse{Success: true})
 }
 
-func GetAuthUserId(r *http.Request) (int, error) {
-	authHeader := r.Header.Get("Authorization")
-	splits := strings.Split(authHeader, " ")
-	var token string
-	if len(splits) > 1 {
-		token = splits[1]
-		userId, err := strconv.Atoi(token)
-		if err != nil {
-			return 0, errors.New("invalid token")
-		}
-		return userId, nil
-	} else {
-		return 0, errors.New("no token provided")
+func generateRefreshToken(user User, expiredAtUnix int64) (string, error) {
+	refreshTokenSecretKey := []byte(os.Getenv("JWT_REFRESH_TOKEN_SECRET_KEY"))
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userId":   user.Id,
+		"userRole": user.UserRole,
+		"iat":      time.Now().Unix(),
+		"exp":      expiredAtUnix,
+	})
+
+	// Sign and get the complete encoded token as a string using the secret
+	tokenString, err := t.SignedString(refreshTokenSecretKey)
+	if err != nil {
+		return "", err
 	}
+	return tokenString, nil
 }
 
-func generateJwtToken(user User, expiredAtUnix int64) (string, error) {
-	secretKey := []byte(os.Getenv("JWT_SECRET_KEY"))
+func generateAccessToken(user User, expiredAtUnix int64) (string, error) {
+	accessSecretKey := []byte(os.Getenv("JWT_ACCESS_TOKEN_SECRET_KEY"))
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":   user.Id,
@@ -191,7 +217,7 @@ func generateJwtToken(user User, expiredAtUnix int64) (string, error) {
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := t.SignedString(secretKey)
+	tokenString, err := t.SignedString(accessSecretKey)
 	if err != nil {
 		return "", err
 	}
