@@ -3,11 +3,13 @@ package users
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 	"math/rand"
 	"net/http"
 	"net/mail"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,8 +20,8 @@ import (
 
 const alphaNumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-const accessExpireDurationMinute = 5
-const refreshExpireDurationHour = 2160 // 90 days
+const accessExpireDurationMinute = 30
+const refreshExpireDurationHour = 4320 // 180 days
 
 type UserStore interface {
 	GetUserByEmail(email string) (User, error)
@@ -132,7 +134,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Second).Unix()
-	accessToken, err := generateAccessToken(user, accessExpiredAtUnix)
+	accessToken, err := generateAccessToken(user.Id, user.UserRole, accessExpiredAtUnix)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 	}
@@ -145,8 +147,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Unix(accessExpiredAtUnix, 0),
 	}
 
-	// refreshExpiredAtUnix := time.Now().Add(refreshExpireDurationHour * time.Hour).Unix()
-	refreshExpiredAtUnix := time.Now().Add(20 * time.Second).Unix()
+	refreshExpiredAtUnix := time.Now().Add(refreshExpireDurationHour * time.Hour).Unix()
 	refreshToken, err := generateRefreshToken(user, refreshExpiredAtUnix)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
@@ -163,7 +164,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &accessTokenCookie)
 	http.SetCookie(w, &refreshTokenCookie)
 
-	utils.WriteJSON(w, http.StatusOK, SignInResponse{Success: true})
+	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "log in successfully"})
 }
 
 func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
@@ -186,7 +187,64 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, &refreshTokenCookie)
 
-	utils.WriteJSON(w, http.StatusOK, SignOutResponse{Success: true})
+	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "log out successfully"})
+}
+
+func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
+	refreshToken, err := getRefreshToken(r)
+	if err != nil {
+		utils.ErrorJSON(w, err, http.StatusForbidden)
+		return
+	}
+	claims, ok := refreshToken.Claims.(jwt.MapClaims)
+	if ok {
+		userId := fmt.Sprintf("%v", claims["userId"])
+		userRole := fmt.Sprintf("%v", claims["userRole"])
+
+		accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Second).Unix()
+		uid, err := strconv.Atoi(userId)
+		if err != nil {
+			utils.ErrorJSON(w, err, http.StatusForbidden)
+			return
+		}
+		accessToken, err := generateAccessToken(uid, userRole, accessExpiredAtUnix)
+		if err != nil {
+			utils.ErrorJSON(w, err, http.StatusForbidden)
+			return
+		}
+		newAccessTokenCookie := http.Cookie{
+			Name:     "authToken",
+			Value:    accessToken,
+			HttpOnly: true,
+			Secure:   true,
+			Path:     "/api",
+			Expires:  time.Unix(accessExpiredAtUnix, 0),
+		}
+		http.SetCookie(w, &newAccessTokenCookie)
+		utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "Access token refresh successfully"})
+		return
+	}
+	utils.ErrorJSON(w, errors.New("corrupt refresh token"), http.StatusForbidden)
+
+}
+
+func getRefreshToken(r *http.Request) (*jwt.Token, error) {
+	cookie, err := r.Cookie("refreshToken")
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
+		// validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(os.Getenv("JWT_REFRESH_TOKEN_SECRET_KEY")), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
 }
 
 func generateRefreshToken(user User, expiredAtUnix int64) (string, error) {
@@ -206,12 +264,12 @@ func generateRefreshToken(user User, expiredAtUnix int64) (string, error) {
 	return tokenString, nil
 }
 
-func generateAccessToken(user User, expiredAtUnix int64) (string, error) {
+func generateAccessToken(userId int, userRole string, expiredAtUnix int64) (string, error) {
 	accessSecretKey := []byte(os.Getenv("JWT_ACCESS_TOKEN_SECRET_KEY"))
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId":   user.Id,
-		"userRole": user.UserRole,
+		"userId":   userId,
+		"userRole": userRole,
 		"iat":      time.Now().Unix(),
 		"exp":      expiredAtUnix,
 	})

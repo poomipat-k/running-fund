@@ -26,10 +26,7 @@ type SignInRequest struct {
 	Password string `json:"password"`
 }
 
-type SignInResponse struct {
-	Success bool `json:"success"`
-}
-
-type SignOutResponse struct {
-	Success bool `json:"success"`
+type CommonSuccessResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
