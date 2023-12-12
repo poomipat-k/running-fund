@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jordan-wright/email"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -22,6 +23,7 @@ func TestSignUp(t *testing.T) {
 		expectedStatus   int
 		expectedError    error
 		expectedReturnId int
+		emailService     *MockEmailService
 	}{
 		// Basic email validation
 		{
@@ -254,6 +256,13 @@ func TestSignUp(t *testing.T) {
 			},
 			expectedStatus:   http.StatusCreated,
 			expectedReturnId: 1,
+			emailService: &MockEmailService{
+				BuildSignUpConfirmationEmailFunc: func(em string) email.Email {
+					return *email.NewEmail()
+				},
+				SendEmailFunc: func(e email.Email) error {
+					return nil
+				}},
 		},
 		{
 			name: "should sign up successfully when email already exist but that user is not activated and activate_before is less than now",
@@ -273,12 +282,20 @@ func TestSignUp(t *testing.T) {
 			},
 			expectedStatus:   http.StatusCreated,
 			expectedReturnId: 2,
+			emailService: &MockEmailService{
+				BuildSignUpConfirmationEmailFunc: func(em string) email.Email {
+					return *email.NewEmail()
+				},
+				SendEmailFunc: func(e email.Email) error {
+					return nil
+				}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := tt.store
-			handler := users.NewUserHandler(store)
+			es := tt.emailService
+			handler := users.NewUserHandler(store, es)
 
 			reqPayload := signUpPayloadToJSON(tt.payload)
 			req := httptest.NewRequest(http.MethodPost, "/user/register", reqPayload)

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
+	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
@@ -31,7 +32,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	}))
 
 	userStore := users.NewStore(db)
-	userHandler := users.NewUserHandler(userStore)
+	emailService := appEmail.NewEmailService()
+	userHandler := users.NewUserHandler(userStore, emailService)
 
 	reviewStore := review.NewStore(db)
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)

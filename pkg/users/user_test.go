@@ -1,6 +1,9 @@
 package users_test
 
-import "github.com/poomipat-k/running-fund/pkg/users"
+import (
+	"github.com/jordan-wright/email"
+	"github.com/poomipat-k/running-fund/pkg/users"
+)
 
 type MockUserStore struct {
 	Users              map[int]users.User
@@ -20,6 +23,19 @@ func (m *MockUserStore) GetUserByEmail(email string) (users.User, error) {
 
 func (m *MockUserStore) AddUser(user users.User, toBeDeletedId int) (int, error) {
 	return m.AddUserFunc(user, toBeDeletedId)
+}
+
+type MockEmailService struct {
+	SendEmailFunc                    func(e email.Email) error
+	BuildSignUpConfirmationEmailFunc func(email string) email.Email
+}
+
+func (m *MockEmailService) SendEmail(em email.Email) error {
+	return m.SendEmailFunc(em)
+}
+
+func (m *MockEmailService) BuildSignUpConfirmationEmail(email string) email.Email {
+	return m.BuildSignUpConfirmationEmailFunc(email)
 }
 
 type ErrorBody struct {

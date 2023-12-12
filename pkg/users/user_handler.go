@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"math/rand"
 	"net/http"
 	"net/mail"
 	"os"
@@ -15,12 +14,9 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/jordan-wright/email"
-	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 )
-
-const alphaNumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 const accessExpireDurationMinute = 30
 const refreshExpireDurationHour = 4320 // 180 days
@@ -31,13 +27,20 @@ type UserStore interface {
 	AddUser(user User, toBeDeletedUserId int) (int, error)
 }
 
-type UserHandler struct {
-	store UserStore
+type EmailService interface {
+	SendEmail(email email.Email) error
+	BuildSignUpConfirmationEmail(email string) email.Email
 }
 
-func NewUserHandler(s UserStore) *UserHandler {
+type UserHandler struct {
+	store        UserStore
+	emailService EmailService
+}
+
+func NewUserHandler(s UserStore, es EmailService) *UserHandler {
 	return &UserHandler{
-		store: s,
+		store:        s,
+		emailService: es,
 	}
 }
 
@@ -98,15 +101,9 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	// TODO: send email to activate account
-	mail := email.Email{
-		From:    os.Getenv("EMAIL_SENDER"),
-		To:      []string{newUser.Email},
-		Subject: fmt.Sprintf("Registration confirmation - %s", newUser.Email),
-		Text:    []byte("Text Body is, of course, supported!"),
-		HTML:    []byte("<h1>Fancy HTML is supported, too!</h1><br><p>Hi Sis A'Serene</p>"),
-	}
-	err = appEmail.SendEmail(mail)
+
+	mail := h.emailService.BuildSignUpConfirmationEmail(newUser.Email)
+	err = h.emailService.SendEmail(mail)
 	if err != nil {
 		fail(w, err)
 		return
@@ -312,7 +309,7 @@ func comparePassword(inputPassword string, userPassword string) error {
 }
 
 func generateHashedAndSaltedPassword(password string, saltLen int, delim string) (string, error) {
-	salt := randString(saltLen)
+	salt := utils.RandAlphaNum(saltLen)
 
 	toHash := strings.Join([]string{password, salt}, "")
 	hashed, err := hashPassword(toHash)
@@ -433,14 +430,6 @@ func fail(w http.ResponseWriter, err error, status ...int) {
 		s = status[0]
 	}
 	utils.ErrorJSON(w, err, s)
-}
-
-func randString(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = alphaNumericBytes[rand.Int63()%int64(len(alphaNumericBytes))]
-	}
-	return string(b)
 }
 
 func hashPassword(password string) (string, error) {
