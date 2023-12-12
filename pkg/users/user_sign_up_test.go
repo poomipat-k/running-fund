@@ -257,7 +257,7 @@ func TestSignUp(t *testing.T) {
 			expectedStatus:   http.StatusCreated,
 			expectedReturnId: 1,
 			emailService: &MockEmailService{
-				BuildSignUpConfirmationEmailFunc: func(em string) email.Email {
+				BuildSignUpConfirmationEmailFunc: func(em, activateLink string) email.Email {
 					return *email.NewEmail()
 				},
 				SendEmailFunc: func(e email.Email) error {
@@ -283,7 +283,7 @@ func TestSignUp(t *testing.T) {
 			expectedStatus:   http.StatusCreated,
 			expectedReturnId: 2,
 			emailService: &MockEmailService{
-				BuildSignUpConfirmationEmailFunc: func(em string) email.Email {
+				BuildSignUpConfirmationEmailFunc: func(em, activateLink string) email.Email {
 					return *email.NewEmail()
 				},
 				SendEmailFunc: func(e email.Email) error {

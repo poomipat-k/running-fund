@@ -37,21 +37,21 @@ func (es *EmailService) SendEmail(em email.Email) error {
 	return nil
 }
 
-func (es *EmailService) BuildSignUpConfirmationEmail(to string) email.Email {
+func (es *EmailService) BuildSignUpConfirmationEmail(to, activateLink string) email.Email {
 	html := fmt.Sprintf(`<p>เรียนผู้ขอทุน,</p>
 	<p>เพื่อยืนยันการสมัครสมาชิก กรุณายืนยันตัวตนด้วยการคลิกที่ลิ้งด้านล่าง</p>
 	<a href="%s">%s</a>
 	<br><br>
 	<p>บัญชีของท่านจะยังไม่สามารถใช้ได้จนกว่าจะทำการยืนยันด้วยลิ้งด้านบน ลิ้งด้านบนจะหมดอายุภายใน 24 ชั่วโมง</p>
 	<p>ถ้าท่านไม่ได้ทำการสมัครสมาชิกเว็บไซต์ running-fund กรุณาอย่าคลิกลิ้งด้านบน</p>
-	`, "https://google.com", "https://google.com")
+	`, activateLink, activateLink)
 	text := fmt.Sprintf(`เรียนผู้ขอทุน,
 	เพื่อยืนยันการสมัครสมาชิก กรุณายืนยันตัวตนด้วยการคลิกที่ลิ้งด้านล่าง
 	
 	%s
 	
 	บัญชีของท่านจะยังไม่สามารถใช้ได้จนกว่าจะทำการยืนยันด้วยลิ้งด้านบน ลิ้งด้านบนจะหมดอายุภายใน 24 ชั่วโมง
-	ถ้าท่านไม่ได้ทำการสมัครสมาชิกเว็บไซต์ running-fund กรุณาอย่าคลิกลิ้งด้านบน`, "https://google.com")
+	ถ้าท่านไม่ได้ทำการสมัครสมาชิกเว็บไซต์ running-fund กรุณาอย่าคลิกลิ้งด้านบน`, activateLink)
 	mail := email.Email{
 		From:    os.Getenv("EMAIL_SENDER"),
 		To:      []string{to},

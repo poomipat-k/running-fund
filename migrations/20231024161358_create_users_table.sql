@@ -8,6 +8,7 @@ CREATE TABLE users (
   user_role VARCHAR(64) DEFAULT 'applicant' NOT NULL,
   activated BOOLEAN DEFAULT false NOT NULL,
   activate_before TIMESTAMP WITH TIME ZONE DEFAULT now() + '1 day' NOT NULL,
+  activate_code CHAR(24),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 -- +goose Down

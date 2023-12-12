@@ -11,6 +11,7 @@ type User struct {
 	UserRole        string    `json:"userRole,omitempty"`
 	Activated       bool      `json:"activated,omitempty"`
 	ActivatedBefore time.Time `json:"activatedBefore,omitempty"`
+	ActivateCode    string    `json:"activate_code,omitempty"`
 	CreatedAt       time.Time `json:"createdAt,omitempty"`
 }
 

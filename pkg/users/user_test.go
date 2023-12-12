@@ -27,15 +27,15 @@ func (m *MockUserStore) AddUser(user users.User, toBeDeletedId int) (int, error)
 
 type MockEmailService struct {
 	SendEmailFunc                    func(e email.Email) error
-	BuildSignUpConfirmationEmailFunc func(email string) email.Email
+	BuildSignUpConfirmationEmailFunc func(email, activateLink string) email.Email
 }
 
 func (m *MockEmailService) SendEmail(em email.Email) error {
 	return m.SendEmailFunc(em)
 }
 
-func (m *MockEmailService) BuildSignUpConfirmationEmail(email string) email.Email {
-	return m.BuildSignUpConfirmationEmailFunc(email)
+func (m *MockEmailService) BuildSignUpConfirmationEmail(email, activateLink string) email.Email {
+	return m.BuildSignUpConfirmationEmailFunc(email, activateLink)
 }
 
 type ErrorBody struct {

@@ -71,7 +71,7 @@ func (s *store) AddUser(user User, toBeDeletedUserId int) (int, error) {
 	}
 
 	var userId int
-	err = tx.QueryRowContext(ctx, addUserSQL, user.Email, user.Password, user.FirstName, user.LastName, "applicant", false).Scan(&userId)
+	err = tx.QueryRowContext(ctx, addUserSQL, user.Email, user.Password, user.FirstName, user.LastName, "applicant", false, user.ActivateCode).Scan(&userId)
 	if err != nil {
 		return failAddUser(err)
 	}

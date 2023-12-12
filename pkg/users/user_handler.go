@@ -29,7 +29,7 @@ type UserStore interface {
 
 type EmailService interface {
 	SendEmail(email email.Email) error
-	BuildSignUpConfirmationEmail(email string) email.Email
+	BuildSignUpConfirmationEmail(email, activateLink string) email.Email
 }
 
 type UserHandler struct {
@@ -87,13 +87,15 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
+	activateCode := utils.RandAlphaNum(24)
 	newUser := User{
-		Email:     payload.Email,
-		Password:  passwordToStore,
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		UserRole:  "applicant",
-		Activated: false,
+		Email:        payload.Email,
+		Password:     passwordToStore,
+		FirstName:    payload.FirstName,
+		LastName:     payload.LastName,
+		UserRole:     "applicant",
+		Activated:    false,
+		ActivateCode: activateCode,
 	}
 	// Create a new user and save it
 	userId, err := h.store.AddUser(newUser, toBeDeletedUserId)
@@ -102,7 +104,8 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mail := h.emailService.BuildSignUpConfirmationEmail(newUser.Email)
+	activateLink := fmt.Sprintf("%s/auth/activate-email?activateCode=%s&email=%s", os.Getenv("BACKEND_URL"), activateCode, newUser.Email)
+	mail := h.emailService.BuildSignUpConfirmationEmail(newUser.Email, activateLink)
 	err = h.emailService.SendEmail(mail)
 	if err != nil {
 		fail(w, err)
@@ -237,6 +240,10 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 	}
 	utils.ErrorJSON(w, errors.New("corrupt refresh token"), http.StatusForbidden)
 
+}
+
+func (h *UserHandler) ActivateEmail(w http.ResponseWriter, r *http.Request) {
+	utils.WriteJSON(w, http.StatusOK, nil)
 }
 
 func getRefreshToken(r *http.Request) (*jwt.Token, error) {
