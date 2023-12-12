@@ -111,7 +111,7 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	slog.Info("Sign up confirmation sent to", "email", newUser.Email)
+	slog.Info("Sign up confirmation email sent to", "email", newUser.Email)
 	// return the created user id
 	utils.WriteJSON(w, http.StatusCreated, userId)
 }
