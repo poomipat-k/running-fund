@@ -9,3 +9,5 @@ require (
 	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.16.0
 )
+
+require github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible // indirect

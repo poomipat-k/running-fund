@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/jordan-wright/email"
+	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -97,7 +99,19 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// TODO: send email to activate account
-
+	mail := email.Email{
+		From:    os.Getenv("EMAIL_SENDER"),
+		To:      []string{newUser.Email},
+		Subject: fmt.Sprintf("Registration confirmation - %s", newUser.Email),
+		Text:    []byte("Text Body is, of course, supported!"),
+		HTML:    []byte("<h1>Fancy HTML is supported, too!</h1><br><p>Hi Sis A'Serene</p>"),
+	}
+	err = appEmail.SendEmail(mail)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	slog.Info("Sign up confirmation sent to", "email", newUser.Email)
 	// return the created user id
 	utils.WriteJSON(w, http.StatusCreated, userId)
 }
@@ -133,7 +147,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Second).Unix()
+	accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Minute).Unix()
 	accessToken, err := generateAccessToken(user.Id, user.UserRole, accessExpiredAtUnix)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
@@ -201,7 +215,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		userId := fmt.Sprintf("%v", claims["userId"])
 		userRole := fmt.Sprintf("%v", claims["userRole"])
 
-		accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Second).Unix()
+		accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Minute).Unix()
 		uid, err := strconv.Atoi(userId)
 		if err != nil {
 			utils.ErrorJSON(w, err, http.StatusForbidden)
