@@ -77,3 +77,15 @@ type InvalidLoginCredentialError struct{}
 func (e *InvalidLoginCredentialError) Error() string {
 	return "login credential is not valid"
 }
+
+type InvalidActivateCodeError struct{}
+
+func (e *InvalidActivateCodeError) Error() string {
+	return "invalid activate code"
+}
+
+type UserToActivateNotFoundError struct{}
+
+func (e *UserToActivateNotFoundError) Error() string {
+	return "email to activate is not found"
+}

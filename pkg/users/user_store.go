@@ -99,6 +99,10 @@ func (s *store) DeleteUserById(id int, ctx context.Context, tx *sql.Tx) (int, er
 	return deletedId, nil
 }
 
+func (s *store) ActivateUser(activateCode string) (int, error) {
+	return 1, nil
+}
+
 func failAddUser(err error) (int, error) {
 	return 0, fmt.Errorf("addUser: %w", err)
 }
