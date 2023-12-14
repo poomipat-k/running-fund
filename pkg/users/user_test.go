@@ -38,15 +38,20 @@ func (m *MockUserStore) ActivateUser(activateCode string) (int64, error) {
 
 type MockEmailService struct {
 	SendEmailFunc                    func(e email.Email) error
-	BuildSignUpConfirmationEmailFunc func(email, activateLink string) email.Email
+	BuildSignUpConfirmationEmailFunc func(to, activateLink string) email.Email
+	BuildResetPasswordEmailFunc      func(to, resetPasswordLink string) email.Email
 }
 
 func (m *MockEmailService) SendEmail(em email.Email) error {
 	return m.SendEmailFunc(em)
 }
 
-func (m *MockEmailService) BuildSignUpConfirmationEmail(email, activateLink string) email.Email {
-	return m.BuildSignUpConfirmationEmailFunc(email, activateLink)
+func (m *MockEmailService) BuildSignUpConfirmationEmail(to, activateLink string) email.Email {
+	return m.BuildSignUpConfirmationEmailFunc(to, activateLink)
+}
+
+func (m *MockEmailService) BuildResetPasswordEmail(to, resetPasswordLink string) email.Email {
+	return m.BuildResetPasswordEmailFunc(to, resetPasswordLink)
 }
 
 type ErrorBody struct {

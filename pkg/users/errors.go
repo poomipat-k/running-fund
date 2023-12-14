@@ -89,3 +89,9 @@ type UserToActivateNotFoundError struct{}
 func (e *UserToActivateNotFoundError) Error() string {
 	return "email to activate is not found"
 }
+
+type UserIsNotActivated struct{}
+
+func (e *UserIsNotActivated) Error() string {
+	return "user is not activated"
+}

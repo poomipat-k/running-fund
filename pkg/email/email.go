@@ -61,3 +61,22 @@ func (es *EmailService) BuildSignUpConfirmationEmail(to, activateLink string) em
 	}
 	return mail
 }
+
+func (es *EmailService) BuildResetPasswordEmail(to, resetPasswordLink string) email.Email {
+	html := fmt.Sprintf(`<p>เรียนสมาชิก,</p>
+	<p>กรุณาคลิกที่ลิงค์ด้านล่างเพื่อตั้งรหัสผ่านใหม่</p>
+	<a href="%s">%s</a>
+	`, resetPasswordLink, resetPasswordLink)
+	text := fmt.Sprintf(`เรียนสมาชิก,
+	กรุณาคลิกที่ลิงค์ด้านล่างเพื่อตั้งรหัสผ่านใหม่
+	
+	%s`, resetPasswordLink)
+	mail := email.Email{
+		From:    os.Getenv("EMAIL_SENDER"),
+		To:      []string{to},
+		Subject: fmt.Sprintf("Account password reset - %s", to),
+		Text:    []byte(text),
+		HTML:    []byte(html),
+	}
+	return mail
+}

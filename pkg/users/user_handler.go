@@ -27,6 +27,7 @@ type UserStore interface {
 type EmailService interface {
 	SendEmail(email email.Email) error
 	BuildSignUpConfirmationEmail(email, activateLink string) email.Email
+	BuildResetPasswordEmail(to, resetPasswordLink string) email.Email
 }
 
 type UserHandler struct {
@@ -101,7 +102,7 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	activateLink := fmt.Sprintf("%s/auth/activate-email?activateCode=%s", os.Getenv("BACKEND_URL"), activateCode)
+	activateLink := fmt.Sprintf("%s/user/activate-email?activateCode=%s", os.Getenv("BACKEND_URL"), activateCode)
 	mail := h.emailService.BuildSignUpConfirmationEmail(newUser.Email, activateLink)
 	err = h.emailService.SendEmail(mail)
 	if err != nil {
@@ -257,4 +258,40 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, rowEffected)
+}
+
+func (h *UserHandler) SendForgotPasswordEmail(w http.ResponseWriter, r *http.Request) {
+	var payload ForgotPasswordRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	if payload.Email == "" {
+		fail(w, &EmailRequiredError{}, http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.store.GetUserByEmail(payload.Email)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	if !user.Activated {
+		fail(w, &UserIsNotActivated{}, http.StatusBadRequest)
+		return
+	}
+
+	resetPasswordCode := utils.RandAlphaNum(24)
+	resetPasswordLink := fmt.Sprintf("%s/user/reset-password?resetPasswordCode=%s", os.Getenv("BACKEND_URL"), resetPasswordCode)
+	mail := h.emailService.BuildResetPasswordEmail(payload.Email, resetPasswordLink)
+	err = h.emailService.SendEmail(mail)
+
+	if err != nil {
+		fail(w, err)
+		return
+	}
+
+	slog.Info("reset password email sent to", "email", payload.Email)
+	utils.WriteJSON(w, http.StatusOK, nil)
 }

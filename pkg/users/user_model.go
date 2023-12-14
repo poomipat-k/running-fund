@@ -27,6 +27,10 @@ type SignInRequest struct {
 	Password string `json:"password"`
 }
 
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
 type CommonSuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
