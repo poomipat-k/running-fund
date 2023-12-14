@@ -17,7 +17,7 @@ type MockUserStore struct {
 	GetUserByEmailFunc func(email string) (users.User, error)
 	AddUserFunc        func(user users.User, toBeDeletedId int) (int, error)
 	GetUserByIdFunc    func(id int) (users.User, error)
-	ActivateUserFunc   func(activateCode string) (int, error)
+	ActivateUserFunc   func(activateCode string) (int64, error)
 }
 
 func (m *MockUserStore) GetUserById(id int) (users.User, error) {
@@ -32,7 +32,7 @@ func (m *MockUserStore) AddUser(user users.User, toBeDeletedId int) (int, error)
 	return m.AddUserFunc(user, toBeDeletedId)
 }
 
-func (m *MockUserStore) ActivateUser(activateCode string) (int, error) {
+func (m *MockUserStore) ActivateUser(activateCode string) (int64, error) {
 	return m.ActivateUserFunc(activateCode)
 }
 
@@ -52,6 +52,10 @@ func (m *MockEmailService) BuildSignUpConfirmationEmail(email, activateLink stri
 type ErrorBody struct {
 	Error   bool
 	Message string
+}
+
+type expectedEffectedRowsExpect struct {
+	rowEffected int
 }
 
 func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {

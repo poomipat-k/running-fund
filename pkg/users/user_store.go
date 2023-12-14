@@ -99,8 +99,12 @@ func (s *store) DeleteUserById(id int, ctx context.Context, tx *sql.Tx) (int, er
 	return deletedId, nil
 }
 
-func (s *store) ActivateUser(activateCode string) (int, error) {
-	return 1, nil
+func (s *store) ActivateUser(activateCode string) (int64, error) {
+	result, err := s.db.Exec(activateEmailSQL, activateCode)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 func failAddUser(err error) (int, error) {

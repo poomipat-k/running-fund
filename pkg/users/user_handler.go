@@ -21,7 +21,7 @@ type UserStore interface {
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
 	AddUser(user User, toBeDeletedUserId int) (int, error)
-	ActivateUser(activateCode string) (int, error)
+	ActivateUser(activateCode string) (int64, error)
 }
 
 type EmailService interface {
@@ -247,11 +247,14 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := h.store.ActivateUser(activateCode)
+	rowEffected, err := h.store.ActivateUser(activateCode)
 	if err != nil {
 		fail(w, err, http.StatusNotFound)
 		return
 	}
-
-	utils.WriteJSON(w, http.StatusOK, userId)
+	if rowEffected == 0 {
+		fail(w, &UserToActivateNotFoundError{}, http.StatusNotFound)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, rowEffected)
 }
