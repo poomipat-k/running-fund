@@ -322,7 +322,7 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rowEffected, err := h.store.ResetPassword(payload.ResetPasswordCode, passwordToStore)
+	rowEffected, err := h.store.ResetPassword(passwordToStore, payload.ResetPasswordCode)
 	if err != nil {
 		fail(w, err)
 		return

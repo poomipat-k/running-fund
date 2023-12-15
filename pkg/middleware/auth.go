@@ -3,7 +3,6 @@ package mw
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -13,11 +12,9 @@ import (
 
 func IsLoggedIn(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("===[IsLoggedIn]")
 
 		at, err := getAccessToken(r)
 		if err != nil {
-			log.Println("===IsLoggedIn err 1")
 			utils.ErrorJSON(w, err, http.StatusForbidden)
 			return
 		}
@@ -30,7 +27,6 @@ func IsLoggedIn(next http.HandlerFunc) http.HandlerFunc {
 			r.Header.Set("userRole", userRole)
 			next(w, r)
 		} else {
-			log.Println("===IsLoggedIn err 2")
 			utils.ErrorJSON(w, errors.New("corrupt token"), http.StatusForbidden)
 			return
 
@@ -42,7 +38,6 @@ func IsReviewer(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := getAccessToken(r)
 		if err != nil {
-			log.Println("===err 1")
 			utils.ErrorJSON(w, err, http.StatusForbidden)
 			return
 		}
@@ -60,7 +55,6 @@ func IsReviewer(next http.HandlerFunc) http.HandlerFunc {
 			r.Header.Set("userRole", userRole)
 
 			next(w, r)
-			log.Println("OK Running after IsReviewer")
 		} else {
 			utils.ErrorJSON(w, errors.New("corrupt token"), http.StatusForbidden)
 			return

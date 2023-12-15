@@ -110,6 +110,21 @@ func TestResetPassword(t *testing.T) {
 			expectedStatus: http.StatusNotFound,
 			expectedError:  &users.ResetPasswordCodeNotFound{},
 		},
+		{
+			name: "should reset password successfully",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:          "abcd1234",
+				ConfirmPassword:   "abcd1234",
+				ResetPasswordCode: "abcdefghabcdefghabcdefgh",
+			},
+			store: &MockUserStore{
+				ResetPasswordFunc: func(resetPasswordCode, newPassword string) (int64, error) {
+					return 1, nil
+				},
+			},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusOK,
+		},
 	}
 
 	for _, tt := range tests {

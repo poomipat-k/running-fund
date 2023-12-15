@@ -54,7 +54,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
 		r.Get("/user/activate-email", userHandler.ActivateUser)
-		r.Post("/user/forgot-password", userHandler.ForgotPassword)
+		r.Post("/user/password/forgot", userHandler.ForgotPassword)
+		r.Post("/user/password/reset", userHandler.ResetPassword)
 
 		r.Get("/auth/current", mw.IsLoggedIn(userHandler.GetCurrentUser))
 		r.Post("/auth/register", userHandler.SignUp)
