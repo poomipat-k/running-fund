@@ -260,7 +260,7 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, rowEffected)
 }
 
-func (h *UserHandler) SendForgotPasswordEmail(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var payload ForgotPasswordRequest
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {

@@ -89,7 +89,7 @@ func TestEmailForgetPassword(t *testing.T) {
 			payload := forgotPasswordPayloadToJSON(tt.forgotPasswordPayload)
 			req := httptest.NewRequest(http.MethodPost, "/user/forgot-password", payload)
 
-			handler.SendForgotPasswordEmail(res, req)
+			handler.ForgotPassword(res, req)
 
 			assertStatus(t, res.Code, tt.expectedStatus)
 			if tt.expectedError != nil {
