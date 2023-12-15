@@ -31,6 +31,12 @@ type ForgotPasswordRequest struct {
 	Email string `json:"email"`
 }
 
+type ResetPasswordRequest struct {
+	ResetPasswordCode string `json:"resetPasswordCode"`
+	Password          string `json:"password"`
+	ConfirmPassword   string `json:"confirmPassword"`
+}
+
 type CommonSuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`

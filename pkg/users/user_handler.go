@@ -292,3 +292,22 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.WriteJSON(w, http.StatusOK, rowEffected)
 }
+
+func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var payload ResetPasswordRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	if payload.Password != payload.ConfirmPassword {
+		fail(w, &PasswordAndConfirmPasswordNotMatch{})
+		return
+	}
+	err = validatePassword(payload.Password)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, nil)
+}

@@ -95,3 +95,9 @@ type UserIsNotActivated struct{}
 func (e *UserIsNotActivated) Error() string {
 	return "user is not activated"
 }
+
+type PasswordAndConfirmPasswordNotMatch struct{}
+
+func (e *PasswordAndConfirmPasswordNotMatch) Error() string {
+	return "password and confirmation password is not identical"
+}
