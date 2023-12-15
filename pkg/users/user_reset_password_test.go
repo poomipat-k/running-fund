@@ -2,6 +2,7 @@ package users_test
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -31,6 +32,83 @@ func TestResetPassword(t *testing.T) {
 			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordAndConfirmPasswordNotMatchError{},
+		},
+		{
+			name: "should error when password is not provided",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:        "",
+				ConfirmPassword: "",
+			},
+			store:          &MockUserStore{},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.PasswordRequiredError{},
+		},
+		{
+			name: "should error when password is too short",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:        "ab",
+				ConfirmPassword: "ab",
+			},
+			store:          &MockUserStore{},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.PasswordTooShortError{},
+		},
+		{
+			name: "should error when password is too long",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:        "abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345a",
+				ConfirmPassword: "abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345a",
+			},
+			store:          &MockUserStore{},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.PasswordTooLongError{},
+		},
+		{
+			name: "should error when reset password code is not valid",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:          "abcd1234",
+				ConfirmPassword:   "abcd1234",
+				ResetPasswordCode: "code",
+			},
+			store:          &MockUserStore{},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.ResetPasswordCodeNotValidError{},
+		},
+		{
+			name: "should error when reset password code is not valid",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:          "abcd1234",
+				ConfirmPassword:   "abcd1234",
+				ResetPasswordCode: "abcdefghabcdefghabcdefgh",
+			},
+			store: &MockUserStore{
+				ResetPasswordFunc: func(resetPasswordCode, newPassword string) (int64, error) {
+					return 0, errors.New("abc")
+				},
+			},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  errors.New("abc"),
+		},
+		{
+			name: "should error when reset password failed and 0 row updated",
+			resetPasswordPayload: users.ResetPasswordRequest{
+				Password:          "abcd1234",
+				ConfirmPassword:   "abcd1234",
+				ResetPasswordCode: "abcdefghabcdefghabcdefgh",
+			},
+			store: &MockUserStore{
+				ResetPasswordFunc: func(resetPasswordCode, newPassword string) (int64, error) {
+					return 0, nil
+				},
+			},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusNotFound,
+			expectedError:  &users.ResetPasswordCodeNotFound{},
 		},
 	}
 

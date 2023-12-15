@@ -23,6 +23,7 @@ type UserStore interface {
 	AddUser(user User, toBeDeletedUserId int) (int, error)
 	ActivateUser(activateCode string) (int64, error)
 	ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
+	ResetPassword(resetPasswordCode string, newPassword string) (int64, error)
 }
 
 type EmailService interface {
@@ -273,10 +274,6 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	// if payload.Email == "" {
-	// 	fail(w, &EmailRequiredError{}, http.StatusBadRequest)
-	// 	return
-	// }
 
 	user, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
@@ -314,5 +311,25 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	utils.WriteJSON(w, http.StatusOK, nil)
+	if len(payload.ResetPasswordCode) != 24 {
+		fail(w, &ResetPasswordCodeNotValidError{})
+		return
+	}
+
+	passwordToStore, err := generateHashedAndSaltedPassword(payload.Password, 8, "_")
+	if err != nil {
+		fail(w, err)
+		return
+	}
+
+	rowEffected, err := h.store.ResetPassword(payload.ResetPasswordCode, passwordToStore)
+	if err != nil {
+		fail(w, err)
+		return
+	}
+	if rowEffected == 0 {
+		fail(w, &ResetPasswordCodeNotFound{}, http.StatusNotFound)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, rowEffected)
 }

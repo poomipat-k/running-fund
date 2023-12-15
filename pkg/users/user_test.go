@@ -19,6 +19,7 @@ type MockUserStore struct {
 	GetUserByIdFunc          func(id int) (users.User, error)
 	ActivateUserFunc         func(activateCode string) (int64, error)
 	ForgotPasswordActionFunc func(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
+	ResetPasswordFunc        func(resetPasswordCode string, newPassword string) (int64, error)
 }
 
 func (m *MockUserStore) GetUserById(id int) (users.User, error) {
@@ -39,6 +40,10 @@ func (m *MockUserStore) ActivateUser(activateCode string) (int64, error) {
 
 func (m *MockUserStore) ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error) {
 	return m.ForgotPasswordActionFunc(resetPasswordCode, email, resetPasswordLink)
+}
+
+func (m *MockUserStore) ResetPassword(resetPasswordCode string, newPassword string) (int64, error) {
+	return m.ResetPasswordFunc(resetPasswordCode, newPassword)
 }
 
 type MockEmailService struct {

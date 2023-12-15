@@ -135,6 +135,15 @@ func (s *store) ForgotPasswordAction(resetPasswordCode string, email string, res
 	return result.RowsAffected()
 }
 
+func (s *store) ResetPassword(resetPasswordCode string, newPassword string) (int64, error) {
+	result, err := s.db.Exec(resetPasswordSQL, resetPasswordCode, newPassword)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+
+}
+
 func failAddUser(err error) (int, error) {
 	return 0, fmt.Errorf("addUser: %w", err)
 }

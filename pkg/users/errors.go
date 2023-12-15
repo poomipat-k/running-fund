@@ -101,3 +101,15 @@ type PasswordAndConfirmPasswordNotMatchError struct{}
 func (e *PasswordAndConfirmPasswordNotMatchError) Error() string {
 	return "password and confirmation password is not identical"
 }
+
+type ResetPasswordCodeNotValidError struct{}
+
+func (e *ResetPasswordCodeNotValidError) Error() string {
+	return "reset password code is not valid"
+}
+
+type ResetPasswordCodeNotFound struct{}
+
+func (e *ResetPasswordCodeNotFound) Error() string {
+	return "reset password code is not found"
+}
