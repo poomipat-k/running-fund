@@ -9,3 +9,5 @@ const addUserSQL = "INSERT INTO users (email, password, first_name, last_name, u
 const DeleteUserByIdSQL = "DELETE FROM users WHERE id = $1 RETURNING id;"
 
 const activateEmailSQL = "UPDATE users SET activated = true, activate_code = NULL WHERE activate_code = $1 AND activated = false AND activate_before >= now();"
+
+const forgotPasswordSQL = "UPDATE users SET reset_password_code = $1 WHERE email = $2 AND activated = true;"

@@ -22,6 +22,7 @@ type UserStore interface {
 	GetUserById(id int) (User, error)
 	AddUser(user User, toBeDeletedUserId int) (int, error)
 	ActivateUser(activateCode string) (int64, error)
+	ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
 }
 
 type EmailService interface {
@@ -284,14 +285,10 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 
 	resetPasswordCode := utils.RandAlphaNum(24)
 	resetPasswordLink := fmt.Sprintf("%s/user/reset-password?resetPasswordCode=%s", os.Getenv("BACKEND_URL"), resetPasswordCode)
-	mail := h.emailService.BuildResetPasswordEmail(payload.Email, resetPasswordLink)
-	err = h.emailService.SendEmail(mail)
-
+	rowEffected, err := h.store.ForgotPasswordAction(resetPasswordCode, user.Email, resetPasswordLink)
 	if err != nil {
 		fail(w, err)
 		return
 	}
-
-	slog.Info("reset password email sent to", "email", payload.Email)
-	utils.WriteJSON(w, http.StatusOK, nil)
+	utils.WriteJSON(w, http.StatusOK, rowEffected)
 }

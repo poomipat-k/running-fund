@@ -64,6 +64,9 @@ func TestEmailForgetPassword(t *testing.T) {
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Activated: true}, nil
 				},
+				ForgotPasswordActionFunc: func(resetPasswordCode, email, resetPasswordLink string) (int64, error) {
+					return 1, nil
+				},
 			},
 			forgotPasswordPayload: users.ForgotPasswordRequest{
 				Email: "abc@test.com",

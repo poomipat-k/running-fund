@@ -31,8 +31,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		MaxAge:           300,
 	}))
 
-	userStore := users.NewStore(db)
 	emailService := appEmail.NewEmailService()
+	userStore := users.NewStore(db, emailService)
 	userHandler := users.NewUserHandler(userStore, emailService)
 
 	reviewStore := review.NewStore(db)

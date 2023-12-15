@@ -11,12 +11,14 @@ import (
 const dbTimeout = time.Second * 5
 
 type store struct {
-	db *sql.DB
+	db           *sql.DB
+	emailService EmailService
 }
 
-func NewStore(db *sql.DB) *store {
+func NewStore(db *sql.DB, es EmailService) *store {
 	return &store{
-		db: db,
+		db:           db,
+		emailService: es,
 	}
 }
 
@@ -107,6 +109,36 @@ func (s *store) ActivateUser(activateCode string) (int64, error) {
 	return result.RowsAffected()
 }
 
+func (s *store) ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return failForgotPasswordAction(err)
+	}
+	defer tx.Rollback()
+
+	result, err := tx.Exec(forgotPasswordSQL, resetPasswordCode, email)
+	if err != nil {
+		return 0, err
+	}
+	// Send email
+	mail := s.emailService.BuildResetPasswordEmail(email, resetPasswordLink)
+	err = s.emailService.SendEmail(mail)
+	if err != nil {
+		return 0, err
+	}
+	slog.Info("reset password email sent to", "email", email)
+
+	err = tx.Commit()
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 func failAddUser(err error) (int, error) {
 	return 0, fmt.Errorf("addUser: %w", err)
+}
+
+func failForgotPasswordAction(err error) (int64, error) {
+	return 0, fmt.Errorf("forgotPasswordAction: %w", err)
 }
