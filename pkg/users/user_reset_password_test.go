@@ -30,7 +30,7 @@ func TestResetPassword(t *testing.T) {
 			store:          &MockUserStore{},
 			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.PasswordAndConfirmPasswordNotMatch{},
+			expectedError:  &users.PasswordAndConfirmPasswordNotMatchError{},
 		},
 	}
 

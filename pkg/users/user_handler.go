@@ -268,10 +268,15 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		fail(w, err)
 		return
 	}
-	if payload.Email == "" {
-		fail(w, &EmailRequiredError{}, http.StatusBadRequest)
+	err = validateEmail(payload.Email)
+	if err != nil {
+		fail(w, err)
 		return
 	}
+	// if payload.Email == "" {
+	// 	fail(w, &EmailRequiredError{}, http.StatusBadRequest)
+	// 	return
+	// }
 
 	user, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
@@ -279,7 +284,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !user.Activated {
-		fail(w, &UserIsNotActivated{}, http.StatusBadRequest)
+		fail(w, &UserIsNotActivatedError{}, http.StatusBadRequest)
 		return
 	}
 
@@ -301,7 +306,7 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if payload.Password != payload.ConfirmPassword {
-		fail(w, &PasswordAndConfirmPasswordNotMatch{})
+		fail(w, &PasswordAndConfirmPasswordNotMatchError{})
 		return
 	}
 	err = validatePassword(payload.Password)

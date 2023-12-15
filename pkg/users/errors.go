@@ -90,14 +90,14 @@ func (e *UserToActivateNotFoundError) Error() string {
 	return "email to activate is not found"
 }
 
-type UserIsNotActivated struct{}
+type UserIsNotActivatedError struct{}
 
-func (e *UserIsNotActivated) Error() string {
+func (e *UserIsNotActivatedError) Error() string {
 	return "user is not activated"
 }
 
-type PasswordAndConfirmPasswordNotMatch struct{}
+type PasswordAndConfirmPasswordNotMatchError struct{}
 
-func (e *PasswordAndConfirmPasswordNotMatch) Error() string {
+func (e *PasswordAndConfirmPasswordNotMatchError) Error() string {
 	return "password and confirmation password is not identical"
 }

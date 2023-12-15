@@ -31,6 +31,31 @@ func TestEmailForgetPassword(t *testing.T) {
 			expectedError:  &users.EmailRequiredError{},
 		},
 		{
+			name: "should error when email is too long",
+			forgotPasswordPayload: users.ForgotPasswordRequest{
+				Email: `abcdeabcdeabcdeabcdeabcdeabcdeabcd
+				eabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeab
+				cdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcd
+				eabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdea
+				bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabc
+				deabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde@test.com`,
+			},
+			store:          &MockUserStore{},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.EmailTooLongError{},
+		},
+		{
+			name: "should error when email is not valid",
+			forgotPasswordPayload: users.ForgotPasswordRequest{
+				Email: `aab@`,
+			},
+			store:          &MockUserStore{},
+			emailService:   &MockEmailService{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.InvalidEmailError{},
+		},
+		{
 			name: "should error when email is not found",
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -56,7 +81,7 @@ func TestEmailForgetPassword(t *testing.T) {
 			},
 			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
-			expectedError:  &users.UserIsNotActivated{},
+			expectedError:  &users.UserIsNotActivatedError{},
 		},
 		{
 			name: "should send create a new password successfully",
