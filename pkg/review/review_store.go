@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 )
@@ -118,7 +117,6 @@ func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteri
 	}
 	rows, err := s.db.Query(getProjectCriteriaMinimalSQL, cv)
 	if err != nil {
-		log.Println("Error on Query: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -129,7 +127,6 @@ func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteri
 
 		err := rows.Scan(&row.CriteriaId, &row.CriteriaVersion, &row.OrderNumber)
 		if err != nil {
-			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
 		data = append(data, row)
@@ -137,7 +134,6 @@ func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteri
 	// get any error occur during iteration
 	err = rows.Err()
 	if err != nil {
-		log.Println("Error on rows.Err: ", err)
 		return nil, err
 	}
 	if len(data) == 0 {
