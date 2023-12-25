@@ -119,6 +119,14 @@ func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) 
 		return 0, err
 	}
 
+	if !payload.TermsAndCondition {
+		return 0, &MissingTermsAndConditionError{}
+	}
+
+	if !payload.Privacy {
+		return 0, &MissingPrivacyError{}
+	}
+
 	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
 	if err != nil {
 		return 0, err

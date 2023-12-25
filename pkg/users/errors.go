@@ -113,3 +113,15 @@ type ResetPasswordCodeNotFound struct{}
 func (e *ResetPasswordCodeNotFound) Error() string {
 	return "reset password code is not found"
 }
+
+type MissingTermsAndConditionError struct{}
+
+func (e *MissingTermsAndConditionError) Error() string {
+	return "กรุณายอมรับข้อตกลงและเงื่อนไขการใข้งาน"
+}
+
+type MissingPrivacyError struct{}
+
+func (e *MissingPrivacyError) Error() string {
+	return "กรุณายอมรับนโยบายคุ้มครองความเป็นส่วนตัว"
+}

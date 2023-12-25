@@ -27,10 +27,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for missing email",
 			payload: users.SignUpRequest{
-				Email:     "",
-				Password:  "password",
-				FirstName: "abc",
-				LastName:  "ab",
+				Email:             "",
+				Password:          "password",
+				FirstName:         "abc",
+				LastName:          "ab",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store:          &MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
@@ -43,9 +45,11 @@ func TestSignUp(t *testing.T) {
 				cdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdea
 				bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde
 				abcde12345123451234512345123451234512345123451234512@test.com`,
-				Password:  "bad-example",
-				FirstName: "x",
-				LastName:  "y",
+				Password:          "bad-example",
+				FirstName:         "x",
+				LastName:          "y",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store:          &MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
@@ -54,10 +58,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for invalid email",
 			payload: users.SignUpRequest{
-				Email:     "abc@",
-				Password:  "bad-example",
-				FirstName: "x",
-				LastName:  "y",
+				Email:             "abc@",
+				Password:          "bad-example",
+				FirstName:         "x",
+				LastName:          "y",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -71,10 +77,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for missing password",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "",
-				FirstName: "abc",
-				LastName:  "ab",
+				Email:             "a@a.com",
+				Password:          "",
+				FirstName:         "abc",
+				LastName:          "ab",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store:          &MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
@@ -83,10 +91,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for too short password",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "x",
-				FirstName: "x",
-				LastName:  "y",
+				Email:             "a@a.com",
+				Password:          "x",
+				FirstName:         "x",
+				LastName:          "y",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -99,10 +109,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for too long password",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxw",
-				FirstName: "x",
-				LastName:  "y",
+				Email:             "a@a.com",
+				Password:          "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxw",
+				FirstName:         "x",
+				LastName:          "y",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -116,10 +128,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for missing first name",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "",
-				LastName:  "ab",
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "",
+				LastName:          "ab",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -144,7 +158,9 @@ func TestSignUp(t *testing.T) {
 				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
 				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
 				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
-				LastName: "test",
+				LastName:          "test",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -161,10 +177,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for missing last name",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "",
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -190,6 +208,8 @@ func TestSignUp(t *testing.T) {
 				Lorem Ipsum is simply dummy text of the printing and typesetting industry.
 				Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
 				when an unknown printer took a galley of type and scrambled it to make a type specimen book.`,
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -206,10 +226,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for duplicated email - found activated email",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "l",
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "l",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -222,10 +244,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should get an error for duplicated email - not activated but before activate_before ends",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "l",
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "l",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -235,14 +259,52 @@ func TestSignUp(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.DuplicatedEmailError{},
 		},
+		{
+			name: "should get an error for not acknowledging terms and condition",
+			payload: users.SignUpRequest{
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "b",
+				TermsAndCondition: false,
+				Privacy:           true,
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.MissingTermsAndConditionError{},
+		},
+		{
+			name: "should get an error for not acknowledging privacy policy",
+			payload: users.SignUpRequest{
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "b",
+				TermsAndCondition: true,
+				Privacy:           false,
+			},
+			store: &MockUserStore{
+				GetUserByEmailFunc: func(email string) (users.User, error) {
+					return users.User{}, sql.ErrNoRows
+				},
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &users.MissingPrivacyError{},
+		},
 		// Success sign up
 		{
 			name: "should sign up successfully",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "l",
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "l",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
@@ -265,10 +327,12 @@ func TestSignUp(t *testing.T) {
 		{
 			name: "should sign up successfully when email already exist but that user is not activated and activate_before is less than now",
 			payload: users.SignUpRequest{
-				Email:     "a@a.com",
-				Password:  "password",
-				FirstName: "x",
-				LastName:  "l",
+				Email:             "a@a.com",
+				Password:          "password",
+				FirstName:         "x",
+				LastName:          "l",
+				TermsAndCondition: true,
+				Privacy:           true,
 			},
 			store: &MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {

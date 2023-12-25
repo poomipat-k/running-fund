@@ -12,4 +12,4 @@ const activateEmailSQL = "UPDATE users SET activated = true, activate_code = NUL
 
 const forgotPasswordSQL = "UPDATE users SET reset_password_code = $1 WHERE email = $2 AND activated = true;"
 
-const resetPasswordSQL = "UPDATE users SET password = $1 WHERE reset_password_code = $2 AND activated = true;"
+const resetPasswordSQL = "UPDATE users SET password = $1, reset_password_code = NULL WHERE reset_password_code = $2 AND activated = true;"
