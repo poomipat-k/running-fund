@@ -16,7 +16,6 @@ func TestActivateEmail(t *testing.T) {
 		name                 string
 		activateCode         string
 		store                *MockUserStore
-		emailService         *MockEmailService
 		expectedStatus       int
 		expectedError        error
 		expectedEffectedRows *expectedEffectedRowsExpect
@@ -25,7 +24,6 @@ func TestActivateEmail(t *testing.T) {
 			name:           "should error when activate code length is not equal to 24",
 			activateCode:   "abc",
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.InvalidActivateCodeError{},
 		},
@@ -37,7 +35,6 @@ func TestActivateEmail(t *testing.T) {
 					return 0, &users.UserToActivateNotFoundError{}
 				},
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusNotFound,
 			expectedError:  &users.UserToActivateNotFoundError{},
 		},
@@ -49,7 +46,6 @@ func TestActivateEmail(t *testing.T) {
 					return 0, &users.UserToActivateNotFoundError{}
 				},
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusNotFound,
 			expectedError:  &users.UserToActivateNotFoundError{},
 		},
@@ -61,7 +57,6 @@ func TestActivateEmail(t *testing.T) {
 					return 1, nil
 				},
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusOK,
 			expectedEffectedRows: &expectedEffectedRowsExpect{
 				rowEffected: 1,

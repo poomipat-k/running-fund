@@ -18,7 +18,6 @@ func TestResetPassword(t *testing.T) {
 		name                 string
 		resetPasswordPayload users.ResetPasswordRequest
 		store                *MockUserStore
-		emailService         *MockEmailService
 		expectedStatus       int
 		expectedError        error
 	}{
@@ -29,7 +28,6 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword: "abb",
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordAndConfirmPasswordNotMatchError{},
 		},
@@ -40,7 +38,6 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword: "",
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordRequiredError{},
 		},
@@ -51,7 +48,6 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword: "ab",
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooShortError{},
 		},
@@ -62,7 +58,6 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword: "abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345a",
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooLongError{},
 		},
@@ -74,7 +69,6 @@ func TestResetPassword(t *testing.T) {
 				ResetPasswordCode: "code",
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.ResetPasswordCodeNotValidError{},
 		},
@@ -90,7 +84,6 @@ func TestResetPassword(t *testing.T) {
 					return 0, errors.New("abc")
 				},
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  errors.New("abc"),
 		},
@@ -106,7 +99,6 @@ func TestResetPassword(t *testing.T) {
 					return 0, nil
 				},
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusNotFound,
 			expectedError:  &users.ResetPasswordCodeNotFound{},
 		},
@@ -122,7 +114,6 @@ func TestResetPassword(t *testing.T) {
 					return 1, nil
 				},
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusOK,
 		},
 	}

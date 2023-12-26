@@ -21,7 +21,6 @@ func TestSignIn(t *testing.T) {
 		expectedStatus       int
 		expectedError        error
 		expectedLoginSuccess bool
-		emailService         *MockEmailService
 	}{
 		// Validate email
 		{

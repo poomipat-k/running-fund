@@ -18,14 +18,12 @@ func TestEmailForgetPassword(t *testing.T) {
 		name                  string
 		forgotPasswordPayload users.ForgotPasswordRequest
 		store                 *MockUserStore
-		emailService          *MockEmailService
 		expectedStatus        int
 		expectedError         error
 	}{
 		{
 			name:           "should error when email is not provided",
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailRequiredError{},
 		},
@@ -40,7 +38,6 @@ func TestEmailForgetPassword(t *testing.T) {
 				deabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde@test.com`,
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailTooLongError{},
 		},
@@ -50,7 +47,6 @@ func TestEmailForgetPassword(t *testing.T) {
 				Email: `aab@`,
 			},
 			store:          &MockUserStore{},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.InvalidEmailError{},
 		},
@@ -64,7 +60,6 @@ func TestEmailForgetPassword(t *testing.T) {
 			forgotPasswordPayload: users.ForgotPasswordRequest{
 				Email: "abc@test.com",
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  sql.ErrNoRows,
 		},
