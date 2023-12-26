@@ -33,7 +33,7 @@ func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, http.StatusForbidden)
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
 		return
 	}
 
@@ -41,13 +41,13 @@ func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	err = utils.ReadJSON(w, r, &payload)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
 	criteriaList, err := h.getCriteriaList()
 	if err != nil {
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
@@ -55,14 +55,14 @@ func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
 	err = validateAddPayload(payload, criteriaList)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
 	id, err := h.store.AddReview(payload, userId, criteriaList)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, id)

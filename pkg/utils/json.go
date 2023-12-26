@@ -62,7 +62,7 @@ func WriteJSON(w http.ResponseWriter, status int, data any, headers ...http.Head
 
 // errorJSON takes an error, and optionally a response status code, and generates and sends
 // a json error response
-func ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
+func ErrorJSON(w http.ResponseWriter, err error, name string, status ...int) error {
 	statusCode := http.StatusBadRequest
 
 	if len(status) > 0 {
@@ -72,6 +72,7 @@ func ErrorJSON(w http.ResponseWriter, err error, status ...int) error {
 	var payload jsonResponse
 	payload.Error = true
 	payload.Message = err.Error()
+	payload.Name = name
 
 	return WriteJSON(w, statusCode, payload)
 }

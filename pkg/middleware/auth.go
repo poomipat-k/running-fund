@@ -15,7 +15,7 @@ func IsLoggedIn(next http.HandlerFunc) http.HandlerFunc {
 
 		at, err := getAccessToken(r)
 		if err != nil {
-			utils.ErrorJSON(w, err, http.StatusForbidden)
+			utils.ErrorJSON(w, err, "authToken", http.StatusForbidden)
 			return
 		}
 
@@ -27,7 +27,7 @@ func IsLoggedIn(next http.HandlerFunc) http.HandlerFunc {
 			r.Header.Set("userRole", userRole)
 			next(w, r)
 		} else {
-			utils.ErrorJSON(w, errors.New("corrupt token"), http.StatusForbidden)
+			utils.ErrorJSON(w, errors.New("corrupt token"), "authToken", http.StatusForbidden)
 			return
 
 		}
@@ -38,7 +38,7 @@ func IsReviewer(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := getAccessToken(r)
 		if err != nil {
-			utils.ErrorJSON(w, err, http.StatusForbidden)
+			utils.ErrorJSON(w, err, "authToken", http.StatusForbidden)
 			return
 		}
 
@@ -48,7 +48,7 @@ func IsReviewer(next http.HandlerFunc) http.HandlerFunc {
 			userRole := fmt.Sprintf("%v", claims["userRole"])
 
 			if userRole != "reviewer" {
-				utils.ErrorJSON(w, errors.New("permission denied"), http.StatusForbidden)
+				utils.ErrorJSON(w, errors.New("permission denied"), "authToken", http.StatusForbidden)
 				return
 			}
 			r.Header.Set("userId", userId)
@@ -56,7 +56,7 @@ func IsReviewer(next http.HandlerFunc) http.HandlerFunc {
 
 			next(w, r)
 		} else {
-			utils.ErrorJSON(w, errors.New("corrupt token"), http.StatusForbidden)
+			utils.ErrorJSON(w, errors.New("corrupt token"), "authToken", http.StatusForbidden)
 			return
 
 		}

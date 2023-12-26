@@ -34,13 +34,7 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
-		return
-	}
-
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "userId")
 		return
 	}
 
@@ -48,14 +42,14 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	err = utils.ReadJSON(w, r, &payload)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
 	projects, err := h.store.GetReviewerDashboard(userId, payload.FromDate, payload.ToDate)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
@@ -66,25 +60,25 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "userId")
 		return
 	}
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
 	projectCode := chi.URLParam(r, "projectCode")
 	if len(projectCode) == 0 {
 		slog.Error("Please provide a project code.")
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "projectCode")
 		return
 	}
 	projectDetails, err := h.store.GetReviewerProjectDetails(userId, projectCode)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 	// ResponseJson(w, projectDetails, http.StatusOK)
@@ -95,7 +89,7 @@ func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request)
 	period, err := h.store.GetReviewPeriod()
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
@@ -110,7 +104,7 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 	criteria, err := h.store.GetProjectCriteria(criteriaVersion)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, http.StatusBadRequest)
+		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
 

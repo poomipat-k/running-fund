@@ -48,20 +48,20 @@ func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, http.StatusForbidden)
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
 		return
 	}
 	userRole := r.Header.Get("userRole")
 	if userRole == "" {
 		err = errors.New("user role is invalid")
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, http.StatusForbidden)
+		utils.ErrorJSON(w, err, "userRole", http.StatusForbidden)
 		return
 	}
 	user, err := h.store.GetUserById(userId)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
@@ -73,18 +73,18 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var payload SignUpRequest
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
 
-	toBeDeletedUserId, err := validateSignUpRequest(h.store, payload)
+	toBeDeletedUserId, err, fieldName := validateSignUpRequest(h.store, payload)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, fieldName)
 		return
 	}
 	passwordToStore, err := generateHashedAndSaltedPassword(payload.Password, 8, "_")
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
 	activateCode := utils.RandAlphaNum(24)
@@ -100,7 +100,7 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	// Create a new user and save it
 	userId, err := h.store.AddUser(newUser, toBeDeletedUserId)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
 
@@ -108,7 +108,7 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	mail := h.emailService.BuildSignUpConfirmationEmail(newUser.Email, activateLink)
 	err = h.emailService.SendEmail(mail)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "emailService")
 		return
 	}
 	slog.Info("Sign up confirmation email sent to", "email", newUser.Email)
@@ -121,36 +121,36 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var payload SignInRequest
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
-	err = validateSignInRequest(payload)
+	err, fieldName := validateSignInRequest(payload)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, fieldName)
 		return
 	}
 
 	user, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
-		fail(w, &InvalidLoginCredentialError{})
+		fail(w, &InvalidLoginCredentialError{}, "email")
 		return
 	}
 
 	if !user.Activated {
-		fail(w, &UserNotActivatedError{})
+		fail(w, &UserNotActivatedError{}, "auth")
 		return
 	}
 
 	err = comparePassword(payload.Password, user.Password)
 	if err != nil {
-		fail(w, &InvalidLoginCredentialError{}, http.StatusUnauthorized)
+		fail(w, &InvalidLoginCredentialError{}, "auth", http.StatusUnauthorized)
 		return
 	}
 
 	accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Minute).Unix()
 	accessToken, err := generateAccessToken(user.Id, user.UserRole, accessExpiredAtUnix)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		fail(w, err, "", http.StatusInternalServerError)
 	}
 	accessTokenCookie := http.Cookie{
 		Name:     "authToken",
@@ -164,7 +164,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	refreshExpiredAtUnix := time.Now().Add(refreshExpireDurationHour * time.Hour).Unix()
 	refreshToken, err := generateRefreshToken(user, refreshExpiredAtUnix)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		fail(w, err, "", http.StatusInternalServerError)
 	}
 	refreshTokenCookie := http.Cookie{
 		Name:     "refreshToken",
@@ -207,7 +207,7 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := getRefreshToken(r)
 	if err != nil {
-		utils.ErrorJSON(w, err, http.StatusForbidden)
+		utils.ErrorJSON(w, err, "refreshToken", http.StatusForbidden)
 		return
 	}
 	claims, ok := refreshToken.Claims.(jwt.MapClaims)
@@ -218,12 +218,12 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		accessExpiredAtUnix := time.Now().Add(accessExpireDurationMinute * time.Minute).Unix()
 		uid, err := strconv.Atoi(userId)
 		if err != nil {
-			utils.ErrorJSON(w, err, http.StatusForbidden)
+			utils.ErrorJSON(w, err, "refreshToken", http.StatusForbidden)
 			return
 		}
 		accessToken, err := generateAccessToken(uid, userRole, accessExpiredAtUnix)
 		if err != nil {
-			utils.ErrorJSON(w, err, http.StatusForbidden)
+			utils.ErrorJSON(w, err, "refreshToken", http.StatusForbidden)
 			return
 		}
 		newAccessTokenCookie := http.Cookie{
@@ -238,7 +238,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 		utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "Access token refresh successfully"})
 		return
 	}
-	utils.ErrorJSON(w, errors.New("corrupt refresh token"), http.StatusForbidden)
+	utils.ErrorJSON(w, errors.New("corrupt refresh token"), "refreshToken", http.StatusForbidden)
 
 }
 
@@ -246,17 +246,17 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 	activateCode := r.URL.Query().Get("activateCode")
 	err := validateActivateCode(activateCode)
 	if err != nil {
-		fail(w, err, http.StatusBadRequest)
+		fail(w, err, "activateCode", http.StatusBadRequest)
 		return
 	}
 
 	rowEffected, err := h.store.ActivateUser(activateCode)
 	if err != nil {
-		fail(w, err, http.StatusNotFound)
+		fail(w, err, "activateCode", http.StatusNotFound)
 		return
 	}
 	if rowEffected == 0 {
-		fail(w, &UserToActivateNotFoundError{}, http.StatusNotFound)
+		fail(w, &UserToActivateNotFoundError{}, "", http.StatusNotFound)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, rowEffected)
@@ -266,22 +266,22 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var payload ForgotPasswordRequest
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
 	err = validateEmail(payload.Email)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "email")
 		return
 	}
 
 	user, err := h.store.GetUserByEmail(payload.Email)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "email")
 		return
 	}
 	if !user.Activated {
-		fail(w, &UserIsNotActivatedError{}, http.StatusBadRequest)
+		fail(w, &UserIsNotActivatedError{}, "email", http.StatusBadRequest)
 		return
 	}
 
@@ -289,7 +289,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	resetPasswordLink := fmt.Sprintf("%s/user/reset-password?resetPasswordCode=%s", os.Getenv("BACKEND_URL"), resetPasswordCode)
 	rowEffected, err := h.store.ForgotPasswordAction(resetPasswordCode, user.Email, resetPasswordLink)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, rowEffected)
@@ -299,36 +299,36 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	var payload ResetPasswordRequest
 	err := utils.ReadJSON(w, r, &payload)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "")
 		return
 	}
 	if payload.Password != payload.ConfirmPassword {
-		fail(w, &PasswordAndConfirmPasswordNotMatchError{})
+		fail(w, &PasswordAndConfirmPasswordNotMatchError{}, "password")
 		return
 	}
 	err = validatePassword(payload.Password)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "auth")
 		return
 	}
 	if len(payload.ResetPasswordCode) != 24 {
-		fail(w, &ResetPasswordCodeNotValidError{})
+		fail(w, &ResetPasswordCodeNotValidError{}, "resetPasswordCode")
 		return
 	}
 
 	passwordToStore, err := generateHashedAndSaltedPassword(payload.Password, 8, "_")
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "auth")
 		return
 	}
 
 	rowEffected, err := h.store.ResetPassword(passwordToStore, payload.ResetPasswordCode)
 	if err != nil {
-		fail(w, err)
+		fail(w, err, "store")
 		return
 	}
 	if rowEffected == 0 {
-		fail(w, &ResetPasswordCodeNotFound{}, http.StatusNotFound)
+		fail(w, &ResetPasswordCodeNotFound{}, "store", http.StatusNotFound)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, rowEffected)

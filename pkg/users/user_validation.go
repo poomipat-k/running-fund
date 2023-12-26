@@ -98,52 +98,52 @@ func generateHashedAndSaltedPassword(password string, saltLen int, delim string)
 	return passwordToStore, nil
 }
 
-func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error) {
+func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error, string) {
 	err := validateEmail(payload.Email)
 	if err != nil {
-		return 0, err
+		return 0, err, "email"
 	}
 
 	err = validatePassword(payload.Password)
 	if err != nil {
-		return 0, err
+		return 0, err, "password"
 	}
 
 	err = validateFirstName(payload.FirstName)
 	if err != nil {
-		return 0, err
+		return 0, err, "firstName"
 	}
 
 	err = validateLastName(payload.LastName)
 	if err != nil {
-		return 0, err
+		return 0, err, "lastName"
 	}
 
 	if !payload.TermsAndCondition {
-		return 0, &MissingTermsAndConditionError{}
+		return 0, &MissingTermsAndConditionError{}, "termsAndConditions"
 	}
 
 	if !payload.Privacy {
-		return 0, &MissingPrivacyError{}
+		return 0, &MissingPrivacyError{}, "privacy"
 	}
 
 	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
 	if err != nil {
-		return 0, err
+		return 0, err, "email"
 	}
-	return toBeDeletedUserId, nil
+	return toBeDeletedUserId, nil, ""
 }
 
-func validateSignInRequest(payload SignInRequest) error {
+func validateSignInRequest(payload SignInRequest) (error, string) {
 	err := validateEmail(payload.Email)
 	if err != nil {
-		return err
+		return err, "email"
 	}
 	err = validatePassword(payload.Password)
 	if err != nil {
-		return err
+		return err, "password"
 	}
-	return nil
+	return nil, ""
 }
 
 func validateEmail(email string) error {
@@ -215,13 +215,13 @@ func validateActivateCode(activateCode string) error {
 	return nil
 }
 
-func fail(w http.ResponseWriter, err error, status ...int) {
+func fail(w http.ResponseWriter, err error, name string, status ...int) {
 	slog.Error(err.Error())
 	s := http.StatusBadRequest
 	if len(status) > 0 {
 		s = status[0]
 	}
-	utils.ErrorJSON(w, err, s)
+	utils.ErrorJSON(w, err, name, s)
 }
 
 func hashPassword(password string) (string, error) {
