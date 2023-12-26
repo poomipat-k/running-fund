@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jordan-wright/email"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -44,24 +43,6 @@ func (m *MockUserStore) ForgotPasswordAction(resetPasswordCode string, email str
 
 func (m *MockUserStore) ResetPassword(resetPasswordCode string, newPassword string) (int64, error) {
 	return m.ResetPasswordFunc(resetPasswordCode, newPassword)
-}
-
-type MockEmailService struct {
-	SendEmailFunc                    func(e email.Email) error
-	BuildSignUpConfirmationEmailFunc func(to, activateLink string) email.Email
-	BuildResetPasswordEmailFunc      func(to, resetPasswordLink string) email.Email
-}
-
-func (m *MockEmailService) SendEmail(em email.Email) error {
-	return m.SendEmailFunc(em)
-}
-
-func (m *MockEmailService) BuildSignUpConfirmationEmail(to, activateLink string) email.Email {
-	return m.BuildSignUpConfirmationEmailFunc(to, activateLink)
-}
-
-func (m *MockEmailService) BuildResetPasswordEmail(to, resetPasswordLink string) email.Email {
-	return m.BuildResetPasswordEmailFunc(to, resetPasswordLink)
 }
 
 type ErrorBody struct {
