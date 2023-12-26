@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jordan-wright/email"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -79,7 +78,6 @@ func TestEmailForgetPassword(t *testing.T) {
 			forgotPasswordPayload: users.ForgotPasswordRequest{
 				Email: "abc@test.com",
 			},
-			emailService:   &MockEmailService{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.UserIsNotActivatedError{},
 		},
@@ -96,14 +94,6 @@ func TestEmailForgetPassword(t *testing.T) {
 			forgotPasswordPayload: users.ForgotPasswordRequest{
 				Email: "abc@test.com",
 			},
-			emailService: &MockEmailService{
-				BuildResetPasswordEmailFunc: func(to string, activateLink string) email.Email {
-					return *email.NewEmail()
-				},
-				SendEmailFunc: func(e email.Email) error {
-					return nil
-				},
-			},
 			expectedStatus: http.StatusOK,
 		},
 	}
@@ -111,7 +101,7 @@ func TestEmailForgetPassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := tt.store
-			handler := users.NewUserHandler(store, tt.emailService)
+			handler := users.NewUserHandler(store)
 
 			res := httptest.NewRecorder()
 			payload := forgotPasswordPayloadToJSON(tt.forgotPasswordPayload)

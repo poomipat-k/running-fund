@@ -33,7 +33,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 	emailService := appEmail.NewEmailService()
 	userStore := users.NewStore(db, emailService)
-	userHandler := users.NewUserHandler(userStore, emailService)
+	userHandler := users.NewUserHandler(userStore)
 
 	reviewStore := review.NewStore(db)
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)

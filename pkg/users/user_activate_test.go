@@ -72,8 +72,7 @@ func TestActivateEmail(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := tt.store
-			es := &MockEmailService{}
-			handler := users.NewUserHandler(store, es)
+			handler := users.NewUserHandler(store)
 
 			res := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/auth/activate-email?&activateCode=%s", tt.activateCode), nil)

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"os"
 	"time"
 )
 
@@ -77,6 +78,15 @@ func (s *store) AddUser(user User, toBeDeletedUserId int) (int, error) {
 	if err != nil {
 		return failAddUser(err)
 	}
+
+	activateLink := fmt.Sprintf("%s/user/activate-email?activateCode=%s", os.Getenv("BACKEND_URL"), user.ActivateCode)
+	mail := s.emailService.BuildSignUpConfirmationEmail(user.Email, activateLink)
+	err = s.emailService.SendEmail(mail)
+	if err != nil {
+		return failAddUser(err)
+	}
+	slog.Info("Sign up confirmation email sent to", "email", user.Email)
+
 	err = tx.Commit()
 	if err != nil {
 		return failAddUser(err)

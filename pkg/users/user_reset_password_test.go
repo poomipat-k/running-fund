@@ -130,7 +130,7 @@ func TestResetPassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			store := tt.store
-			handler := users.NewUserHandler(store, tt.emailService)
+			handler := users.NewUserHandler(store)
 
 			res := httptest.NewRecorder()
 			payload := resetPasswordPayloadToJSON(tt.resetPasswordPayload)

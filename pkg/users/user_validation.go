@@ -98,52 +98,52 @@ func generateHashedAndSaltedPassword(password string, saltLen int, delim string)
 	return passwordToStore, nil
 }
 
-func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, error, string) {
+func validateSignUpRequest(store UserStore, payload SignUpRequest) (int, string, error) {
 	err := validateEmail(payload.Email)
 	if err != nil {
-		return 0, err, "email"
+		return 0, "email", err
 	}
 
 	err = validatePassword(payload.Password)
 	if err != nil {
-		return 0, err, "password"
+		return 0, "password", err
 	}
 
 	err = validateFirstName(payload.FirstName)
 	if err != nil {
-		return 0, err, "firstName"
+		return 0, "firstName", err
 	}
 
 	err = validateLastName(payload.LastName)
 	if err != nil {
-		return 0, err, "lastName"
+		return 0, "lastName", err
 	}
 
 	if !payload.TermsAndCondition {
-		return 0, &MissingTermsAndConditionError{}, "termsAndConditions"
+		return 0, "termsAndConditions", &MissingTermsAndConditionError{}
 	}
 
 	if !payload.Privacy {
-		return 0, &MissingPrivacyError{}, "privacy"
+		return 0, "privacy", &MissingPrivacyError{}
 	}
 
 	toBeDeletedUserId, err := isDuplicatedEmail(payload.Email, store)
 	if err != nil {
-		return 0, err, "email"
+		return 0, "email", err
 	}
-	return toBeDeletedUserId, nil, ""
+	return toBeDeletedUserId, "", nil
 }
 
-func validateSignInRequest(payload SignInRequest) (error, string) {
+func validateSignInRequest(payload SignInRequest) (string, error) {
 	err := validateEmail(payload.Email)
 	if err != nil {
-		return err, "email"
+		return "email", err
 	}
 	err = validatePassword(payload.Password)
 	if err != nil {
-		return err, "password"
+		return "password", err
 	}
-	return nil, ""
+	return "", nil
 }
 
 func validateEmail(email string) error {

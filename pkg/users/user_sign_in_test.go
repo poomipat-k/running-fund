@@ -161,8 +161,7 @@ func TestSignIn(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			es := tt.emailService
-			handler := users.NewUserHandler(tt.store, es)
+			handler := users.NewUserHandler(tt.store)
 			reqPayload := signInPayloadToJSON(tt.payload)
 			req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", reqPayload)
 			res := httptest.NewRecorder()

@@ -33,14 +33,12 @@ type EmailService interface {
 }
 
 type UserHandler struct {
-	store        UserStore
-	emailService EmailService
+	store UserStore
 }
 
-func NewUserHandler(s UserStore, es EmailService) *UserHandler {
+func NewUserHandler(s UserStore) *UserHandler {
 	return &UserHandler{
-		store:        s,
-		emailService: es,
+		store: s,
 	}
 }
 
@@ -77,7 +75,7 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toBeDeletedUserId, err, fieldName := validateSignUpRequest(h.store, payload)
+	toBeDeletedUserId, fieldName, err := validateSignUpRequest(h.store, payload)
 	if err != nil {
 		fail(w, err, fieldName)
 		return
@@ -104,14 +102,6 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	activateLink := fmt.Sprintf("%s/user/activate-email?activateCode=%s", os.Getenv("BACKEND_URL"), activateCode)
-	mail := h.emailService.BuildSignUpConfirmationEmail(newUser.Email, activateLink)
-	err = h.emailService.SendEmail(mail)
-	if err != nil {
-		fail(w, err, "emailService")
-		return
-	}
-	slog.Info("Sign up confirmation email sent to", "email", newUser.Email)
 	// return the created user id
 	utils.WriteJSON(w, http.StatusCreated, userId)
 }
@@ -124,7 +114,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		fail(w, err, "")
 		return
 	}
-	err, fieldName := validateSignInRequest(payload)
+	fieldName, err := validateSignInRequest(payload)
 	if err != nil {
 		fail(w, err, fieldName)
 		return
