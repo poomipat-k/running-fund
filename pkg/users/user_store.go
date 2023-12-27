@@ -79,7 +79,7 @@ func (s *store) AddUser(user User, toBeDeletedUserId int) (int, string, error) {
 		return failAddUser(err, "dbQuery")
 	}
 
-	activateLink := fmt.Sprintf("%s/user/activate-email?activateCode=%s", os.Getenv("BACKEND_URL"), user.ActivateCode)
+	activateLink := fmt.Sprintf("%s/signup/activate/%s", os.Getenv("UI_URL"), user.ActivateCode)
 	mail := s.emailService.BuildSignUpConfirmationEmail(user.Email, activateLink)
 	err = s.emailService.SendEmail(mail)
 	if err != nil {

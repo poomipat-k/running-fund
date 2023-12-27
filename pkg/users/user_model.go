@@ -29,6 +29,10 @@ type SignInRequest struct {
 	Password string `json:"password"`
 }
 
+type ActivateUserRequest struct {
+	ActivateCode string `json:"activateCode"`
+}
+
 type ForgotPasswordRequest struct {
 	Email string `json:"email"`
 }

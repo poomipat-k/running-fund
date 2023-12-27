@@ -233,14 +233,20 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
-	activateCode := r.URL.Query().Get("activateCode")
-	err := validateActivateCode(activateCode)
+	var payload ActivateUserRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		fail(w, err, "")
+		return
+	}
+
+	err = validateActivateCode(payload.ActivateCode)
 	if err != nil {
 		fail(w, err, "activateCode", http.StatusBadRequest)
 		return
 	}
 
-	rowEffected, err := h.store.ActivateUser(activateCode)
+	rowEffected, err := h.store.ActivateUser(payload.ActivateCode)
 	if err != nil {
 		fail(w, err, "activateCode", http.StatusNotFound)
 		return

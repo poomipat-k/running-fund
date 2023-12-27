@@ -53,7 +53,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
-		r.Get("/user/activate-email", userHandler.ActivateUser)
+		r.Post("/user/activate-email", userHandler.ActivateUser)
 		r.Post("/user/password/forgot", userHandler.ForgotPassword)
 		r.Post("/user/password/reset", userHandler.ResetPassword)
 
