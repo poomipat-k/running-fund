@@ -9,7 +9,7 @@ func (e *EmailRequiredError) Error() string {
 type DuplicatedEmailError struct{}
 
 func (e *DuplicatedEmailError) Error() string {
-	return "email is already exist"
+	return "ที่อยู่อีเมลถูกใช้ไปแล้ว"
 }
 
 type InvalidEmailError struct{}

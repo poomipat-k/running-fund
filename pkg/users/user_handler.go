@@ -20,7 +20,7 @@ const refreshExpireDurationHour = 4320 // 180 days
 type UserStore interface {
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
-	AddUser(user User, toBeDeletedUserId int) (int, error)
+	AddUser(user User, toBeDeletedUserId int) (int, string, error)
 	ActivateUser(activateCode string) (int64, error)
 	ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
 	ResetPassword(resetPasswordCode string, newPassword string) (int64, error)
@@ -96,9 +96,9 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		ActivateCode: activateCode,
 	}
 	// Create a new user and save it
-	userId, err := h.store.AddUser(newUser, toBeDeletedUserId)
+	userId, name, err := h.store.AddUser(newUser, toBeDeletedUserId)
 	if err != nil {
-		fail(w, err, "")
+		fail(w, err, name)
 		return
 	}
 

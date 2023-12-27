@@ -55,60 +55,61 @@ func (s *store) GetUserByEmail(email string) (User, error) {
 	}
 }
 
-func (s *store) AddUser(user User, toBeDeletedUserId int) (int, error) {
+func (s *store) AddUser(user User, toBeDeletedUserId int) (int, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return failAddUser(err)
+		return failAddUser(err, "")
 	}
 	defer tx.Rollback()
 
 	// Email already used but we want to replace
 	if toBeDeletedUserId > 0 {
-		_, err := s.DeleteUserById(toBeDeletedUserId, ctx, tx)
+		_, _, err := s.DeleteUserById(toBeDeletedUserId, ctx, tx)
 		if err != nil {
-			return failAddUser(err)
+			return failAddUser(err, "")
 		}
 	}
 
 	var userId int
 	err = tx.QueryRowContext(ctx, addUserSQL, user.Email, user.Password, user.FirstName, user.LastName, "applicant", false, user.ActivateCode).Scan(&userId)
 	if err != nil {
-		return failAddUser(err)
+		return failAddUser(err, "dbQuery")
 	}
 
 	activateLink := fmt.Sprintf("%s/user/activate-email?activateCode=%s", os.Getenv("BACKEND_URL"), user.ActivateCode)
 	mail := s.emailService.BuildSignUpConfirmationEmail(user.Email, activateLink)
 	err = s.emailService.SendEmail(mail)
 	if err != nil {
-		return failAddUser(err)
+		slog.Error("Signup: failed to send account activation email", "error", err.Error())
+		return failAddUser(fmt.Errorf("ไม่สามารถส่งอีเมลไปยังที่อยู่อีเมลนี้ได้ โปรดตรวจสอบที่อยู่อีเมล"), "email")
 	}
 	slog.Info("Sign up confirmation email sent to", "email", user.Email)
 
 	err = tx.Commit()
 	if err != nil {
-		return failAddUser(err)
+		return failAddUser(err, "commit")
 	}
-	return userId, nil
+	return userId, "", nil
 }
 
-func (s *store) DeleteUserById(id int, ctx context.Context, tx *sql.Tx) (int, error) {
+func (s *store) DeleteUserById(id int, ctx context.Context, tx *sql.Tx) (int, string, error) {
 	var deletedId int
 	if tx != nil {
 		err := tx.QueryRowContext(ctx, DeleteUserByIdSQL, id).Scan(&deletedId)
 		if err != nil {
-			return failAddUser(err)
+			return failAddUser(err, "")
 		}
-		return deletedId, nil
+		return deletedId, "", nil
 	}
 
 	err := s.db.QueryRowContext(ctx, DeleteUserByIdSQL, id).Scan(&deletedId)
 	if err != nil {
-		return failAddUser(err)
+		return failAddUser(err, "")
 	}
-	return deletedId, nil
+	return deletedId, "", nil
 }
 
 func (s *store) ActivateUser(activateCode string) (int64, error) {
@@ -154,8 +155,8 @@ func (s *store) ResetPassword(resetPasswordCode string, newPassword string) (int
 
 }
 
-func failAddUser(err error) (int, error) {
-	return 0, fmt.Errorf("addUser: %w", err)
+func failAddUser(err error, name string) (int, string, error) {
+	return 0, name, err
 }
 
 func failForgotPasswordAction(err error) (int64, error) {

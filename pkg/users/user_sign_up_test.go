@@ -164,8 +164,8 @@ func TestSignUp(t *testing.T) {
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
-				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-					return 1, nil
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, string, error) {
+					return 1, "", nil
 				},
 			},
 			expectedStatus: http.StatusBadRequest,
@@ -213,8 +213,8 @@ func TestSignUp(t *testing.T) {
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
-				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-					return 1, nil
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, string, error) {
+					return 1, "", nil
 				},
 			},
 			expectedStatus: http.StatusBadRequest,
@@ -308,8 +308,8 @@ func TestSignUp(t *testing.T) {
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
-				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-					return 1, nil
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, string, error) {
+					return 1, "", nil
 				},
 			},
 			expectedStatus:   http.StatusCreated,
@@ -329,8 +329,8 @@ func TestSignUp(t *testing.T) {
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Id: 1, Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(-24 * time.Hour))}, nil
 				},
-				AddUserFunc: func(user users.User, toBeDeletedId int) (int, error) {
-					return 2, nil
+				AddUserFunc: func(user users.User, toBeDeletedId int) (int, string, error) {
+					return 2, "", nil
 				},
 			},
 			expectedStatus:   http.StatusCreated,

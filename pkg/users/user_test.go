@@ -14,7 +14,7 @@ type MockUserStore struct {
 	Users                    map[int]users.User
 	UsersMapByEmail          map[string]users.User
 	GetUserByEmailFunc       func(email string) (users.User, error)
-	AddUserFunc              func(user users.User, toBeDeletedId int) (int, error)
+	AddUserFunc              func(user users.User, toBeDeletedId int) (int, string, error)
 	GetUserByIdFunc          func(id int) (users.User, error)
 	ActivateUserFunc         func(activateCode string) (int64, error)
 	ForgotPasswordActionFunc func(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
@@ -29,7 +29,7 @@ func (m *MockUserStore) GetUserByEmail(email string) (users.User, error) {
 	return m.GetUserByEmailFunc(email)
 }
 
-func (m *MockUserStore) AddUser(user users.User, toBeDeletedId int) (int, error) {
+func (m *MockUserStore) AddUser(user users.User, toBeDeletedId int) (int, string, error) {
 	return m.AddUserFunc(user, toBeDeletedId)
 }
 
