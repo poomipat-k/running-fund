@@ -282,7 +282,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resetPasswordCode := utils.RandAlphaNum(24)
-	resetPasswordLink := fmt.Sprintf("%s/user/reset-password?resetPasswordCode=%s", os.Getenv("BACKEND_URL"), resetPasswordCode)
+	resetPasswordLink := fmt.Sprintf("%s/user/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
 	rowEffected, err := h.store.ForgotPasswordAction(resetPasswordCode, user.Email, resetPasswordLink)
 	if err != nil {
 		fail(w, err, "")
