@@ -282,7 +282,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resetPasswordCode := utils.RandAlphaNum(24)
-	resetPasswordLink := fmt.Sprintf("%s/user/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
+	resetPasswordLink := fmt.Sprintf("%s/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
 	rowEffected, err := h.store.ForgotPasswordAction(resetPasswordCode, user.Email, resetPasswordLink)
 	if err != nil {
 		fail(w, err, "")
@@ -324,7 +324,7 @@ func (h *UserHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if rowEffected == 0 {
-		fail(w, &ResetPasswordCodeNotFound{}, "store", http.StatusNotFound)
+		fail(w, &ResetPasswordCodeNotFound{}, "resetPasswordCode", http.StatusNotFound)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, rowEffected)
