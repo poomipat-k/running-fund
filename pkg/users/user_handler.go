@@ -147,6 +147,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Value:    accessToken,
 		HttpOnly: true,
 		Secure:   false, // TODO: turn on when change to https
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/api",
 		Expires:  time.Unix(accessExpiredAtUnix, 0),
 	}
@@ -161,6 +162,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Value:    refreshToken,
 		HttpOnly: true,
 		Secure:   false, // TODO: turn on when change to https
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/api/v1/auth",
 		Expires:  time.Unix(refreshExpiredAtUnix, 0),
 	}
@@ -177,6 +179,7 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		HttpOnly: true,
 		Secure:   false, // TODO: turn on when change to https
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/api",
 		Expires:  time.Now(),
 	}
@@ -186,6 +189,7 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Value:    "",
 		HttpOnly: true,
 		Secure:   false, // TODO: turn on when change to https
+		SameSite: http.SameSiteLaxMode,
 		Path:     "/api/v1/auth",
 		Expires:  time.Now(),
 	}
@@ -221,6 +225,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 			Value:    accessToken,
 			HttpOnly: true,
 			Secure:   false, // TODO: turn on when change to https
+			SameSite: http.SameSiteLaxMode,
 			Path:     "/api",
 			Expires:  time.Unix(accessExpiredAtUnix, 0),
 		}
