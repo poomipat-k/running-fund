@@ -58,6 +58,25 @@ func TestGenerateCaptcha(t *testing.T) {
 
 }
 
+// func TestCheckCaptcha(t *testing.T) {
+// 	data := make(map[string]int)
+// 	store := &MockCaptchaStore{
+// 		Store: data,
+// 		GenerateCaptchaIdFunc: func() (string, int) {
+// 			captchaId := "RhEzlSh46ClI"
+// 			captchaValue := 47
+// 			data[captchaId] = captchaValue
+// 			return captchaId, captchaValue
+// 		},
+// 	}
+// 	handler := captcha.NewCaptchaHandler(store)
+// 	req := httptest.NewRequest(http.MethodPost, "/api/v1/captcha/check", nil)
+// 	res := httptest.NewRecorder()
+
+// 	handler.CheckCaptcha(res, req)
+// 	assertStatus(t, res.Code, http.StatusOK)
+// }
+
 func assertStatus(t testing.TB, got, want int) {
 	t.Helper()
 	if got != want {

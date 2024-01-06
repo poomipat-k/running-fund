@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
+	"github.com/poomipat-k/running-fund/pkg/captcha"
 	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -41,6 +42,9 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	projectStore := projects.NewStore(db)
 	projectHandler := projects.NewProjectHandler(projectStore, userStore)
 
+	captchaStore := captcha.NewStore(make(map[string]int))
+	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
+
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("API landing page"))
@@ -62,6 +66,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/auth/login", userHandler.SignIn)
 		r.Post("/auth/logout", userHandler.SignOut)
 		r.Post("/auth/refresh-token", userHandler.RefreshAccessToken)
+
+		r.Post("/captcha/generate", captchaHandler.GenerateCaptcha)
 	})
 
 	return mux
