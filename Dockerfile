@@ -20,6 +20,8 @@ WORKDIR /
 
 COPY --from=buildStage /myApp /app
 
+COPY --from=buildStage /app/resources /home
+
 EXPOSE 8080
 
 ENTRYPOINT [ "/app" ]

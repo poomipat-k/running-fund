@@ -4,26 +4,29 @@ import (
 	"encoding/base64"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/patrickmn/go-cache"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
+const resourcesBasePath = "./home"
+
 var puzzles = []Puzzle{
 	{
-		BackgroundPath: "./tmp/desert_70.png",
-		PuzzlePath:     "./tmp/desert_jigsaw_70.png",
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_70.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_70.png"),
 		Value:          70,
 	},
 	{
-		BackgroundPath: "./tmp/desert_95.png",
-		PuzzlePath:     "./tmp/desert_jigsaw_95.png",
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_95.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_95.png"),
 		Value:          95,
 	},
 	{
-		BackgroundPath: "./tmp/desert_130.png",
-		PuzzlePath:     "./tmp/desert_jigsaw_130.png",
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_130.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_130.png"),
 		Value:          130,
 	},
 }

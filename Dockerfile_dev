@@ -4,4 +4,6 @@ RUN mkdir /app
 
 COPY ./bin/runningApp /app
 
+COPY ./resources /home
+
 CMD ["/app/runningApp"]
