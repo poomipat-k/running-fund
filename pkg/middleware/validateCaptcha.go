@@ -10,9 +10,9 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
-func ValidateCaptcha(next http.HandlerFunc) http.HandlerFunc {
+func ValidateCaptcha(next http.HandlerFunc, captchaStore captcha.CaptchaStore) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var captcha captcha.CheckCaptchaRequest
+		var captchaPayload captcha.CheckCaptchaRequest
 
 		// middleware do read the body
 		bodyBytes, _ := io.ReadAll(r.Body)
@@ -20,12 +20,17 @@ func ValidateCaptcha(next http.HandlerFunc) http.HandlerFunc {
 		// put back the bodyBytes to r.Body
 		r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-		err := json.Unmarshal(bodyBytes, &captcha)
+		err := json.Unmarshal(bodyBytes, &captchaPayload)
 		if err != nil {
 			utils.ErrorJSON(w, err, "unmarshal payload")
 			return
 		}
 
+		errName, err := captcha.CheckCaptcha(captchaPayload.CaptchaId, captchaPayload.CaptchaValue, captchaStore)
+		if err != nil {
+			utils.ErrorJSON(w, err, errName)
+			return
+		}
 		next(w, r)
 	})
 }

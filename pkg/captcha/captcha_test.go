@@ -83,82 +83,9 @@ func TestGenerateCaptcha(t *testing.T) {
 
 }
 
-// func TestCheckCaptcha(t *testing.T) {
-// 	data := make(map[string]float64)
-
-// 	tests := []struct {
-// 		name           string
-// 		payload        captcha.CheckCaptchaRequest
-// 		store          *MockCaptchaStore
-// 		expectedStatus int
-// 		expectedError  error
-// 	}{
-// 		{
-// 			name: "should fail when captcha is missing",
-// 			payload: captcha.CheckCaptchaRequest{
-// 				CaptchaId:    "",
-// 				CaptchaValue: 20,
-// 			},
-// 			store: &MockCaptchaStore{
-// 				Store: data,
-// 				GetFunc: func(captchaId string) (float64, bool) {
-// 					return 0, false
-// 				},
-// 			},
-// 			expectedStatus: 400,
-// 			expectedError:  &captcha.CaptchaIdRequiredError{},
-// 		},
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			handler := captcha.NewCaptchaHandler(tt.store)
-// 			reqPayload := checkCaptchaPayloadToJSON(tt.payload)
-// 			req := httptest.NewRequest(http.MethodPost, "/api/v1/captcha/check", reqPayload)
-// 			res := httptest.NewRecorder()
-
-// 			handler.CheckCaptcha(res, req)
-
-// 			assertStatus(t, res.Code, tt.expectedStatus)
-
-// 			t.Log(res.Body.String())
-// 			if tt.expectedError != nil {
-// 				errBody := getErrorResponse(t, res)
-// 				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
-// 			}
-
-// 		})
-// 	}
-// }
-
 func assertStatus(t testing.TB, got, want int) {
 	t.Helper()
 	if got != want {
 		t.Errorf("did not get correct status, got %d, want %d", got, want)
 	}
 }
-
-// func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {
-// 	t.Helper()
-// 	var body ErrorBody
-// 	err := json.Unmarshal(res.Body.Bytes(), &body)
-// 	if err != nil {
-// 		t.Errorf("Error unmarshal ErrorResponse")
-// 	}
-// 	return body
-// }
-
-// func assertErrorMessage(t testing.TB, got, want string) {
-// 	t.Helper()
-// 	if got != want {
-// 		t.Errorf("did not get correct error, got %v, want %v", got, want)
-// 	}
-// }
-
-// func checkCaptchaPayloadToJSON(payload captcha.CheckCaptchaRequest) *strings.Reader {
-// 	userJson, err := json.Marshal(payload)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	return strings.NewReader(string(userJson))
-// }
