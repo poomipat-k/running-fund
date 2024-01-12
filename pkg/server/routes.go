@@ -42,7 +42,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	projectStore := projects.NewStore(db)
 	projectHandler := projects.NewProjectHandler(projectStore, userStore)
 
-	captchaStore := captcha.NewStore(make(map[string]float64))
+	captchaStore := captcha.NewStore()
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
 
 	mux.Route("/api/v1", func(r chi.Router) {
@@ -58,7 +58,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)
-		r.Post("/user/password/forgot", userHandler.ForgotPassword)
+		r.Post("/user/password/forgot", mw.ValidateCaptcha(userHandler.ForgotPassword))
 		r.Post("/user/password/reset", userHandler.ResetPassword)
 
 		r.Get("/auth/current", mw.IsLoggedIn(userHandler.GetCurrentUser))

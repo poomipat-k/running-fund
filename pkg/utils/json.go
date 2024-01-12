@@ -22,7 +22,26 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, target any) error {
 
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
-	defer r.Body.Close()
+
+	err := dec.Decode(target)
+	if err != nil {
+		return err
+	}
+
+	err = dec.Decode(&struct{}{})
+	if err != io.EOF {
+		return errors.New("body must have only a single JSON value")
+	}
+
+	return nil
+}
+
+func ReadJSONAllowUnknownFields(w http.ResponseWriter, r *http.Request, target any) error {
+	maxBytes := 1048576 // one megabyte
+
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+
+	dec := json.NewDecoder(r.Body)
 
 	err := dec.Decode(target)
 	if err != nil {

@@ -265,7 +265,7 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var payload ForgotPasswordRequest
-	err := utils.ReadJSON(w, r, &payload)
+	err := utils.ReadJSONAllowUnknownFields(w, r, &payload)
 	if err != nil {
 		fail(w, err, "")
 		return
