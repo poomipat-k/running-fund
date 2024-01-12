@@ -35,8 +35,8 @@ type store struct {
 	data *cache.Cache
 }
 
-func NewStore(data map[string]int) *store {
-	c := cache.New(5*time.Minute, 10*time.Minute)
+func NewStore(data map[string]float64) *store {
+	c := cache.New(3*time.Minute, 5*time.Minute)
 	return &store{
 		data: c,
 	}
@@ -67,9 +67,9 @@ func (s *store) GenerateCaptcha() (Captcha, error) {
 	return captcha, nil
 }
 
-func (s *store) Get(captchaId string) (int, bool) {
+func (s *store) Get(captchaId string) (float64, bool) {
 	raw, found := s.data.Get(captchaId)
-	v, ok := raw.(int)
+	v, ok := raw.(float64)
 	if !ok {
 		return 0, false
 	}

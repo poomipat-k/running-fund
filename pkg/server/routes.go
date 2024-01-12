@@ -42,7 +42,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	projectStore := projects.NewStore(db)
 	projectHandler := projects.NewProjectHandler(projectStore, userStore)
 
-	captchaStore := captcha.NewStore(make(map[string]int))
+	captchaStore := captcha.NewStore(make(map[string]float64))
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
 
 	mux.Route("/api/v1", func(r chi.Router) {
@@ -68,7 +68,6 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/auth/refresh-token", userHandler.RefreshAccessToken)
 
 		r.Post("/captcha/generate", captchaHandler.GenerateCaptcha)
-		r.Post("/captcha/check", captchaHandler.CheckCaptcha)
 	})
 
 	return mux

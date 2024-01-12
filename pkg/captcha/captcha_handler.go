@@ -7,9 +7,11 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
+const captchaErrorLimit = 10.0 // in pixels
+
 type CaptchaStore interface {
 	GenerateCaptcha() (Captcha, error)
-	Get(captchaId string) (int, bool)
+	Get(captchaId string) (float64, bool)
 }
 
 type CaptchaHandler struct {
@@ -35,35 +37,26 @@ func (h *CaptchaHandler) GenerateCaptcha(w http.ResponseWriter, r *http.Request)
 	})
 }
 
-func (h *CaptchaHandler) CheckCaptcha(w http.ResponseWriter, r *http.Request) {
-	var payload CheckCaptchaRequest
-	err := utils.ReadJSON(w, r, &payload)
+func CheckCaptcha(captchaId string, captchaValue float64, store CaptchaStore) (string, error) {
+	name, err := validateCheckCaptchaPayload(captchaId, captchaValue)
 	if err != nil {
-		fail(w, err, "")
-		return
+		return name, err
 	}
-	name, err := validateCheckCaptchaPayload(payload)
-	if err != nil {
-		fail(w, err, name)
-		return
-	}
-
-	storeValue, found := h.store.Get(payload.CaptchaId)
+	storeValue, found := store.Get(captchaId)
 	if !found {
-		fail(w, &CaptchaNotFoundError{}, "captchaId", http.StatusNotFound)
-		return
+		return "captchaId", &CaptchaNotFoundError{}
 	}
-	if payload.CaptchaValue != storeValue {
-		fail(w, &CaptchaValueNotValidError{}, "captchaValue")
-		return
+	if captchaValue-storeValue < -captchaErrorLimit || captchaValue-storeValue > captchaErrorLimit {
+		return "captchaValue", &CaptchaValueNotValidError{}
 	}
+	return "", nil
 }
 
-func validateCheckCaptchaPayload(payload CheckCaptchaRequest) (string, error) {
-	if payload.CaptchaId == "" {
+func validateCheckCaptchaPayload(captchaId string, captchaValue float64) (string, error) {
+	if captchaId == "" {
 		return "captchaId", &CaptchaIdRequiredError{}
 	}
-	if payload.CaptchaValue == 0 {
+	if captchaValue == 0 {
 		return "captchaValue", &CaptchaValueRequiredError{}
 	}
 	return "", nil

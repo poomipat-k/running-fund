@@ -1,19 +1,24 @@
 package captcha
 
 type Captcha struct {
-	CaptchaId    string `json:"captchaId,omitempty"`
-	Background64 string `json:"background,omitempty"`
-	Puzzle64     string `json:"puzzle,omitempty"`
-	CaptchaValue int    `json:"captchaValue,omitempty"`
+	CaptchaId    string  `json:"captchaId,omitempty"`
+	Background64 string  `json:"background,omitempty"`
+	Puzzle64     string  `json:"puzzle,omitempty"`
+	CaptchaValue float64 `json:"captchaValue,omitempty"`
 }
 
 type CheckCaptchaRequest struct {
-	CaptchaId    string `json:"captchaId"`
-	CaptchaValue int    `json:"captchaValue"`
+	CaptchaId    string  `json:"captchaId"`
+	CaptchaValue float64 `json:"captchaValue"`
 }
 
 type Puzzle struct {
-	BackgroundPath string `json:"backgroundPath"`
-	PuzzlePath     string `json:"puzzlePath"`
-	Value          int    `json:"value"`
+	BackgroundPath string  `json:"backgroundPath"`
+	PuzzlePath     string  `json:"puzzlePath"`
+	Value          float64 `json:"value"`
+}
+
+type CommonSuccessResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
