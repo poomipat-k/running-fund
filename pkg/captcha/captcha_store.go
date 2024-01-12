@@ -19,16 +19,16 @@ var puzzles = []Puzzle{
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_70.png"),
 		Value:          70,
 	},
-	// {
-	// 	BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_95.png"),
-	// 	PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_95.png"),
-	// 	Value:          95,
-	// },
-	// {
-	// 	BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_130.png"),
-	// 	PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_130.png"),
-	// 	Value:          130,
-	// },
+	{
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_95.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_95.png"),
+		Value:          95,
+	},
+	{
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_130.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_130.png"),
+		Value:          130,
+	},
 }
 
 type store struct {
