@@ -7,7 +7,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
-const captchaErrorLimit = 10.0 // in pixels
+const captchaErrorLimit = 5.0 // in pixels
 
 type CaptchaStore interface {
 	GenerateCaptcha() (Captcha, error)
@@ -34,6 +34,7 @@ func (h *CaptchaHandler) GenerateCaptcha(w http.ResponseWriter, r *http.Request)
 		CaptchaId:    captcha.CaptchaId,
 		Background64: captcha.Background64,
 		Puzzle64:     captcha.Puzzle64,
+		YPosition:    captcha.YPosition,
 	})
 }
 

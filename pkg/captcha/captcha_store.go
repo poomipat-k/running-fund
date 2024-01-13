@@ -15,19 +15,42 @@ const resourcesBasePath = "./home"
 
 var puzzles = []Puzzle{
 	{
-		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_70.png"),
-		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_70.png"),
-		Value:          70,
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_80_80.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_puzzle_80_80.png"),
+		Value:          80, // from pre-generated image via photoshop
+		YPosition:      80, // from pre-generated image via photoshop
 	},
 	{
-		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_95.png"),
-		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_95.png"),
-		Value:          95,
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_100_50.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_puzzle_100_50.png"),
+		Value:          100, // from pre-generated image via photoshop
+		YPosition:      50,  // from pre-generated image via photoshop
+
 	},
 	{
-		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_130.png"),
-		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_jigsaw_130.png"),
-		Value:          130,
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_200_30.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_puzzle_200_30.png"),
+		Value:          200, // from pre-generated image via photoshop
+		YPosition:      30,  // from pre-generated image via photoshop
+	},
+	{
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/rocky_60_80.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/rocky_puzzle_60_80.png"),
+		Value:          60, // from pre-generated image via photoshop
+		YPosition:      80, // from pre-generated image via photoshop
+	},
+	{
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/rocky_120_60.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/rocky_puzzle_120_60.png"),
+		Value:          120, // from pre-generated image via photoshop
+		YPosition:      60,  // from pre-generated image via photoshop
+
+	},
+	{
+		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/rocky_170_40.png"),
+		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/rocky_puzzle_170_40.png"),
+		Value:          170, // from pre-generated image via photoshop
+		YPosition:      40,  // from pre-generated image via photoshop
 	},
 }
 
@@ -61,6 +84,7 @@ func (s *store) GenerateCaptcha() (Captcha, error) {
 		CaptchaId:    captchaId,
 		Background64: base64Background,
 		Puzzle64:     base64Puzzle,
+		YPosition:    p.YPosition,
 	}
 	s.data.Set(captchaId, p.Value, cache.DefaultExpiration)
 
