@@ -12,6 +12,7 @@ const captchaErrorLimit = 5.0 // in pixels
 type CaptchaStore interface {
 	GenerateCaptcha() (Captcha, error)
 	Get(captchaId string) (float64, bool)
+	Delete(captchaId string)
 }
 
 type CaptchaHandler struct {

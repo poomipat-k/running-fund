@@ -23,6 +23,10 @@ func (m *MockCaptchaStore) Get(captchaId string) (float64, bool) {
 	return m.GetFunc(captchaId)
 }
 
+func (m *MockCaptchaStore) Delete(captchaId string) {
+	delete(m.Store, captchaId)
+}
+
 type ErrorBody struct {
 	Error   bool
 	Message string

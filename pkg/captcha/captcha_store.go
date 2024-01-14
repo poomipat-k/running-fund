@@ -100,6 +100,10 @@ func (s *store) Get(captchaId string) (float64, bool) {
 	return v, found
 }
 
+func (s *store) Delete(captchaId string) {
+	s.data.Delete(captchaId)
+}
+
 func getBase64FromImage(filepath string) (string, error) {
 	bytes, err := os.ReadFile(filepath)
 	if err != nil {

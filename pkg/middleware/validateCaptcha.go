@@ -28,6 +28,8 @@ func ValidateCaptcha(next http.HandlerFunc, captchaStore captcha.CaptchaStore) h
 
 		errName, err := captcha.CheckCaptcha(captchaPayload.CaptchaId, captchaPayload.CaptchaValue, captchaStore)
 		if err != nil {
+			// Delete captcha when captcha answer is not valid
+			captchaStore.Delete(captchaPayload.CaptchaId)
 			utils.ErrorJSON(w, err, errName)
 			return
 		}
