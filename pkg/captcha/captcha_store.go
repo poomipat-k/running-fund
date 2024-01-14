@@ -67,7 +67,12 @@ func NewStore() *store {
 
 func (s *store) GenerateCaptcha() (Captcha, error) {
 	captchaId := utils.RandAlphaNum(12)
-	index := rand.Intn(len(puzzles))
+
+	// Create a new random number generator with a custom seed (e.g., current time)
+	source := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(source)
+	index := rng.Intn(len(puzzles))
+
 	p := puzzles[index]
 
 	base64Background, err := getBase64FromImage(p.BackgroundPath)
