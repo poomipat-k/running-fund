@@ -14,43 +14,42 @@ import (
 const resourcesBasePath = "./home"
 
 var puzzles = []Puzzle{
+	// Value and YPosition are values from photoshop used to generate the background and puzzle
 	{
 		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_80_80.png"),
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_puzzle_80_80.png"),
-		Value:          80, // from pre-generated image via photoshop
-		YPosition:      80, // from pre-generated image via photoshop
+		Value:          80,
+		YPosition:      80,
 	},
 	{
 		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_100_50.png"),
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_puzzle_100_50.png"),
-		Value:          100, // from pre-generated image via photoshop
-		YPosition:      50,  // from pre-generated image via photoshop
-
+		Value:          100,
+		YPosition:      50,
 	},
 	{
 		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/desert_200_30.png"),
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/desert_puzzle_200_30.png"),
-		Value:          200, // from pre-generated image via photoshop
-		YPosition:      30,  // from pre-generated image via photoshop
+		Value:          200,
+		YPosition:      30,
 	},
 	{
 		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/rocky_60_80.png"),
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/rocky_puzzle_60_80.png"),
-		Value:          60, // from pre-generated image via photoshop
-		YPosition:      80, // from pre-generated image via photoshop
+		Value:          60,
+		YPosition:      80,
 	},
 	{
 		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/rocky_120_60.png"),
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/rocky_puzzle_120_60.png"),
-		Value:          120, // from pre-generated image via photoshop
-		YPosition:      60,  // from pre-generated image via photoshop
-
+		Value:          120,
+		YPosition:      60,
 	},
 	{
 		BackgroundPath: filepath.Join(resourcesBasePath, "captcha/rocky_170_40.png"),
 		PuzzlePath:     filepath.Join(resourcesBasePath, "captcha/rocky_puzzle_170_40.png"),
-		Value:          170, // from pre-generated image via photoshop
-		YPosition:      40,  // from pre-generated image via photoshop
+		Value:          170,
+		YPosition:      40,
 	},
 }
 
