@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"time"
 )
@@ -39,7 +38,6 @@ func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
 func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]ReviewDashboardRow, error) {
 	rows, err := s.db.Query(getReviewerDashboardSQL, userId, fromDate, toDate)
 	if err != nil {
-		log.Println("Error on Query: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -53,7 +51,6 @@ func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]
 		var download sql.NullString
 		err = rows.Scan(&row.ProjectId, &row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &reviewId, &reviewedAt, &download)
 		if err != nil {
-			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
 		// Check Nullable columns
@@ -69,10 +66,9 @@ func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]
 
 		data = append(data, row)
 	}
-	// get any error cncountered during iteration
+	// get any error encountered during iteration
 	err = rows.Err()
 	if err != nil {
-		log.Println("Error on rows.Err: ", err)
 		return nil, err
 	}
 	return data, nil
@@ -185,7 +181,6 @@ func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (Proje
 func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error) {
 	rows, err := s.db.Query(getReviewDetailsByReviewIdSQL, reviewId)
 	if err != nil {
-		log.Println("Error on Query: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -194,7 +189,6 @@ func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error
 		var row ReviewDetails
 		err := rows.Scan(&row.ReviewDetailsId, &row.CriteriaVersion, &row.CriteriaOrderNumber, &row.Score)
 		if err != nil {
-			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
 
@@ -202,7 +196,6 @@ func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error
 	}
 	err = rows.Err()
 	if err != nil {
-		log.Println("Error on rows.Err: ", err)
 		return nil, err
 	}
 	return data, nil
@@ -214,7 +207,6 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	}
 	rows, err := s.db.Query(getProjectCriteriaSQL, criteriaVersion)
 	if err != nil {
-		log.Println("Error on Query: ", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -228,7 +220,6 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 
 		err := rows.Scan(&row.CriteriaVersion, &row.OrderNumber, &groupNumber, &inGroupNumber, &displayText)
 		if err != nil {
-			log.Println("Error on Scan: ", err)
 			return nil, err
 		}
 
@@ -248,41 +239,6 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	// get any error occur during iteration
 	err = rows.Err()
 	if err != nil {
-		log.Println("Error on rows.Err: ", err)
-		return nil, err
-	}
-	if len(data) == 0 {
-		return nil, errors.New("criteria version not found")
-	}
-	return data, nil
-}
-
-func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteriaMinimal, error) {
-	if cv == 0 {
-		cv = 1
-	}
-	rows, err := s.db.Query(getProjectCriteriaMinimalSQL, cv)
-	if err != nil {
-		log.Println("Error on Query: ", err)
-		return nil, err
-	}
-	defer rows.Close()
-
-	var data []ProjectReviewCriteriaMinimal
-	for rows.Next() {
-		var row ProjectReviewCriteriaMinimal
-
-		err := rows.Scan(&row.CriteriaId, &row.CriteriaVersion, &row.OrderNumber)
-		if err != nil {
-			log.Println("Error on Scan: ", err)
-			return nil, err
-		}
-		data = append(data, row)
-	}
-	// get any error occur during iteration
-	err = rows.Err()
-	if err != nil {
-		log.Println("Error on rows.Err: ", err)
 		return nil, err
 	}
 	if len(data) == 0 {

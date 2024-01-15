@@ -1,0 +1,11 @@
+.git
+
+*.env
+
+docker-compose-staging.yaml
+
+notes
+
+db-data
+
+.vscode

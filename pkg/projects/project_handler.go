@@ -1,4 +1,4 @@
-package server
+package projects
 
 import (
 	"log/slog"
@@ -7,24 +7,23 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/poomipat-k/running-fund/pkg/projects"
+	"github.com/poomipat-k/running-fund/pkg/users"
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 type projectStore interface {
-	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
-	GetReviewPeriod() (projects.ReviewPeriod, error)
-	GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error)
-	GetProjectCriteria(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	GetProjectCriteriaMinimalDetails(cv int) ([]projects.ProjectReviewCriteriaMinimal, error)
-	AddReview(payload projects.AddReviewRequest, userId int, criteriaList []projects.ProjectReviewCriteriaMinimal) (int, error)
+	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
+	GetReviewPeriod() (ReviewPeriod, error)
+	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
+	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 }
 
 type ProjectHandler struct {
 	store  projectStore
-	uStore userStore
+	uStore users.UserStore
 }
 
-func NewProjectHandler(s projectStore, uStore userStore) *ProjectHandler {
+func NewProjectHandler(s projectStore, uStore users.UserStore) *ProjectHandler {
 	return &ProjectHandler{
 		store:  s,
 		uStore: uStore,
@@ -32,66 +31,69 @@ func NewProjectHandler(s projectStore, uStore userStore) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Request) {
-	// To check if the user exists in the db
-	userId, err := getAuthUserId(r)
+	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "userId")
 		return
 	}
 
-	var payload projects.GetReviewerDashboardRequest
-	err = readJSON(w, r, &payload)
+	var payload GetReviewerDashboardRequest
+	err = utils.ReadJSON(w, r, &payload)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
 	projects, err := h.store.GetReviewerDashboard(userId, payload.FromDate, payload.ToDate)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
-	writeJSON(w, http.StatusOK, projects)
+	utils.WriteJSON(w, http.StatusOK, projects)
 }
 
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
-	// To check if the user exists in the db
-	userId, err := getAuthUserId(r)
+	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "userId")
+		return
+	}
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
 	projectCode := chi.URLParam(r, "projectCode")
 	if len(projectCode) == 0 {
 		slog.Error("Please provide a project code.")
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "projectCode")
 		return
 	}
 	projectDetails, err := h.store.GetReviewerProjectDetails(userId, projectCode)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 	// ResponseJson(w, projectDetails, http.StatusOK)
-	writeJSON(w, http.StatusOK, projectDetails)
+	utils.WriteJSON(w, http.StatusOK, projectDetails)
 }
 
 func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
 	period, err := h.store.GetReviewPeriod()
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err)
+		utils.ErrorJSON(w, err, "")
 		return
 	}
 
-	writeJSON(w, http.StatusOK, period)
+	utils.WriteJSON(w, http.StatusOK, period)
 }
 
 func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Request) {
@@ -102,9 +104,9 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 	criteria, err := h.store.GetProjectCriteria(criteriaVersion)
 	if err != nil {
 		slog.Error(err.Error())
-		errorJSON(w, err, http.StatusBadRequest)
+		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
 
-	writeJSON(w, http.StatusOK, criteria)
+	utils.WriteJSON(w, http.StatusOK, criteria)
 }
