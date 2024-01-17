@@ -36,3 +36,5 @@ docker-compose-staging.yaml
 
 # env
 .env
+
+/upload

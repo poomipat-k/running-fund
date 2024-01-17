@@ -1,8 +1,13 @@
 package projects
 
 import (
+	"fmt"
+	"io"
+	"log"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -10,6 +15,36 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
+
+const MAX_UPLOAD_SIZE = 32 * 1024 * 1024 // 32MB
+
+// Progress is used to track the progress of a file upload.
+// It implements the io.Writer interface so it can be passed
+// to an io.TeeReader()
+type Progress struct {
+	TotalSize int64
+	BytesRead int64
+}
+
+// Write is used to satisfy the io.Writer interface.
+// Instead of writing somewhere, it simply aggregates
+// the total bytes on each read
+func (pr *Progress) Write(p []byte) (n int, err error) {
+	n, err = len(p), nil
+	pr.BytesRead += int64(n)
+	pr.Print()
+	return
+}
+
+// Print displays the current progress of the file upload
+func (pr *Progress) Print() {
+	if pr.BytesRead == pr.TotalSize {
+		fmt.Println("DONE!")
+		return
+	}
+
+	fmt.Printf("File upload in progress: %d\n", pr.BytesRead)
+}
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
@@ -109,4 +144,109 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 	}
 
 	utils.WriteJSON(w, http.StatusOK, criteria)
+}
+
+func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
+	log.Println("===AddProject handler")
+	if err := r.ParseMultipartForm(128 << 5); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	name := r.FormValue("name")
+	form := r.FormValue("form")
+	log.Println("===name:", name)
+	log.Println("===form:", form)
+	// get a reference to the fileHeaders
+	files := r.MultipartForm.File["files"]
+
+	log.Println("===len ", len(files))
+
+	for _, fileHeader := range files {
+		if fileHeader.Size > MAX_UPLOAD_SIZE {
+			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 32MB in size", fileHeader.Filename), http.StatusBadRequest)
+			return
+		}
+
+		file, err := fileHeader.Open()
+		log.Println("===Filename:", fileHeader.Filename)
+		log.Println("===fileSize: ", fileHeader.Size)
+
+		log.Println("===Header:", fileHeader.Header)
+		log.Println("===Header2:", fileHeader.Header["Content-Type"][0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		defer file.Close()
+
+		buff := make([]byte, 512)
+		_, err = file.Read(buff)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		filetype := http.DetectContentType(buff)
+		headerContentType := fileHeader.Header["Content-Type"][0]
+
+		if !isAllowedContentType(filetype) && !isDocType(filetype, headerContentType) {
+			http.Error(w, fmt.Sprintf("The provided file format is not allowed. got %s", filetype), http.StatusBadRequest)
+			return
+		}
+
+		_, err = file.Seek(0, io.SeekStart)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = os.MkdirAll("./upload", os.ModePerm)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		f, err := os.Create(fmt.Sprintf("./upload/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		defer f.Close()
+
+		pr := &Progress{
+			TotalSize: fileHeader.Size,
+		}
+
+		_, err = io.Copy(f, io.TeeReader(file, pr))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	utils.WriteJSON(w, http.StatusOK, "OK")
+}
+
+func isDocType(detectedType string, contentType string) bool {
+	if detectedType == "application/octet-stream" && contentType == "application/msword" {
+		return true
+	}
+	if detectedType == "application/zip" && contentType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" {
+		return true
+	}
+	return false
+}
+
+func isAllowedContentType(mimetype string) bool {
+	if mimetype != "image/jpeg" &&
+		mimetype != "image/png" &&
+		mimetype != "application/msword" &&
+		mimetype != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+		mimetype != "application/pdf" {
+		return false
+	}
+	return true
 }
