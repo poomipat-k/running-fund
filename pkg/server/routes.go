@@ -50,10 +50,12 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 			w.Write([]byte("API landing page"))
 		})
 
+		r.Get("/review/criteria/{criteriaVersion}", mw.IsReviewer(projectHandler.GetProjectCriteria))
+
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Get("/project/review-period", mw.IsReviewer(projectHandler.GetReviewPeriod))
 		r.Get("/project/review/{projectCode}", mw.IsReviewer(projectHandler.GetReviewerProjectDetails))
-		r.Get("/review/criteria/{criteriaVersion}", mw.IsReviewer(projectHandler.GetProjectCriteria))
+		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
