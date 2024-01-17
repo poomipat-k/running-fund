@@ -24,3 +24,11 @@ type Review struct {
 	Improvement   ReviewImprovement `json:"improvement,omitempty"`
 	Scores        map[string]int    `json:"scores,omitempty"`
 }
+
+type AddProjectRequest struct {
+	Collaboration collaboration `json:"collaboration,omitempty"`
+}
+
+type collaboration struct {
+	Collaborated bool `json:"collaborated,omitempty"`
+}
