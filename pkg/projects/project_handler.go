@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -43,7 +44,7 @@ func (pr *Progress) Print() {
 		return
 	}
 
-	fmt.Printf("File upload in progress: %d\n", pr.BytesRead)
+	// fmt.Printf("File upload in progress: %d\n", pr.BytesRead)
 }
 
 type projectStore interface {
@@ -147,20 +148,23 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
-	log.Println("===AddProject handler")
-	if err := r.ParseMultipartForm(128 << 5); err != nil {
+	if err := r.ParseMultipartForm(25 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	name := r.FormValue("name")
-	form := r.FormValue("form")
-	log.Println("===name:", name)
-	log.Println("===form:", form)
+	formJsonString := r.FormValue("form")
+	payload := AddProjectRequest{}
+
+	err := json.Unmarshal([]byte(formJsonString), &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+
+	log.Println("===payload.collaboration.collaborated", payload.Collaboration.Collaborated)
 	// get a reference to the fileHeaders
 	files := r.MultipartForm.File["files"]
-
-	log.Println("===len ", len(files))
 
 	for _, fileHeader := range files {
 		if fileHeader.Size > MAX_UPLOAD_SIZE {
@@ -171,9 +175,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		file, err := fileHeader.Open()
 		log.Println("===Filename:", fileHeader.Filename)
 		log.Println("===fileSize: ", fileHeader.Size)
-
 		log.Println("===Header:", fileHeader.Header)
-		log.Println("===Header2:", fileHeader.Header["Content-Type"][0])
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
