@@ -162,7 +162,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("===payload.collaboration.collaborated", payload.Collaboration.Collaborated)
+	log.Println("===payload.collaborated", payload.Collaborated)
 	// get a reference to the fileHeaders
 	files := r.MultipartForm.File["files"]
 

@@ -26,9 +26,5 @@ type Review struct {
 }
 
 type AddProjectRequest struct {
-	Collaboration collaboration `json:"collaboration,omitempty"`
-}
-
-type collaboration struct {
 	Collaborated bool `json:"collaborated,omitempty"`
 }
