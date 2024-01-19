@@ -26,5 +26,15 @@ type Review struct {
 }
 
 type AddProjectRequest struct {
-	Collaborated bool `json:"collaborated,omitempty"`
+	Collaborated bool                     `json:"collaborated"`
+	General      AddProjectGeneralDetails `json:"general"`
+}
+
+type AddProjectGeneralDetails struct {
+	ProjectName          string `json:"projectName"`
+	StartPoint           string `json:"startPoint"`
+	FinishPoint          string `json:"finishPoint"`
+	ExpectedParticipants int    `json:"expectedParticipants"`
+	HasOrganizer         bool   `json:"hasOrganizer"`
+	OrganizerName        string `json:"organizerName,omitempty"`
 }
