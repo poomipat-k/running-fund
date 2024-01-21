@@ -3,10 +3,12 @@ package server
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/patrickmn/go-cache"
 
 	"github.com/poomipat-k/running-fund/pkg/address"
 	"github.com/poomipat-k/running-fund/pkg/captcha"
@@ -43,7 +45,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	projectStore := projects.NewStore(db)
 	projectHandler := projects.NewProjectHandler(projectStore, userStore)
 
-	captchaStore := captcha.NewStore()
+	c := cache.New(3*time.Minute, 5*time.Minute)
+	captchaStore := captcha.NewStore(c)
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
 
 	addressStore := address.NewStore(db)

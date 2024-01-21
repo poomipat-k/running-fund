@@ -2,6 +2,7 @@ package captcha
 
 import (
 	"encoding/base64"
+	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 )
 
 const resourcesBasePath = "./home"
+const cachePrefix = "capt__"
 
 var puzzles = []Puzzle{
 	// Value and YPosition are values from photoshop used to generate the background and puzzle
@@ -54,13 +56,12 @@ var puzzles = []Puzzle{
 }
 
 type store struct {
-	data *cache.Cache
+	c *cache.Cache
 }
 
-func NewStore() *store {
-	c := cache.New(3*time.Minute, 5*time.Minute)
+func NewStore(c *cache.Cache) *store {
 	return &store{
-		data: c,
+		c: c,
 	}
 }
 
@@ -90,13 +91,13 @@ func (s *store) GenerateCaptcha() (Captcha, error) {
 		Puzzle64:     base64Puzzle,
 		YPosition:    p.YPosition,
 	}
-	s.data.Set(captchaId, p.Value, cache.DefaultExpiration)
+	s.c.Set(fmt.Sprintf("%s%s", cachePrefix, captchaId), p.Value, cache.DefaultExpiration)
 
 	return captcha, nil
 }
 
 func (s *store) Get(captchaId string) (float64, bool) {
-	raw, found := s.data.Get(captchaId)
+	raw, found := s.c.Get(fmt.Sprintf("%s%s", cachePrefix, captchaId))
 	v, ok := raw.(float64)
 	if !ok {
 		return 0, false
@@ -105,7 +106,7 @@ func (s *store) Get(captchaId string) (float64, bool) {
 }
 
 func (s *store) Delete(captchaId string) {
-	s.data.Delete(captchaId)
+	s.c.Delete(fmt.Sprintf("%s%s", cachePrefix, captchaId))
 }
 
 func getBase64FromImage(filepath string) (string, error) {
