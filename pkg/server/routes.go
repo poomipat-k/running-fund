@@ -49,7 +49,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	captchaStore := captcha.NewStore(c)
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
 
-	addressStore := address.NewStore(db)
+	addressStore := address.NewStore(db, c)
 	addressHandler := address.NewAddressHandler(addressStore)
 
 	mux.Route("/api/v1", func(r chi.Router) {
@@ -79,6 +79,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/captcha/generate", captchaHandler.GenerateCaptcha)
 
 		r.Get("/address/provinces", mw.IsLoggedIn(addressHandler.GetProvinces))
+		r.Get("/address/districts/{provinceId}", mw.IsLoggedIn(addressHandler.GetDistrictsByProvince))
 	})
 
 	return mux

@@ -5,14 +5,14 @@ type Province struct {
 	Name string `json:"name"`
 }
 
-// type District struct {
-// 	Id         int    `json:"id"`
-// 	Name       string `json:"name"`
-// 	ProvinceId int    `json:"provinceId"`
-// }
+type District struct {
+	Id         int    `json:"id"`
+	Name       string `json:"name"`
+	ProvinceId int    `json:"provinceId,omitempty"`
+}
 
-// type Subdistrict struct {
-// 	Id         int    `json:"id"`
-// 	Name       string `json:"name"`
-// 	DistrictId int    `json:"districtId"`
-// }
+type Subdistrict struct {
+	Id         int    `json:"id"`
+	Name       string `json:"name"`
+	DistrictId int    `json:"districtId,omitempty"`
+}
