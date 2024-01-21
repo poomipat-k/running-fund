@@ -39,7 +39,6 @@ clear:
 	docker image prune -a
 	@echo "Done!"
 
-## Migration database
 
 migration_up:
 	cd migrations; echo "Inside migrations, Start migration"; \
@@ -55,6 +54,8 @@ migration_status:
 	cd migrations; echo "Inside migrations, Start migration"; \
 	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" status
 
+
+# Tests
 test:
 	go test ./pkg/...
 
