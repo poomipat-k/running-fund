@@ -3,13 +3,13 @@ package address
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/patrickmn/go-cache"
 )
 
 const provinceCachePrefix = "province"
 const distByProv = "distByProv"
+const subDistrictByDist = "subByDist"
 
 type store struct {
 	db *sql.DB
@@ -25,12 +25,10 @@ func NewStore(db *sql.DB, c *cache.Cache) *store {
 
 func (s *store) GetProvinces() ([]Province, error) {
 	// check cache first
-	rawCachedData, found := s.c.Get(fmt.Sprintf("%sall", provinceCachePrefix))
+	raw, found := s.c.Get(fmt.Sprintf("%sall", provinceCachePrefix))
 	if found {
-		log.Println("===PROVINCES found in cache")
-		cachedData, ok := rawCachedData.([]Province)
+		cachedData, ok := raw.([]Province)
 		if ok {
-			log.Println("===cached Used")
 			return cachedData, nil
 		}
 	}
@@ -55,12 +53,22 @@ func (s *store) GetProvinces() ([]Province, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.c.Set(fmt.Sprintf("%s__all", provinceCachePrefix), data, cache.NoExpiration)
+	if len(data) > 0 {
+		s.c.Set(fmt.Sprintf("%s__all", provinceCachePrefix), data, cache.NoExpiration)
+	}
 	return data, nil
 }
 
 func (s *store) GetDistrictsByProvince(provinceId int) ([]District, error) {
-
+	// Check cache
+	raw, found := s.c.Get(fmt.Sprintf("%s__%d", distByProv, provinceId))
+	if found {
+		cachedData, ok := raw.([]District)
+		if ok {
+			return cachedData, nil
+		}
+	}
+	// If not found check in db
 	rows, err := s.db.Query(getDistrictsSQL, provinceId)
 	if err != nil {
 		return nil, err
@@ -81,8 +89,44 @@ func (s *store) GetDistrictsByProvince(provinceId int) ([]District, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("===dist data")
-	log.Println(data)
-	s.c.Set(fmt.Sprintf("%s__%d", distByProv, provinceId), data, cache.NoExpiration)
+	if len(data) > 0 {
+		s.c.Set(fmt.Sprintf("%s__%d", distByProv, provinceId), data, cache.NoExpiration)
+	}
+	return data, nil
+}
+
+func (s *store) GetSubdistrictsByDistrict(districtId int) ([]Subdistrict, error) {
+	// Check cache
+	raw, found := s.c.Get(fmt.Sprintf("%s__%d", subDistrictByDist, districtId))
+	if found {
+		cachedData, ok := raw.([]Subdistrict)
+		if ok {
+			return cachedData, nil
+		}
+	}
+	// If not found check in db
+	rows, err := s.db.Query(getSubdistrictsSQL, districtId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []Subdistrict
+	for rows.Next() {
+		var row Subdistrict
+		err := rows.Scan(&row.Id, &row.Name)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, row)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > 0 {
+		s.c.Set(fmt.Sprintf("%s__%d", subDistrictByDist, districtId), data, cache.NoExpiration)
+	}
 	return data, nil
 }
