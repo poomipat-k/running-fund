@@ -18,6 +18,14 @@ CREATE TABLE subdistrict(
 ALTER TABLE subdistrict
 ADD CONSTRAINT fk_district_subdistrict FOREIGN KEY (district_id) REFERENCES district (id);
 
+CREATE TABLE address(
+    id SERIAL PRIMARY KEY NOT NULL,
+    address TEXT NOT NULL,
+    subdistrict_id INT
+);
+ALTER TABLE address
+ADD CONSTRAINT fk_subdistrict_address FOREIGN KEY (subdistrict_id) REFERENCES subdistrict (id);
+
 -- PROVINCE
 INSERT INTO PROVINCE (name) VALUES ('กระบี่');
 INSERT INTO PROVINCE (name) VALUES ('กรุงเทพมหานคร');
@@ -8466,6 +8474,8 @@ INSERT INTO SUBDISTRICT (name, district_id) VALUES ('แม่เหาะ', 928
 -- +goose Down
 ALTER TABLE district DROP COLUMN province_id;
 ALTER TABLE subdistrict DROP COLUMN district_id;
+ALTER TABLE address DROP COLUMN subdistrict_id;
 DROP TABLE province;
 DROP TABLE district;
 DROP TABLE subdistrict;
+DROP TABLE address;

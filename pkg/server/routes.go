@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 
+	"github.com/poomipat-k/running-fund/pkg/address"
 	"github.com/poomipat-k/running-fund/pkg/captcha"
 	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
@@ -45,6 +46,9 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	captchaStore := captcha.NewStore()
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
 
+	addressStore := address.NewStore(db)
+	addressHandler := address.NewAddressHandler(addressStore)
+
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("API landing page"))
@@ -70,6 +74,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/auth/refresh-token", userHandler.RefreshAccessToken)
 
 		r.Post("/captcha/generate", captchaHandler.GenerateCaptcha)
+
+		r.Get("/address/provinces", mw.IsLoggedIn(addressHandler.GetProvinces))
 	})
 
 	return mux
