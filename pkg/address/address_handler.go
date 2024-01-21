@@ -2,7 +2,6 @@ package address
 
 import (
 	"errors"
-	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -14,6 +13,7 @@ import (
 type AddressStore interface {
 	GetProvinces() ([]Province, error)
 	GetDistrictsByProvince(provinceId int) ([]District, error)
+	GetSubdistrictsByDistrict(districtId int) ([]Subdistrict, error)
 }
 
 type AddressHandler struct {
@@ -27,7 +27,6 @@ func NewAddressHandler(s AddressStore) *AddressHandler {
 }
 
 func (h *AddressHandler) GetProvinces(w http.ResponseWriter, r *http.Request) {
-	log.Println("GetProvinces Handler")
 	provinces, err := h.store.GetProvinces()
 	if err != nil {
 		slog.Error(err.Error())
@@ -38,9 +37,7 @@ func (h *AddressHandler) GetProvinces(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AddressHandler) GetDistrictsByProvince(w http.ResponseWriter, r *http.Request) {
-	log.Println("GetDistrictsByProvinceRequest Handler")
 	p := chi.URLParam(r, "provinceId")
-	log.Println("===p", p)
 	if p == "" {
 		utils.ErrorJSON(w, errors.New("provinceId is required"), "provinceId")
 		return
@@ -58,5 +55,25 @@ func (h *AddressHandler) GetDistrictsByProvince(w http.ResponseWriter, r *http.R
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, districts)
+}
 
+func (h *AddressHandler) GetSubdistrictsByProvince(w http.ResponseWriter, r *http.Request) {
+	p := chi.URLParam(r, "districtId")
+	if p == "" {
+		utils.ErrorJSON(w, errors.New("districtId is required"), "districtId")
+		return
+	}
+	districtId, err := strconv.Atoi(p)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "districtId")
+		return
+	}
+	subdistricts, err := h.store.GetSubdistrictsByDistrict(districtId)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, subdistricts)
 }
