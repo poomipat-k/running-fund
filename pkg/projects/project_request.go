@@ -34,7 +34,7 @@ type AddProjectGeneralDetails struct {
 	ProjectName          string `json:"projectName"`
 	StartPoint           string `json:"startPoint"`
 	FinishPoint          string `json:"finishPoint"`
-	ExpectedParticipants int    `json:"expectedParticipants"`
+	ExpectedParticipants string `json:"expectedParticipants"`
 	HasOrganizer         bool   `json:"hasOrganizer"`
 	OrganizerName        string `json:"organizerName,omitempty"`
 }
