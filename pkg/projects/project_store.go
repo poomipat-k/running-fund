@@ -201,6 +201,37 @@ func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error
 	return data, nil
 }
 
+func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreCriteria, error) {
+	if criteriaVersion == 0 {
+		criteriaVersion = 1
+	}
+	rows, err := s.db.Query(getApplicantCriteriaSQL, criteriaVersion)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ApplicantSelfScoreCriteria
+	for rows.Next() {
+		var row ApplicantSelfScoreCriteria
+
+		err := rows.Scan(&row.CriteriaVersion, &row.OrderNumber, &row.Display)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, row)
+	}
+	// get any error occur during iteration
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, errors.New("criteria version not found")
+	}
+	return data, nil
+}
+
 func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error) {
 	if criteriaVersion == 0 {
 		criteriaVersion = 1

@@ -29,6 +29,12 @@ LEFT JOIN improvement ON review.improvement_id = improvement.id
 WHERE project.project_code = $2
 LIMIT 1;
 `
+
+const getApplicantCriteriaSQL = `
+SELECT criteria_version, order_number, display
+FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
+ORDER BY order_number ASC;
+`
 const getProjectCriteriaSQL = `
 SELECT criteria_version ,order_number, group_number, in_group_number, display_text
 FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;

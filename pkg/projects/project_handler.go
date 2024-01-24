@@ -52,6 +52,7 @@ type projectStore interface {
 	GetReviewPeriod() (ReviewPeriod, error)
 	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
+	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 }
 
 type ProjectHandler struct {
@@ -117,7 +118,6 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		utils.ErrorJSON(w, err, "")
 		return
 	}
-	// ResponseJson(w, projectDetails, http.StatusOK)
 	utils.WriteJSON(w, http.StatusOK, projectDetails)
 }
 
@@ -138,6 +138,21 @@ func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Reque
 		criteriaVersion = 1
 	}
 	criteria, err := h.store.GetProjectCriteria(criteriaVersion)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, criteria)
+}
+
+func (h *ProjectHandler) GetApplicantCriteria(w http.ResponseWriter, r *http.Request) {
+	applicantCriteria, err := strconv.Atoi(chi.URLParam(r, "applicantCriteriaVersion"))
+	if err != nil {
+		applicantCriteria = 1
+	}
+	criteria, err := h.store.GetApplicantCriteria(applicantCriteria)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
