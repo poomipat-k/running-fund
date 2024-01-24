@@ -58,6 +58,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		})
 
 		r.Get("/review/criteria/{criteriaVersion}", mw.IsReviewer(projectHandler.GetProjectCriteria))
+		r.Get("/applicant/criteria/{applicantCriteriaVersion}", mw.IsApplicant(projectHandler.GetApplicantCriteria))
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Get("/project/review-period", mw.IsReviewer(projectHandler.GetReviewPeriod))
