@@ -6,10 +6,12 @@ import (
 	"io"
 	"log"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -164,6 +166,13 @@ func (h *ProjectHandler) GetApplicantCriteria(w http.ResponseWriter, r *http.Req
 
 // ADD PROJECT START
 func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
+		return
+	}
+
 	if err := r.ParseMultipartForm(25 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -172,7 +181,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
 
-	err := json.Unmarshal([]byte(formJsonString), &payload)
+	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, "")
 		return
@@ -183,6 +192,13 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	// get a reference to the fileHeaders
 	files := r.MultipartForm.File["files"]
 
+	writeFile(w, files, userId)
+
+	utils.WriteJSON(w, http.StatusOK, "OK")
+}
+
+func writeFile(w http.ResponseWriter, files []*multipart.FileHeader, userId int) {
+	projectCode := utils.RandAlphaNum(5)
 	for _, fileHeader := range files {
 		if fileHeader.Size > MAX_UPLOAD_SIZE {
 			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 32MB in size", fileHeader.Filename), http.StatusBadRequest)
@@ -220,13 +236,17 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = os.MkdirAll("./upload", os.ModePerm)
+		basePrefix := fmt.Sprintf("./upload/applicant/user_%d/%s", userId, projectCode)
+		// err = os.MkdirAll("./upload", os.ModePerm)
+		err = os.MkdirAll(basePrefix, os.ModePerm)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		f, err := os.Create(fmt.Sprintf("./upload/%s_%d%s", fileHeader.Filename, time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+		fileName := fmt.Sprintf("%s_%d%s", strings.Split(fileHeader.Filename, ".")[0], time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
+		objectKey := fmt.Sprintf("%s/%s", basePrefix, fileName)
+		log.Println("===objectKey", objectKey)
+		f, err := os.Create(objectKey)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -244,8 +264,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	utils.WriteJSON(w, http.StatusOK, "OK")
 }
 
 func isDocType(detectedType string, contentType string) bool {
