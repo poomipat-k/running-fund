@@ -191,14 +191,15 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	log.Println(payload)
 	// get a reference to the fileHeaders
 	files := r.MultipartForm.File["files"]
-
-	writeFile(w, files, userId)
+	projectCode := utils.RandAlphaNum(5)
+	writeFile(w, files, userId, projectCode, "")
+	collaborationFiles := r.MultipartForm.File["collaborationFiles"]
+	writeFile(w, collaborationFiles, userId, projectCode, "collaboration")
 
 	utils.WriteJSON(w, http.StatusOK, "OK")
 }
 
-func writeFile(w http.ResponseWriter, files []*multipart.FileHeader, userId int) {
-	projectCode := utils.RandAlphaNum(5)
+func writeFile(w http.ResponseWriter, files []*multipart.FileHeader, userId int, projectCode string, subFolder string) {
 	for _, fileHeader := range files {
 		if fileHeader.Size > MAX_UPLOAD_SIZE {
 			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 32MB in size", fileHeader.Filename), http.StatusBadRequest)
@@ -237,6 +238,9 @@ func writeFile(w http.ResponseWriter, files []*multipart.FileHeader, userId int)
 		}
 
 		basePrefix := fmt.Sprintf("./upload/applicant/user_%d/%s", userId, projectCode)
+		if subFolder != "" {
+			basePrefix = basePrefix + "/" + subFolder
+		}
 		// err = os.MkdirAll("./upload", os.ModePerm)
 		err = os.MkdirAll(basePrefix, os.ModePerm)
 		if err != nil {
