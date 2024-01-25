@@ -162,6 +162,7 @@ func (h *ProjectHandler) GetApplicantCriteria(w http.ResponseWriter, r *http.Req
 	utils.WriteJSON(w, http.StatusOK, criteria)
 }
 
+// ADD PROJECT START
 func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseMultipartForm(25 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -187,6 +188,8 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 32MB in size", fileHeader.Filename), http.StatusBadRequest)
 			return
 		}
+
+		log.Println("===filename:", fileHeader.Filename)
 
 		file, err := fileHeader.Open()
 		if err != nil {
@@ -223,7 +226,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		f, err := os.Create(fmt.Sprintf("./upload/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+		f, err := os.Create(fmt.Sprintf("./upload/%s_%d%s", fileHeader.Filename, time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
