@@ -20,7 +20,7 @@ ADD CONSTRAINT fk_district_subdistrict FOREIGN KEY (district_id) REFERENCES dist
 
 CREATE TABLE postcode(
     id SERIAL PRIMARY KEY NOT NULL,
-    code TEXT NOT NULL,
+    code INT NOT NULL,
     subdistrict_id INT
 );
 ALTER TABLE postcode
