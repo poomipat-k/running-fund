@@ -82,6 +82,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/address/provinces", mw.IsLoggedIn(addressHandler.GetProvinces))
 		r.Get("/address/districts/{provinceId}", mw.IsLoggedIn(addressHandler.GetDistrictsByProvince))
 		r.Get("/address/subdistricts/{districtId}", mw.IsLoggedIn(addressHandler.GetSubdistrictsByProvince))
+		r.Get("/address/postcodes/{subdistrictId}", mw.IsLoggedIn(addressHandler.GetPostcodeBySubdistrict))
 	})
 
 	return mux

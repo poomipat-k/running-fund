@@ -16,3 +16,9 @@ type Subdistrict struct {
 	Name       string `json:"name"`
 	DistrictId int    `json:"districtId,omitempty"`
 }
+
+type Postcode struct {
+	Id            int `json:"id"`
+	Code          int `json:"code"`
+	SubdistrictId int `json:"subdistrictId,omitempty"`
+}

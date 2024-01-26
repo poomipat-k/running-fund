@@ -14,6 +14,7 @@ type AddressStore interface {
 	GetProvinces() ([]Province, error)
 	GetDistrictsByProvince(provinceId int) ([]District, error)
 	GetSubdistrictsByDistrict(districtId int) ([]Subdistrict, error)
+	GetPostcodeBySubdistrict(subdistrictId int) ([]Postcode, error)
 }
 
 type AddressHandler struct {
@@ -76,4 +77,25 @@ func (h *AddressHandler) GetSubdistrictsByProvince(w http.ResponseWriter, r *htt
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, subdistricts)
+}
+
+func (h *AddressHandler) GetPostcodeBySubdistrict(w http.ResponseWriter, r *http.Request) {
+	p := chi.URLParam(r, "subdistrictId")
+	if p == "" {
+		utils.ErrorJSON(w, errors.New("subdistrictId is required"), "subdistrictId")
+		return
+	}
+	subdistrictId, err := strconv.Atoi(p)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "subdistrictId")
+		return
+	}
+	postcode, err := h.store.GetPostcodeBySubdistrict(subdistrictId)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, postcode)
 }
