@@ -130,3 +130,27 @@ func (s *store) GetSubdistrictsByDistrict(districtId int) ([]Subdistrict, error)
 	}
 	return data, nil
 }
+
+func (s *store) GetPostcodeBySubdistrict(subdistrictId int) ([]Postcode, error) {
+	rows, err := s.db.Query(getPostcodeSQL, subdistrictId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []Postcode
+	for rows.Next() {
+		var row Postcode
+		err := rows.Scan(&row.Id, &row.Code)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, row)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
