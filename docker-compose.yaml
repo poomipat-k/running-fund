@@ -17,9 +17,6 @@ services:
       CRITERIA_VERSION: 1
     env_file:
       - .env
-    # To be deleted
-    volumes:
-      - ./upload/:/upload
 
   postgres:
     image: 'postgres:16.0'

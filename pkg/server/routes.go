@@ -1,10 +1,15 @@
 package server
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -16,10 +21,15 @@ import (
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
+	"github.com/poomipat-k/running-fund/pkg/upload"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
 type Server struct{}
+
+type BucketBasics struct {
+	S3Client *s3.Client
+}
 
 func (app *Server) Routes(db *sql.DB) http.Handler {
 	mux := chi.NewRouter()
@@ -35,7 +45,17 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		MaxAge:           300,
 	}))
 
+	// config.WithRegion("ap-southeast-1")
+	sdkConfig, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		fmt.Println("Couldn't load default configuration. Have you set up your AWS account?")
+		fmt.Println(err)
+		log.Fatal()
+	}
+	s3Client := s3.NewFromConfig(sdkConfig)
+	uploadService := upload.S3Service{S3Client: s3Client}
 	emailService := appEmail.NewEmailService()
+
 	userStore := users.NewStore(db, emailService)
 	userHandler := users.NewUserHandler(userStore)
 
@@ -43,7 +63,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)
 
 	projectStore := projects.NewStore(db)
-	projectHandler := projects.NewProjectHandler(projectStore, userStore)
+	projectHandler := projects.NewProjectHandler(projectStore, userStore, uploadService)
 
 	c := cache.New(3*time.Minute, 5*time.Minute)
 	captchaStore := captcha.NewStore(c)
