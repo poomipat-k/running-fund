@@ -3,51 +3,19 @@ package projects
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"log/slog"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/poomipat-k/running-fund/pkg/upload"
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 const MAX_UPLOAD_SIZE = 32 * 1024 * 1024 // 32MB
-
-// Progress is used to track the progress of a file upload.
-// It implements the io.Writer interface so it can be passed
-// to an io.TeeReader()
-type Progress struct {
-	TotalSize int64
-	BytesRead int64
-}
-
-// Write is used to satisfy the io.Writer interface.
-// Instead of writing somewhere, it simply aggregates
-// the total bytes on each read
-func (pr *Progress) Write(p []byte) (n int, err error) {
-	n, err = len(p), nil
-	pr.BytesRead += int64(n)
-	pr.Print()
-	return
-}
-
-// Print displays the current progress of the file upload
-func (pr *Progress) Print() {
-	if pr.BytesRead == pr.TotalSize {
-		fmt.Println("DONE!")
-		return
-	}
-
-	// fmt.Printf("File upload in progress: %d\n", pr.BytesRead)
-}
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
@@ -58,14 +26,16 @@ type projectStore interface {
 }
 
 type ProjectHandler struct {
-	store  projectStore
-	uStore users.UserStore
+	store         projectStore
+	uStore        users.UserStore
+	uploadService upload.S3Service
 }
 
-func NewProjectHandler(s projectStore, uStore users.UserStore) *ProjectHandler {
+func NewProjectHandler(s projectStore, uStore users.UserStore, us upload.S3Service) *ProjectHandler {
 	return &ProjectHandler{
-		store:  s,
-		uStore: uStore,
+		store:         s,
+		uStore:        uStore,
+		uploadService: us,
 	}
 }
 
@@ -190,103 +160,23 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	log.Println("======PAYLOAD======")
 	log.Println(payload)
 	// get a reference to the fileHeaders
-	files := r.MultipartForm.File["files"]
+
 	projectCode := utils.RandAlphaNum(5)
-	writeFile(w, files, userId, projectCode, "")
-	collaborationFiles := r.MultipartForm.File["collaborationFiles"]
-	writeFile(w, collaborationFiles, userId, projectCode, "collaboration")
+	collaborateFiles := r.MultipartForm.File["collaborationFiles"]
+	detailsFiles := r.MultipartForm.File["files"]
+	basePrefix := fmt.Sprintf("applicant/user_%d/%s", userId, projectCode)
 
+	err = h.uploadService.UploadToS3(collaborateFiles, fmt.Sprintf("%s/collaboration", basePrefix))
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "collaboration", http.StatusInternalServerError)
+		return
+	}
+	err = h.uploadService.UploadToS3(detailsFiles, basePrefix)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "collaboration", http.StatusInternalServerError)
+		return
+	}
 	utils.WriteJSON(w, http.StatusOK, "OK")
-}
-
-func writeFile(w http.ResponseWriter, files []*multipart.FileHeader, userId int, projectCode string, subFolder string) {
-	for _, fileHeader := range files {
-		if fileHeader.Size > MAX_UPLOAD_SIZE {
-			http.Error(w, fmt.Sprintf("The uploaded image is too big: %s. Please use an image less than 32MB in size", fileHeader.Filename), http.StatusBadRequest)
-			return
-		}
-
-		log.Println("===filename:", fileHeader.Filename)
-
-		file, err := fileHeader.Open()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		defer file.Close()
-
-		buff := make([]byte, 512)
-		_, err = file.Read(buff)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		filetype := http.DetectContentType(buff)
-		headerContentType := fileHeader.Header["Content-Type"][0]
-
-		if !isAllowedContentType(filetype) && !isDocType(filetype, headerContentType) {
-			http.Error(w, fmt.Sprintf("The provided file format is not allowed. got %s", filetype), http.StatusBadRequest)
-			return
-		}
-
-		_, err = file.Seek(0, io.SeekStart)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		basePrefix := fmt.Sprintf("./upload/applicant/user_%d/%s", userId, projectCode)
-		if subFolder != "" {
-			basePrefix = basePrefix + "/" + subFolder
-		}
-		// err = os.MkdirAll("./upload", os.ModePerm)
-		err = os.MkdirAll(basePrefix, os.ModePerm)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		fileName := fmt.Sprintf("%s_%d%s", strings.Split(fileHeader.Filename, ".")[0], time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
-		objectKey := fmt.Sprintf("%s/%s", basePrefix, fileName)
-		log.Println("===objectKey", objectKey)
-		f, err := os.Create(objectKey)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		defer f.Close()
-
-		pr := &Progress{
-			TotalSize: fileHeader.Size,
-		}
-
-		_, err = io.Copy(f, io.TeeReader(file, pr))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
-}
-
-func isDocType(detectedType string, contentType string) bool {
-	if detectedType == "application/octet-stream" && contentType == "application/msword" {
-		return true
-	}
-	if detectedType == "application/zip" && contentType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" {
-		return true
-	}
-	return false
-}
-
-func isAllowedContentType(mimetype string) bool {
-	if mimetype != "image/jpeg" &&
-		mimetype != "image/png" &&
-		mimetype != "application/msword" &&
-		mimetype != "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
-		mimetype != "application/pdf" {
-		return false
-	}
-	return true
 }
