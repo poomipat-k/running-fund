@@ -48,3 +48,9 @@ ON review_criteria.id = review_details.review_criteria_id
 WHERE review_details.review_id = $1
 ORDER BY criteria_order_number ASC;
 `
+
+const countProjectCreatedToday = `
+SELECT count(id) FROM project 
+WHERE created_at >= date_trunc('day', now()) + interval '- 7 hour' 
+AND created_at < date_trunc('day', now()) + interval '1 day - 7 hour - 1 microsecond';
+`

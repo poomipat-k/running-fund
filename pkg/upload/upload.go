@@ -3,6 +3,7 @@ package upload
 import (
 	"context"
 	"fmt"
+
 	"io"
 	"log"
 	"mime/multipart"
@@ -12,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go/aws"
 )
 
@@ -58,10 +60,8 @@ func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix 
 		}
 
 		bucketName := os.Getenv("AWS_S3_BUCKET_NAME")
-		log.Println("==bucketName", bucketName)
 		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
 		objectKey := fmt.Sprintf("%s/%s", objectPrefix, fileName)
-		log.Println("===fileName", fileName)
 		log.Println("===objectKey", objectKey)
 		// fmt.Sprintf("%s/%s_%d%s", targetDirPath, fileHeader.Filename, time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
 
@@ -70,6 +70,7 @@ func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix 
 			Key:    aws.String(objectKey),
 			Body:   file,
 		})
+		// log.Println("===output", output)
 		if err != nil {
 			log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
 				objectKey, bucketName, objectKey, err)
@@ -77,6 +78,47 @@ func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix 
 		}
 	}
 	return nil
+}
+
+// ListObjects lists the objects in a bucket.
+func (client *S3Service) ListObjects(bucketName string, prefix string) ([]types.Object, error) {
+	result, err := client.S3Client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: aws.String(bucketName),
+		Prefix: aws.String(prefix), // aws.String("applicant/user_34/NOV67_1201/"),
+	})
+	var contents []types.Object
+	if err != nil {
+		log.Printf("Couldn't list objects in bucket %v. Here's why: %v\n", bucketName, err)
+	} else {
+		// log.Println(result.Contents)
+		contents = result.Contents
+	}
+	return contents, err
+}
+
+// DownloadFile gets an object from a bucket and stores it in a local file.
+func (client *S3Service) DownloadFile(bucketName string, objectKey string, fileName string) error {
+	result, err := client.S3Client.GetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+	})
+	if err != nil {
+		log.Printf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, objectKey, err)
+		return err
+	}
+	defer result.Body.Close()
+	file, err := os.Create(fileName)
+	if err != nil {
+		log.Printf("Couldn't create file %v. Here's why: %v\n", fileName, err)
+		return err
+	}
+	defer file.Close()
+	body, err := io.ReadAll(result.Body)
+	if err != nil {
+		log.Printf("Couldn't read object body from %v. Here's why: %v\n", objectKey, err)
+	}
+	_, err = file.Write(body)
+	return err
 }
 
 func isDocType(detectedType string, contentType string) bool {

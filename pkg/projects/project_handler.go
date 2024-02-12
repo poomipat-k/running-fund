@@ -23,6 +23,7 @@ type projectStore interface {
 	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
+	AddProject() (string, error)
 }
 
 type ProjectHandler struct {
@@ -161,9 +162,13 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	log.Println(payload)
 	// get a reference to the fileHeaders
 
-	projectCode := utils.RandAlphaNum(5)
+	projectCode, err := h.store.AddProject()
+	if err != nil {
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+
 	collaborateFiles := r.MultipartForm.File["collaborationFiles"]
-	detailsFiles := r.MultipartForm.File["files"]
 	basePrefix := fmt.Sprintf("applicant/user_%d/%s", userId, projectCode)
 
 	err = h.uploadService.UploadToS3(collaborateFiles, fmt.Sprintf("%s/collaboration", basePrefix))
@@ -172,11 +177,29 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorJSON(w, err, "collaboration", http.StatusInternalServerError)
 		return
 	}
+	detailsFiles := r.MultipartForm.File["files"]
 	err = h.uploadService.UploadToS3(detailsFiles, basePrefix)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "collaboration", http.StatusInternalServerError)
+		utils.ErrorJSON(w, err, "details", http.StatusInternalServerError)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, "OK")
+}
+
+func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		BucketName string `json:"bucketName"`
+		Prefix     string `json:"prefix"`
+	}
+
+	utils.ReadJSON(w, r, &payload)
+	objects, err := h.uploadService.ListObjects(payload.BucketName, payload.Prefix)
+	if err != nil {
+		log.Println("err: ", err)
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+	log.Println(objects)
+	utils.WriteJSON(w, 200, objects)
 }

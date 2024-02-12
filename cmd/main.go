@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	_ "time/tzdata"
+
 	"github.com/poomipat-k/running-fund/pkg/database"
 	"github.com/poomipat-k/running-fund/pkg/server"
 )
