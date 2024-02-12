@@ -4,19 +4,41 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"time"
+
+	"github.com/patrickmn/go-cache"
 )
 
 type store struct {
 	db *sql.DB
+	c  *cache.Cache
 }
 
-func NewStore(db *sql.DB) *store {
+func NewStore(db *sql.DB, c *cache.Cache) *store {
 	return &store{
 		db: db,
+		c:  c,
 	}
 }
+
+var monthMap = map[string]string{
+	"January":   "JAN",
+	"February":  "FEB",
+	"March":     "MAR",
+	"April":     "APR",
+	"May":       "MAY",
+	"June":      "JUN",
+	"July":      "JUL",
+	"August":    "AUG",
+	"September": "SEP",
+	"October":   "OCT",
+	"November":  "NOV",
+	"December":  "DEC",
+}
+
+const TIMEZONE = "Asia/Bangkok"
 
 func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
 	var period ReviewPeriod
@@ -276,4 +298,49 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 		return nil, errors.New("criteria version not found")
 	}
 	return data, nil
+}
+
+func (s *store) AddProject() (string, error) {
+	projectCode, err := s.generateProjectCode()
+	if err != nil {
+		return "", err
+	}
+	return projectCode, nil
+}
+
+func (s *store) generateProjectCode() (string, error) {
+	rawYear, rawMonth, day := getLocalYearMonthDay()
+	year2digitsBud := (rawYear + 543) % 100
+	month := monthMap[rawMonth.String()]
+	cnt, found := s.c.Get(fmt.Sprintf("projectCode_%d_%s_%d", year2digitsBud, month, day))
+	newCount := 0
+	if found {
+		newCount = cnt.(int) + 1
+		s.c.Set(fmt.Sprintf("projectCode_%d_%s_%d", year2digitsBud, month, day), newCount, time.Duration(24*time.Hour))
+	} else {
+		// Query count from database
+		row := s.db.QueryRow(countProjectCreatedToday)
+		var count int
+		err := row.Scan(&count)
+		if err != nil {
+			return "", err
+		}
+		newCount = count + 1
+		s.c.Set(fmt.Sprintf("projectCode_%d_%s_%d", year2digitsBud, month, day), newCount, cache.NoExpiration)
+
+	}
+	projectCode := fmt.Sprintf("%s%d_%02d%02d", month, year2digitsBud, day, newCount)
+	return projectCode, nil
+}
+
+func getLocalYearMonthDay() (int, time.Month, int) {
+	//init the loc
+	loc, err := time.LoadLocation(TIMEZONE)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// set timezone,
+	now := time.Now().In(loc)
+	year, month, day := now.Date()
+	return year, month, day
 }

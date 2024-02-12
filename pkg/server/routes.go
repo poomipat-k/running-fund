@@ -62,10 +62,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	reviewStore := review.NewStore(db)
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)
 
-	projectStore := projects.NewStore(db)
+	c := cache.New(3*time.Minute, 5*time.Minute)
+	projectStore := projects.NewStore(db, c)
 	projectHandler := projects.NewProjectHandler(projectStore, userStore, uploadService)
 
-	c := cache.New(3*time.Minute, 5*time.Minute)
 	captchaStore := captcha.NewStore(c)
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
 
@@ -86,6 +86,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
+		r.Post("/project/object", mw.IsApplicant(projectHandler.ListObjectsV2))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)
 		r.Post("/user/password/forgot", mw.ValidateCaptcha(userHandler.ForgotPassword, captchaStore))
