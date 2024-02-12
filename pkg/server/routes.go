@@ -53,7 +53,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		log.Fatal()
 	}
 	s3Client := s3.NewFromConfig(sdkConfig)
-	uploadService := upload.S3Service{S3Client: s3Client}
+	s3Service := upload.S3Service{S3Client: s3Client}
 	emailService := appEmail.NewEmailService()
 
 	userStore := users.NewStore(db, emailService)
@@ -63,8 +63,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)
 
 	c := cache.New(3*time.Minute, 5*time.Minute)
-	projectStore := projects.NewStore(db, c)
-	projectHandler := projects.NewProjectHandler(projectStore, userStore, uploadService)
+	projectStore := projects.NewStore(db, c, s3Service)
+	projectHandler := projects.NewProjectHandler(projectStore, userStore, s3Service)
 
 	captchaStore := captcha.NewStore(c)
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)

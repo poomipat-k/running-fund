@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"mime/multipart"
 	"time"
 )
 
@@ -65,4 +66,9 @@ type ApplicantSelfScoreCriteria struct {
 	CriteriaVersion int    `json:"criteriaVersion,omitempty"`
 	OrderNumber     int    `json:"orderNumber,omitempty"`
 	Display         string `json:"display,omitempty"`
+}
+
+type DetailsFiles struct {
+	DirName string
+	Files   []*multipart.FileHeader
 }
