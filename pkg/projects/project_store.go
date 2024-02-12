@@ -6,20 +6,24 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"mime/multipart"
 	"time"
 
 	"github.com/patrickmn/go-cache"
+	"github.com/poomipat-k/running-fund/pkg/upload"
 )
 
 type store struct {
-	db *sql.DB
-	c  *cache.Cache
+	db           *sql.DB
+	c            *cache.Cache
+	awsS3Service upload.S3Service
 }
 
-func NewStore(db *sql.DB, c *cache.Cache) *store {
+func NewStore(db *sql.DB, c *cache.Cache, s3service upload.S3Service) *store {
 	return &store{
-		db: db,
-		c:  c,
+		db:           db,
+		c:            c,
+		awsS3Service: s3service,
 	}
 }
 
@@ -300,10 +304,24 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	return data, nil
 }
 
-func (s *store) AddProject() (string, error) {
+func (s *store) AddProject(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []DetailsFiles) (string, error) {
 	projectCode, err := s.generateProjectCode()
 	if err != nil {
 		return "", err
+	}
+
+	baseFilePrefix := getBasePrefix(userId, projectCode)
+	err = s.awsS3Service.UploadToS3(collaborateFiles, fmt.Sprintf("%s/collaboration", baseFilePrefix))
+	if err != nil {
+		slog.Error("Failed to upload collaboration files to s3", "error", err.Error())
+		return "", err
+	}
+	for _, files := range otherFiles {
+		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/other/%s", baseFilePrefix, files.DirName))
+		if err != nil {
+			slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
+			return "", err
+		}
 	}
 	return projectCode, nil
 }
@@ -343,4 +361,8 @@ func getLocalYearMonthDay() (int, time.Month, int) {
 	now := time.Now().In(loc)
 	year, month, day := now.Date()
 	return year, month, day
+}
+
+func getBasePrefix(userId int, projectCode string) string {
+	return fmt.Sprintf("applicant/user_%d/%s", userId, projectCode)
 }

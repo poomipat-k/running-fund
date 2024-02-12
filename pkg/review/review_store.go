@@ -25,11 +25,6 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	// Create a helper function for preparing failure results.
-	fail := func(err error) (int, error) {
-		return 0, fmt.Errorf("addReview: %w", err)
-	}
-
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fail(err)
@@ -140,4 +135,8 @@ func (s *store) GetProjectCriteriaMinimalDetails(cv int) ([]ProjectReviewCriteri
 		return nil, errors.New("criteria version not found")
 	}
 	return data, nil
+}
+
+func fail(err error) (int, error) {
+	return 0, fmt.Errorf("addReview: %w", err)
 }
