@@ -50,7 +50,7 @@ ORDER BY criteria_order_number ASC;
 `
 
 const countProjectCreatedToday = `
-SELECT count(id) FROM project 
+SELECT count(*) FROM project 
 WHERE created_at >= date_trunc('day', now()) + interval '- 7 hour' 
 AND created_at < date_trunc('day', now()) + interval '1 day - 7 hour - 1 microsecond';
 `

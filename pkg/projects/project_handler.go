@@ -169,6 +169,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
+	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
 	otherFiles := []DetailsFiles{
 		{
 			DirName: "marketing",
@@ -185,6 +186,10 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		{
 			DirName: "eventDetails",
 			Files:   eventDetailsFiles,
+		},
+		{
+			DirName: "form",
+			Files:   screenshotFiles,
 		},
 	}
 
