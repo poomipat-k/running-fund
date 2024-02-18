@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -17,7 +18,7 @@ func TestResetPassword(t *testing.T) {
 	tests := []struct {
 		name                 string
 		resetPasswordPayload users.ResetPasswordRequest
-		store                *MockUserStore
+		store                *mock.MockUserStore
 		expectedStatus       int
 		expectedError        error
 	}{
@@ -27,7 +28,7 @@ func TestResetPassword(t *testing.T) {
 				Password:        "abc",
 				ConfirmPassword: "abb",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordAndConfirmPasswordNotMatchError{},
 		},
@@ -37,7 +38,7 @@ func TestResetPassword(t *testing.T) {
 				Password:        "",
 				ConfirmPassword: "",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordRequiredError{},
 		},
@@ -47,7 +48,7 @@ func TestResetPassword(t *testing.T) {
 				Password:        "ab",
 				ConfirmPassword: "ab",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooShortError{},
 		},
@@ -57,7 +58,7 @@ func TestResetPassword(t *testing.T) {
 				Password:        "abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345a",
 				ConfirmPassword: "abcde12345abcde12345abcde12345abcde12345abcde12345abcde12345a",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooLongError{},
 		},
@@ -68,7 +69,7 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword:   "abcd1234",
 				ResetPasswordCode: "code",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.ResetPasswordCodeNotValidError{},
 		},
@@ -79,7 +80,7 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword:   "abcd1234",
 				ResetPasswordCode: "abcdefghabcdefghabcdefgh",
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				ResetPasswordFunc: func(resetPasswordCode, newPassword string) (int64, error) {
 					return 0, errors.New("abc")
 				},
@@ -94,7 +95,7 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword:   "abcd1234",
 				ResetPasswordCode: "abcdefghabcdefghabcdefgh",
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				ResetPasswordFunc: func(resetPasswordCode, newPassword string) (int64, error) {
 					return 0, nil
 				},
@@ -109,7 +110,7 @@ func TestResetPassword(t *testing.T) {
 				ConfirmPassword:   "abcd1234",
 				ResetPasswordCode: "abcdefghabcdefghabcdefgh",
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				ResetPasswordFunc: func(resetPasswordCode, newPassword string) (int64, error) {
 					return 1, nil
 				},

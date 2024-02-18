@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
@@ -29,14 +29,14 @@ type projectStore interface {
 type ProjectHandler struct {
 	store        projectStore
 	uStore       users.UserStore
-	awsS3Service upload.S3Service
+	awsS3Service s3Service.S3Service
 }
 
-func NewProjectHandler(s projectStore, uStore users.UserStore, s3service upload.S3Service) *ProjectHandler {
+func NewProjectHandler(s projectStore, uStore users.UserStore, awsS3Service s3Service.S3Service) *ProjectHandler {
 	return &ProjectHandler{
 		store:        s,
 		uStore:       uStore,
-		awsS3Service: s3service,
+		awsS3Service: awsS3Service,
 	}
 }
 
@@ -144,7 +144,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := r.ParseMultipartForm(25 << 20); err != nil {
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

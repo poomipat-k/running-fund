@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -16,7 +17,7 @@ func TestSignUp(t *testing.T) {
 	tests := []struct {
 		name             string
 		payload          users.SignUpRequest
-		store            *MockUserStore
+		store            *mock.MockUserStore
 		expectedStatus   int
 		expectedError    error
 		expectedReturnId int
@@ -32,7 +33,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailRequiredError{},
 		},
@@ -49,7 +50,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailTooLongError{},
 		},
@@ -63,7 +64,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -82,7 +83,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordRequiredError{},
 		},
@@ -96,7 +97,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -114,7 +115,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -133,7 +134,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -160,7 +161,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -182,7 +183,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -209,7 +210,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -231,7 +232,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Activated: true}, nil
 				},
@@ -249,7 +250,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(24 * time.Hour))}, nil
 				},
@@ -267,7 +268,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: false,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -285,7 +286,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           false,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -304,7 +305,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -325,7 +326,7 @@ func TestSignUp(t *testing.T) {
 				TermsAndCondition: true,
 				Privacy:           true,
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Id: 1, Activated: false, ActivatedBefore: time.Now().Local().Add(time.Duration(-24 * time.Hour))}, nil
 				},

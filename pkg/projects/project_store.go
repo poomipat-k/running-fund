@@ -10,16 +10,16 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
 )
 
 type store struct {
 	db           *sql.DB
 	c            *cache.Cache
-	awsS3Service upload.S3Service
+	awsS3Service s3Service.S3Service
 }
 
-func NewStore(db *sql.DB, c *cache.Cache, s3service upload.S3Service) *store {
+func NewStore(db *sql.DB, c *cache.Cache, s3service s3Service.S3Service) *store {
 	return &store{
 		db:           db,
 		c:            c,
