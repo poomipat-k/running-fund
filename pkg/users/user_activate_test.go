@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -17,7 +18,7 @@ func TestActivateEmail(t *testing.T) {
 	tests := []struct {
 		name                 string
 		payload              users.ActivateUserRequest
-		store                *MockUserStore
+		store                *mock.MockUserStore
 		expectedStatus       int
 		expectedError        error
 		expectedEffectedRows *expectedEffectedRowsExpect
@@ -25,14 +26,14 @@ func TestActivateEmail(t *testing.T) {
 		{
 			name:           "should error when activate code length is not equal to 24",
 			payload:        users.ActivateUserRequest{ActivateCode: "abc"},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.InvalidActivateCodeError{},
 		},
 		{
 			name:    "should error when activate code not found",
 			payload: users.ActivateUserRequest{ActivateCode: "abcdabcdabcdabcdabcdabcd"},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				ActivateUserFunc: func(activateCode string) (int64, error) {
 					return 0, &users.UserToActivateNotFoundError{}
 				},
@@ -43,7 +44,7 @@ func TestActivateEmail(t *testing.T) {
 		{
 			name:    "should error when exceed activate before",
 			payload: users.ActivateUserRequest{ActivateCode: "abcdabcdabcdabcdabcdabcd"},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				ActivateUserFunc: func(activateCode string) (int64, error) {
 					return 0, &users.UserToActivateNotFoundError{}
 				},
@@ -54,7 +55,7 @@ func TestActivateEmail(t *testing.T) {
 		{
 			name:    "should activate an account successfully",
 			payload: users.ActivateUserRequest{ActivateCode: "abcdabcdabcdabcdabcdabcd"},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				ActivateUserFunc: func(activateCode string) (int64, error) {
 					return 1, nil
 				},

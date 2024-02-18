@@ -21,7 +21,8 @@ import (
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
-	"github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
+
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -53,7 +54,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		log.Fatal()
 	}
 	s3Client := s3.NewFromConfig(sdkConfig)
-	s3Service := upload.S3Service{S3Client: s3Client}
+	s3Service := s3Service.S3Service{S3Client: s3Client}
 	emailService := appEmail.NewEmailService()
 
 	userStore := users.NewStore(db, emailService)
