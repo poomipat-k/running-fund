@@ -166,6 +166,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("====1")
 	collaborateFiles := r.MultipartForm.File["collaborationFiles"]
+	log.Println("===len(collaborateFiles)", len(collaborateFiles))
 	marketingFiles := r.MultipartForm.File["marketingFiles"]
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
@@ -195,7 +196,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("====2")
 
-	err = validateAddProjectPayload(payload)
+	err = validateAddProjectPayload(payload, collaborateFiles)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)

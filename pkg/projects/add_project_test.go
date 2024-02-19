@@ -7,7 +7,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
@@ -32,13 +31,20 @@ func TestAddProject(t *testing.T) {
 		{
 			name:    "should error collaborated required",
 			payload: projects.AddProjectRequest{},
-			store:   &mock.MockProjectStore{
-				// AddProjectFunc: func(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []projects.DetailsFiles) (string, error) {
-				// 	return "", nil
-				// },
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
 			},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.CollaboratedRequiredError{},
+		},
+		{
+			name:    "should error when has collaborated and collaborateFiles is empty",
+			payload: projects.AddProjectRequest{Collaborated: newTrue()},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.CollaboratedFilesRequiredError{},
 		},
 	}
 
@@ -123,14 +129,6 @@ func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {
 	return body
 }
 
-func addProjectPayloadToJSON(payload projects.AddProjectRequest) *strings.Reader {
-	addProject, err := json.Marshal(payload)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return strings.NewReader(string(addProject))
-}
-
 func newFalse() *bool {
 	b := false
 	return &b
@@ -139,4 +137,8 @@ func newFalse() *bool {
 func newTrue() *bool {
 	b := true
 	return &b
+}
+
+func addProjectSuccess(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []projects.DetailsFiles) (string, error) {
+	return "", nil
 }
