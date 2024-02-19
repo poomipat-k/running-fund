@@ -33,11 +33,6 @@ type AddProjectRequest struct {
 type AddProjectGeneralDetails struct {
 	ProjectName string    `json:"projectName,omitempty"`
 	EventDate   EventDate `json:"eventDate,omitempty"`
-	// StartPoint           string `json:"startPoint"`
-	// FinishPoint          string `json:"finishPoint"`
-	// ExpectedParticipants string `json:"expectedParticipants"`
-	// HasOrganizer         bool   `json:"hasOrganizer"`
-	// OrganizerName        string `json:"organizerName,omitempty"`
 }
 
 type EventDate struct {
