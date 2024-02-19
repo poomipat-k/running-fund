@@ -30,12 +30,14 @@ type AddProjectRequest struct {
 	General      AddProjectGeneralDetails `json:"general"`
 }
 
+// Sub-types for AddProjectRequest
 type AddProjectGeneralDetails struct {
-	ProjectName string    `json:"projectName,omitempty"`
-	EventDate   EventDate `json:"eventDate,omitempty"`
-	Address     Address   `json:"address,omitempty"`
-	StartPoint  string    `json:"startPoint,omitempty"`
-	FinishPoint string    `json:"finishPoint,omitempty"`
+	ProjectName  string       `json:"projectName,omitempty"`
+	EventDate    EventDate    `json:"eventDate,omitempty"`
+	Address      Address      `json:"address,omitempty"`
+	StartPoint   string       `json:"startPoint,omitempty"`
+	FinishPoint  string       `json:"finishPoint,omitempty"`
+	EventDetails EventDetails `json:"eventDetails,omitempty"`
 }
 
 type EventDate struct {
@@ -54,4 +56,19 @@ type Address struct {
 	DistrictId    int    `json:"districtId,omitempty"`
 	SubdistrictId int    `json:"subdistrictId,omitempty"`
 	PostcodeId    int    `json:"postcodeId,omitempty"`
+}
+
+type EventDetails struct {
+	Category Category `json:"category,omitempty"`
+}
+
+type Category struct {
+	Available Available `json:"available,omitempty"`
+	OtherType string    `json:"otherType,omitempty"`
+}
+
+type Available struct {
+	Other        bool `json:"other,omitempty"`
+	RoadRace     bool `json:"roadRace,omitempty"`
+	TrailRunning bool `json:"trailRunning,omitempty"`
 }

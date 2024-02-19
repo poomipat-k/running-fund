@@ -20,10 +20,19 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 		return &CollaboratedFilesRequiredError{}
 	}
 
-	// general.event
+	if err := validateGeneral(payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateGeneral(payload AddProjectRequest) error {
+
 	if payload.General.ProjectName == "" {
 		return &ProjectNameRequiredError{}
 	}
+	// general.eventDate
 	if payload.General.EventDate.Year == 0 {
 		return &YearRequiredError{}
 	}
@@ -39,12 +48,9 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	if payload.General.EventDate.Day == 0 {
 		return &DayRequiredError{}
 	}
-
 	if !isValidDay(payload.General.EventDate.Year, payload.General.EventDate.Month, payload.General.EventDate.Day) {
 		return &DayOutOfBoundError{}
 	}
-
-	// Int values for hour and minute can be zero
 	if payload.General.EventDate.FromHour == nil {
 		return &FromHourRequiredError{}
 	}
@@ -86,12 +92,18 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	if payload.General.Address.PostcodeId <= 0 {
 		return &PostcodeIdRequiredError{}
 	}
-	// startPoint and finishPoint
+	// general.startPoint and general.finishPoint
 	if payload.General.StartPoint == "" {
 		return &StartPointRequiredError{}
 	}
 	if payload.General.FinishPoint == "" {
 		return &FinishPointRequiredError{}
+	}
+	// general.eventDetails.category
+	if !payload.General.EventDetails.Category.Available.RoadRace &&
+		!payload.General.EventDetails.Category.Available.TrailRunning &&
+		!payload.General.EventDetails.Category.Available.Other {
+		return &CategoryAvailableRequiredOneError{}
 	}
 	return nil
 }
