@@ -34,6 +34,8 @@ type AddProjectGeneralDetails struct {
 	ProjectName string    `json:"projectName,omitempty"`
 	EventDate   EventDate `json:"eventDate,omitempty"`
 	Address     Address   `json:"address,omitempty"`
+	StartPoint  string    `json:"startPoint,omitempty"`
+	FinishPoint string    `json:"finishPoint,omitempty"`
 }
 
 type EventDate struct {

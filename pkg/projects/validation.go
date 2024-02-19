@@ -86,7 +86,13 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	if payload.General.Address.PostcodeId <= 0 {
 		return &PostcodeIdRequiredError{}
 	}
-
+	// startPoint and finishPoint
+	if payload.General.StartPoint == "" {
+		return &StartPointRequiredError{}
+	}
+	if payload.General.FinishPoint == "" {
+		return &FinishPointRequiredError{}
+	}
 	return nil
 }
 

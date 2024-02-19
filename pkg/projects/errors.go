@@ -117,3 +117,15 @@ type PostcodeIdRequiredError struct{}
 func (e *PostcodeIdRequiredError) Error() string {
 	return "postcodeId is required"
 }
+
+type StartPointRequiredError struct{}
+
+func (e *StartPointRequiredError) Error() string {
+	return "startPoint is required"
+}
+
+type FinishPointRequiredError struct{}
+
+func (e *FinishPointRequiredError) Error() string {
+	return "finishPoint is required"
+}
