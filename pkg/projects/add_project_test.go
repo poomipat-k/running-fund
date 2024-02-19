@@ -19,59 +19,72 @@ type ErrorBody struct {
 	Message string
 }
 
+type TestCase struct {
+	name           string
+	payload        projects.AddProjectRequest
+	store          *mock.MockProjectStore
+	expectedStatus int
+	expectedError  error
+}
+
 func TestAddProject(t *testing.T) {
 
-	for _, tt := range TestCases {
-		t.Run(tt.name, func(t *testing.T) {
-			store := tt.store
-			userStore := &mock.MockUserStore{}
-			handler := projects.NewProjectHandler(store, userStore, s3Service.S3Service{})
+	pagesCases := [][]TestCase{
+		GeneralAndCollaboratedTestCases,
+	}
+	for _, cases := range pagesCases {
+		for _, tt := range cases {
+			t.Run(tt.name, func(t *testing.T) {
+				store := tt.store
+				userStore := &mock.MockUserStore{}
+				handler := projects.NewProjectHandler(store, userStore, s3Service.S3Service{})
 
-			// multipart/form-data set up
+				// multipart/form-data set up
 
-			// set up a pipe avoid buffering
-			pipeReader, pipeWriter := io.Pipe()
+				// set up a pipe avoid buffering
+				pipeReader, pipeWriter := io.Pipe()
 
-			// this writer is going to transform what we pass to it to multipart form data
-			// and write it to our io.Pipe
-			multipartWriter := multipart.NewWriter(pipeWriter)
+				// this writer is going to transform what we pass to it to multipart form data
+				// and write it to our io.Pipe
+				multipartWriter := multipart.NewWriter(pipeWriter)
 
-			body, err := json.Marshal(tt.payload)
-			if err != nil {
-				t.Error("error marshal payload err:", err)
-			}
-
-			go func() {
-				// close it when it done its job
-				defer multipartWriter.Close()
-
-				// create a form field writer for name
-				formStr, err := multipartWriter.CreateFormField("form")
+				body, err := json.Marshal(tt.payload)
 				if err != nil {
-					t.Error(err)
+					t.Error("error marshal payload err:", err)
 				}
 
-				// write string to the form field writer for form
-				formStr.Write(body)
-			}()
+				go func() {
+					// close it when it done its job
+					defer multipartWriter.Close()
 
-			// End multipart/form-data setup
+					// create a form field writer for name
+					formStr, err := multipartWriter.CreateFormField("form")
+					if err != nil {
+						t.Error(err)
+					}
 
-			res := httptest.NewRecorder()
-			req := httptest.NewRequest(http.MethodPost, "/project", pipeReader)
+					// write string to the form field writer for form
+					formStr.Write(body)
+				}()
 
-			req.Header.Set("userId", "1")
-			// Set content-type to multipart
-			req.Header.Add("content-type", multipartWriter.FormDataContentType())
+				// End multipart/form-data setup
 
-			handler.AddProject(res, req)
+				res := httptest.NewRecorder()
+				req := httptest.NewRequest(http.MethodPost, "/project", pipeReader)
 
-			assertStatus(t, res.Code, tt.expectedStatus)
-			if tt.expectedError != nil {
-				errBody := getErrorResponse(t, res)
-				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
-			}
-		})
+				req.Header.Set("userId", "1")
+				// Set content-type to multipart
+				req.Header.Add("content-type", multipartWriter.FormDataContentType())
+
+				handler.AddProject(res, req)
+
+				assertStatus(t, res.Code, tt.expectedStatus)
+				if tt.expectedError != nil {
+					errBody := getErrorResponse(t, res)
+					assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
+				}
+			})
+		}
 	}
 }
 
