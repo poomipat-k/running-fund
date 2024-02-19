@@ -498,7 +498,7 @@ var TestCases = []struct {
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.PostcodeIdRequiredError{},
 	},
-	// startPoint and finishPoint
+	// general.startPoint and general.finishPoint
 	{
 		name: "should error when general.startPoint is empty",
 		payload: projects.AddProjectRequest{
@@ -558,6 +558,7 @@ var TestCases = []struct {
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.FinishPointRequiredError{},
 	},
+	// general.eventDetails
 
 	// 1 END - general
 }
