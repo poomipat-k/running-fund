@@ -105,6 +105,9 @@ func validateGeneral(payload AddProjectRequest) error {
 		!payload.General.EventDetails.Category.Available.Other {
 		return &CategoryAvailableRequiredOneError{}
 	}
+	if payload.General.EventDetails.Category.Available.Other && payload.General.EventDetails.Category.OtherType == "" {
+		return &OtherEventTypeRequiredError{}
+	}
 	return nil
 }
 

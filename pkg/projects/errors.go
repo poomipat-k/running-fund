@@ -135,3 +135,9 @@ type CategoryAvailableRequiredOneError struct{}
 func (e *CategoryAvailableRequiredOneError) Error() string {
 	return "must select at least one category"
 }
+
+type OtherEventTypeRequiredError struct{}
+
+func (e *OtherEventTypeRequiredError) Error() string {
+	return "otherType is required"
+}
