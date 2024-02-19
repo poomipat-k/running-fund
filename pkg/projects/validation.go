@@ -1,11 +1,13 @@
 package projects
 
-import "log"
+import "mime/multipart"
 
-func validateAddProjectPayload(payload AddProjectRequest) error {
+func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*multipart.FileHeader) error {
 	if payload.Collaborated == nil {
 		return &CollaboratedRequiredError{}
 	}
-	log.Println("==collab", *payload.Collaborated)
+	if *payload.Collaborated && len(collaborateFiles) == 0 {
+		return &CollaboratedFilesRequiredError{}
+	}
 	return nil
 }
