@@ -545,6 +545,37 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		expectedError:  &projects.FinishPointRequiredError{},
 	},
 	// general.eventDetails
+	{
+		name: "should error when none of general.category.available is selected",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.CategoryAvailableRequiredOneError{},
+	},
 
 	// 1 END - general
 }

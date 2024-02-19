@@ -129,3 +129,9 @@ type FinishPointRequiredError struct{}
 func (e *FinishPointRequiredError) Error() string {
 	return "finishPoint is required"
 }
+
+type CategoryAvailableRequiredOneError struct{}
+
+func (e *CategoryAvailableRequiredOneError) Error() string {
+	return "must select at least one category"
+}

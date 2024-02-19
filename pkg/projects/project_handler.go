@@ -196,7 +196,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	err = validateAddProjectPayload(payload, collaborateFiles)
 	if err != nil {
 		slog.Error(err.Error())
-		log.Println("===validate err:", err)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
