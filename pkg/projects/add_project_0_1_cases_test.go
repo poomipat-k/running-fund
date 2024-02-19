@@ -7,21 +7,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
-type TestCase []struct {
-	name           string
-	payload        projects.AddProjectRequest
-	store          *mock.MockProjectStore
-	expectedStatus int
-	expectedError  error
-}
-
-var TestCases = []struct {
-	name           string
-	payload        projects.AddProjectRequest
-	store          *mock.MockProjectStore
-	expectedStatus int
-	expectedError  error
-}{
+var GeneralAndCollaboratedTestCases = []TestCase{
 	/*
 		STEP 0 START (collaborated)
 	*/
