@@ -1,5 +1,7 @@
 package projects
 
+import "fmt"
+
 type CollaboratedRequiredError struct{}
 
 func (e *CollaboratedRequiredError) Error() string {
@@ -24,16 +26,34 @@ func (e *YearRequiredError) Error() string {
 	return "year is required"
 }
 
+type YearInvalidError struct{}
+
+func (e *YearInvalidError) Error() string {
+	return "year must greater than 1971"
+}
+
 type MonthRequiredError struct{}
 
 func (e *MonthRequiredError) Error() string {
 	return "month is required"
 }
 
+type MonthOutOfBoundError struct{}
+
+func (e *MonthOutOfBoundError) Error() string {
+	return "month must greater than > 0 and <= 12"
+}
+
 type DayRequiredError struct{}
 
 func (e *DayRequiredError) Error() string {
 	return "day is required"
+}
+
+type DayOutOfBoundError struct{}
+
+func (e *DayOutOfBoundError) Error() string {
+	return "day must greater than > 0 and <= 31"
 }
 
 type FromHourRequiredError struct{}
@@ -58,4 +78,12 @@ type ToMinuteRequiredError struct{}
 
 func (e *ToMinuteRequiredError) Error() string {
 	return "toMinute is required"
+}
+
+type InvalidError struct {
+	Name string
+}
+
+func (e *InvalidError) Error() string {
+	return fmt.Sprintf("%s is invalid", e.Name)
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/projects"
+
 	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
 )
 
@@ -20,169 +21,7 @@ type ErrorBody struct {
 
 func TestAddProject(t *testing.T) {
 
-	tests := []struct {
-		name           string
-		payload        projects.AddProjectRequest
-		store          *mock.MockProjectStore
-		expectedStatus int
-		expectedError  error
-	}{
-		{
-			name:    "should error collaborated required",
-			payload: projects.AddProjectRequest{},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.CollaboratedRequiredError{},
-		},
-		{
-			name: "should error when has collaborated and collaborateFiles is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newTrue()},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.CollaboratedFilesRequiredError{},
-		},
-		{
-			name: "should error when has general.projectName is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse()},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.ProjectNameRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.year is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.YearRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.month is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-					EventDate: projects.EventDate{
-						Year: 2024,
-					},
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.MonthRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.day is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-					EventDate: projects.EventDate{
-						Year:  2024,
-						Month: 2,
-					},
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.DayRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.fromHour is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-					EventDate: projects.EventDate{
-						Year:  2024,
-						Month: 2,
-						Day:   20,
-					},
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.FromHourRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.fromMinute is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-					EventDate: projects.EventDate{
-						Year:     2024,
-						Month:    2,
-						Day:      20,
-						FromHour: newInt(0),
-					},
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.FromMinuteRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.toHour is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-					EventDate: projects.EventDate{
-						Year:       2024,
-						Month:      2,
-						Day:        20,
-						FromHour:   newInt(0),
-						FromMinute: newInt(0),
-					},
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.ToHourRequiredError{},
-		},
-		{
-			name: "should error when has general.eventDate.toMinute is empty",
-			payload: projects.AddProjectRequest{
-				Collaborated: newFalse(),
-				General: projects.AddProjectGeneralDetails{
-					ProjectName: "A",
-					EventDate: projects.EventDate{
-						Year:       2024,
-						Month:      2,
-						Day:        20,
-						FromHour:   newInt(0),
-						FromMinute: newInt(0),
-						ToHour:     newInt(10),
-					},
-				}},
-			store: &mock.MockProjectStore{
-				AddProjectFunc: addProjectSuccess,
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  &projects.ToMinuteRequiredError{},
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range TestCases {
 		t.Run(tt.name, func(t *testing.T) {
 			store := tt.store
 			userStore := &mock.MockUserStore{}
@@ -203,7 +42,7 @@ func TestAddProject(t *testing.T) {
 			}
 
 			go func() {
-				// close it when it has done its job
+				// close it when it done its job
 				defer multipartWriter.Close()
 
 				// create a form field writer for name
