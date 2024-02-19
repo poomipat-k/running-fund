@@ -4,6 +4,14 @@ import (
 	"mime/multipart"
 )
 
+// []int{4, 6, 9, 11}
+var thirtyDaysMonth = map[int]int{
+	4:  30,
+	6:  30,
+	9:  30,
+	11: 30,
+}
+
 func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*multipart.FileHeader) error {
 	if payload.Collaborated == nil {
 		return &CollaboratedRequiredError{}
@@ -31,7 +39,8 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	if payload.General.EventDate.Day == 0 {
 		return &DayRequiredError{}
 	}
-	if payload.General.EventDate.Day < 1 || payload.General.EventDate.Day > 31 {
+
+	if !isValidDay(payload.General.EventDate.Year, payload.General.EventDate.Month, payload.General.EventDate.Day) {
 		return &DayOutOfBoundError{}
 	}
 
@@ -79,4 +88,29 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	}
 
 	return nil
+}
+
+// Assume we have a valid year and month already
+func isValidDay(year, month, day int) bool {
+	if day < 1 || day > 31 {
+		return false
+	}
+	if month == 2 {
+		leapYear := isLeapYear(year)
+		if leapYear && day > 29 {
+			return false
+		}
+		if !leapYear && day > 28 {
+			return false
+		}
+	}
+	_, isThirtyDayMonth := thirtyDaysMonth[month]
+	if isThirtyDayMonth && day > 30 {
+		return false
+	}
+	return true
+}
+
+func isLeapYear(year int) bool {
+	return year%4 == 0 && year%100 != 0 || year%400 == 0
 }
