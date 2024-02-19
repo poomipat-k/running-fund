@@ -61,7 +61,7 @@ func (e *DayRequiredError) Error() string {
 type DayOutOfBoundError struct{}
 
 func (e *DayOutOfBoundError) Error() string {
-	return "day must greater than > 0 and <= 31"
+	return "day is not valid"
 }
 
 type FromHourRequiredError struct{}

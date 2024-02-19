@@ -137,7 +137,7 @@ var TestCases = []struct {
 		expectedError:  &projects.DayRequiredError{},
 	},
 	{
-		name: "should error when general.eventDate.day is less than 1 or > 31",
+		name: "should error when general.eventDate.day is 32",
 		payload: projects.AddProjectRequest{
 			Collaborated: newFalse(),
 			General: projects.AddProjectGeneralDetails{
@@ -146,6 +146,60 @@ var TestCases = []struct {
 					Year:  2023,
 					Month: 1,
 					Day:   32,
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DayOutOfBoundError{},
+	},
+	{
+		name: "should error when general.eventDate.day is 29 Feb on non-leap-year",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:  2023,
+					Month: 2,
+					Day:   29,
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DayOutOfBoundError{},
+	},
+	{
+		name: "should error when general.eventDate.day is 31 November",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:  2023,
+					Month: 11,
+					Day:   31,
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DayOutOfBoundError{},
+	},
+	{
+		name: "should error when general.eventDate.day is 30 Feb",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:  2023,
+					Month: 2,
+					Day:   30,
 				},
 			}},
 		store: &mock.MockProjectStore{
@@ -314,7 +368,9 @@ var TestCases = []struct {
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.InvalidError{Name: "toMinute"},
 	},
+
 	// general.address
+
 	{
 		name: "should error when general.address.address is empty",
 		payload: projects.AddProjectRequest{
@@ -443,5 +499,6 @@ var TestCases = []struct {
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.PostcodeIdRequiredError{},
 	},
+
 	// 1 END - general
 }
