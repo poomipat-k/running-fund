@@ -151,8 +151,8 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
-	log.Println("====r.Form")
-	log.Println(r.Form)
+	// log.Println("====r.Form")
+	// log.Println(r.Form)
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
@@ -161,12 +161,10 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("======PAYLOAD======")
-	log.Println(payload)
+	// log.Println("======PAYLOAD======")
+	// log.Println(payload)
 
-	log.Println("====1")
 	collaborateFiles := r.MultipartForm.File["collaborationFiles"]
-	log.Println("===len(collaborateFiles)", len(collaborateFiles))
 	marketingFiles := r.MultipartForm.File["marketingFiles"]
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
@@ -194,22 +192,20 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			Files:   screenshotFiles,
 		},
 	}
-	log.Println("====2")
 
 	err = validateAddProjectPayload(payload, collaborateFiles)
 	if err != nil {
 		slog.Error(err.Error())
+		log.Println("===validate err:", err)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
-	log.Println("====3")
 
 	projectCode, err := h.store.AddProject(userId, collaborateFiles, otherFiles)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
-	log.Println("====4")
 
 	log.Println("===[Success] projectCode", projectCode)
 	utils.WriteJSON(w, http.StatusOK, "OK")

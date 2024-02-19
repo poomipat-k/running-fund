@@ -37,8 +37,9 @@ func TestAddProject(t *testing.T) {
 			expectedError:  &projects.CollaboratedRequiredError{},
 		},
 		{
-			name:    "should error when has collaborated and collaborateFiles is empty",
-			payload: projects.AddProjectRequest{Collaborated: newTrue()},
+			name: "should error when has collaborated and collaborateFiles is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newTrue()},
 			store: &mock.MockProjectStore{
 				AddProjectFunc: addProjectSuccess,
 			},
@@ -46,8 +47,9 @@ func TestAddProject(t *testing.T) {
 			expectedError:  &projects.CollaboratedFilesRequiredError{},
 		},
 		{
-			name:    "should error when has general.projectName is empty",
-			payload: projects.AddProjectRequest{Collaborated: newFalse()},
+			name: "should error when has general.projectName is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse()},
 			store: &mock.MockProjectStore{
 				AddProjectFunc: addProjectSuccess,
 			},
@@ -56,7 +58,8 @@ func TestAddProject(t *testing.T) {
 		},
 		{
 			name: "should error when has general.eventDate.year is empty",
-			payload: projects.AddProjectRequest{Collaborated: newFalse(),
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
 				General: projects.AddProjectGeneralDetails{
 					ProjectName: "A",
 				}},
@@ -65,6 +68,117 @@ func TestAddProject(t *testing.T) {
 			},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.YearRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.month is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+					EventDate: projects.EventDate{
+						Year: 2024,
+					},
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.MonthRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.day is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+					EventDate: projects.EventDate{
+						Year:  2024,
+						Month: 2,
+					},
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.DayRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.fromHour is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+					EventDate: projects.EventDate{
+						Year:  2024,
+						Month: 2,
+						Day:   20,
+					},
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.FromHourRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.fromMinute is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+					EventDate: projects.EventDate{
+						Year:     2024,
+						Month:    2,
+						Day:      20,
+						FromHour: newInt(0),
+					},
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.FromMinuteRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.toHour is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+					EventDate: projects.EventDate{
+						Year:       2024,
+						Month:      2,
+						Day:        20,
+						FromHour:   newInt(0),
+						FromMinute: newInt(0),
+					},
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.ToHourRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.toMinute is empty",
+			payload: projects.AddProjectRequest{
+				Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+					EventDate: projects.EventDate{
+						Year:       2024,
+						Month:      2,
+						Day:        20,
+						FromHour:   newInt(0),
+						FromMinute: newInt(0),
+						ToHour:     newInt(10),
+					},
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.ToMinuteRequiredError{},
 		},
 	}
 
@@ -144,6 +258,11 @@ func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {
 		t.Errorf("Error unmarshal ErrorResponse err:%v", err)
 	}
 	return body
+}
+
+func newInt(val int) *int {
+	v := val
+	return &v
 }
 
 func newFalse() *bool {
