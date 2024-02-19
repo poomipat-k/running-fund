@@ -32,7 +32,7 @@ type AddProjectRequest struct {
 
 type AddProjectGeneralDetails struct {
 	ProjectName string    `json:"projectName,omitempty"`
-	EventDate   eventDate `json:"eventDate,omitempty"`
+	EventDate   EventDate `json:"eventDate,omitempty"`
 	// StartPoint           string `json:"startPoint"`
 	// FinishPoint          string `json:"finishPoint"`
 	// ExpectedParticipants string `json:"expectedParticipants"`
@@ -40,12 +40,12 @@ type AddProjectGeneralDetails struct {
 	// OrganizerName        string `json:"organizerName,omitempty"`
 }
 
-type eventDate struct {
-	Year       int `json:"year,omitempty"`
-	Month      int `json:"month,omitempty"`
-	Day        int `json:"day,omitempty"`
-	FromHour   int `json:"fromHour,omitempty"`
-	FromMinute int `json:"fromMinute,omitempty"`
-	ToHour     int `json:"toHour,omitempty"`
-	ToMinute   int `json:"toMinute,omitempty"`
+type EventDate struct {
+	Year       int  `json:"year,omitempty"`
+	Month      int  `json:"month,omitempty"`
+	Day        int  `json:"day,omitempty"`
+	FromHour   *int `json:"fromHour,omitempty"`
+	FromMinute *int `json:"fromMinute,omitempty"`
+	ToHour     *int `json:"toHour,omitempty"`
+	ToMinute   *int `json:"toMinute,omitempty"`
 }
