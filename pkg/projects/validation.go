@@ -12,6 +12,7 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 		return &CollaboratedFilesRequiredError{}
 	}
 
+	// general.event
 	if payload.General.ProjectName == "" {
 		return &ProjectNameRequiredError{}
 	}
@@ -58,6 +59,23 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	}
 	if *payload.General.EventDate.ToMinute < 0 || *payload.General.EventDate.ToMinute > 59 {
 		return &InvalidError{Name: "toMinute"}
+	}
+
+	// general.address
+	if payload.General.Address.Address == "" {
+		return &AddressRequiredError{}
+	}
+	if payload.General.Address.ProvinceId <= 0 {
+		return &ProvinceRequiredError{}
+	}
+	if payload.General.Address.DistrictId <= 0 {
+		return &DistrictIdRequiredError{}
+	}
+	if payload.General.Address.SubdistrictId <= 0 {
+		return &SubdistrictIdRequiredError{}
+	}
+	if payload.General.Address.PostcodeId <= 0 {
+		return &PostcodeIdRequiredError{}
 	}
 
 	return nil
