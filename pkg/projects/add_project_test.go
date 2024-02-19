@@ -3,7 +3,6 @@ package projects_test
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -46,6 +45,27 @@ func TestAddProject(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.CollaboratedFilesRequiredError{},
 		},
+		{
+			name:    "should error when has general.projectName is empty",
+			payload: projects.AddProjectRequest{Collaborated: newFalse()},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.ProjectNameRequiredError{},
+		},
+		{
+			name: "should error when has general.eventDate.year is empty",
+			payload: projects.AddProjectRequest{Collaborated: newFalse(),
+				General: projects.AddProjectGeneralDetails{
+					ProjectName: "A",
+				}},
+			store: &mock.MockProjectStore{
+				AddProjectFunc: addProjectSuccess,
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.YearRequiredError{},
+		},
 	}
 
 	for _, tt := range tests {
@@ -78,10 +98,8 @@ func TestAddProject(t *testing.T) {
 					t.Error(err)
 				}
 
-				// write string to the form field writer for name
-				// formStr.Write([]byte(`{"collaborated": null}`))
+				// write string to the form field writer for form
 				formStr.Write(body)
-
 			}()
 
 			// End multipart/form-data setup
@@ -121,7 +139,6 @@ func assertStatus(t testing.TB, got, want int) {
 func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {
 	t.Helper()
 	var body ErrorBody
-	log.Println("===[getErrorResponse]", res.Body.String())
 	err := json.Unmarshal(res.Body.Bytes(), &body)
 	if err != nil {
 		t.Errorf("Error unmarshal ErrorResponse err:%v", err)
