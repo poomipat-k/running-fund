@@ -33,6 +33,7 @@ type AddProjectRequest struct {
 type AddProjectGeneralDetails struct {
 	ProjectName string    `json:"projectName,omitempty"`
 	EventDate   EventDate `json:"eventDate,omitempty"`
+	Address     Address   `json:"address,omitempty"`
 }
 
 type EventDate struct {
@@ -43,4 +44,12 @@ type EventDate struct {
 	FromMinute *int `json:"fromMinute,omitempty"`
 	ToHour     *int `json:"toHour,omitempty"`
 	ToMinute   *int `json:"toMinute,omitempty"`
+}
+
+type Address struct {
+	Address       string `json:"address,omitempty"`
+	ProvinceId    int    `json:"provinceId,omitempty"`
+	DistrictId    int    `json:"districtId,omitempty"`
+	SubdistrictId int    `json:"subdistrictId,omitempty"`
+	PostcodeId    int    `json:"postcodeId,omitempty"`
 }

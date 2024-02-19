@@ -2,6 +2,14 @@ package projects
 
 import "fmt"
 
+type InvalidError struct {
+	Name string
+}
+
+func (e *InvalidError) Error() string {
+	return fmt.Sprintf("%s is invalid", e.Name)
+}
+
 type CollaboratedRequiredError struct{}
 
 func (e *CollaboratedRequiredError) Error() string {
@@ -80,10 +88,32 @@ func (e *ToMinuteRequiredError) Error() string {
 	return "toMinute is required"
 }
 
-type InvalidError struct {
-	Name string
+type AddressRequiredError struct{}
+
+func (e *AddressRequiredError) Error() string {
+	return "address is required"
 }
 
-func (e *InvalidError) Error() string {
-	return fmt.Sprintf("%s is invalid", e.Name)
+type ProvinceRequiredError struct{}
+
+func (e *ProvinceRequiredError) Error() string {
+	return "provinceId is required"
+}
+
+type DistrictIdRequiredError struct{}
+
+func (e *DistrictIdRequiredError) Error() string {
+	return "districtId is required"
+}
+
+type SubdistrictIdRequiredError struct{}
+
+func (e *SubdistrictIdRequiredError) Error() string {
+	return "subdistrictIdId is required"
+}
+
+type PostcodeIdRequiredError struct{}
+
+func (e *PostcodeIdRequiredError) Error() string {
+	return "postcodeId is required"
 }
