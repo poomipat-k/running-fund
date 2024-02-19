@@ -370,7 +370,6 @@ var TestCases = []struct {
 	},
 
 	// general.address
-
 	{
 		name: "should error when general.address.address is empty",
 		payload: projects.AddProjectRequest{
@@ -498,6 +497,66 @@ var TestCases = []struct {
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.PostcodeIdRequiredError{},
+	},
+	// startPoint and finishPoint
+	{
+		name: "should error when general.startPoint is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.StartPointRequiredError{},
+	},
+	{
+		name: "should error when general.finishPoint is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint: "X",
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.FinishPointRequiredError{},
 	},
 
 	// 1 END - general
