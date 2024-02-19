@@ -26,7 +26,7 @@ type Review struct {
 }
 
 type AddProjectRequest struct {
-	Collaborated bool                     `json:"collaborated"`
+	Collaborated *bool                    `json:"collaborated,omitempty"`
 	General      AddProjectGeneralDetails `json:"general"`
 }
 
