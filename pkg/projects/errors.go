@@ -358,3 +358,21 @@ type RaceDirectorWhoRequiredError struct{}
 func (e *RaceDirectorWhoRequiredError) Error() string {
 	return "raceDirector who is required"
 }
+
+type RaceDirectorAlternativePrefixRequiredError struct{}
+
+func (e *RaceDirectorAlternativePrefixRequiredError) Error() string {
+	return "raceDirector alternative prefix is required"
+}
+
+type RaceDirectorAlternativeFirstNameRequiredError struct{}
+
+func (e *RaceDirectorAlternativeFirstNameRequiredError) Error() string {
+	return "raceDirector alternative firstName is required"
+}
+
+type RaceDirectorAlternativeLastNameRequiredError struct{}
+
+func (e *RaceDirectorAlternativeLastNameRequiredError) Error() string {
+	return "raceDirector alternative lastName is required"
+}
