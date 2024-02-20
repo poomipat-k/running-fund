@@ -82,7 +82,7 @@ var ContactTestCases = []TestCase{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
-					OrganizationPosition: "Senior Manager",
+					OrganizationPosition: "Software Engineer",
 				},
 			}},
 		store: &mock.MockProjectStore{
@@ -102,7 +102,7 @@ var ContactTestCases = []TestCase{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
-					OrganizationPosition: "Senior Manager",
+					OrganizationPosition: "Software Engineer",
 					EventPosition:        "Head",
 				},
 			},
@@ -123,7 +123,7 @@ var ContactTestCases = []TestCase{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
-					OrganizationPosition: "Senior Manager",
+					OrganizationPosition: "Software Engineer",
 					EventPosition:        "Head",
 				},
 				ProjectManager: projects.ProjectManager{
@@ -147,7 +147,7 @@ var ContactTestCases = []TestCase{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
-					OrganizationPosition: "Senior Manager",
+					OrganizationPosition: "Software Engineer",
 					EventPosition:        "Head",
 				},
 				ProjectManager: projects.ProjectManager{
@@ -172,7 +172,7 @@ var ContactTestCases = []TestCase{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
-					OrganizationPosition: "Senior Manager",
+					OrganizationPosition: "Software Engineer",
 					EventPosition:        "Head",
 				},
 				ProjectManager: projects.ProjectManager{
@@ -198,7 +198,7 @@ var ContactTestCases = []TestCase{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
-					OrganizationPosition: "Senior Manager",
+					OrganizationPosition: "Software Engineer",
 					EventPosition:        "Head",
 				},
 				ProjectManager: projects.ProjectManager{
@@ -214,5 +214,164 @@ var ContactTestCases = []TestCase{
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectManagerEventPositionRequiredError{},
+	},
+	// contact.projectCoordinator
+	{
+		name: "should error when contact.projectCoordinator.prefix is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorPrefixRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.firstName is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix: "Mr",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorFirstNameRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.lastName is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:    "Mr",
+					FirstName: "A",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorLastNameRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.organizationPosition is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:    "Mr",
+					FirstName: "A",
+					LastName:  "B",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorOrganizationPositionRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.eventPosition is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorEventPositionRequiredError{},
 	},
 }
