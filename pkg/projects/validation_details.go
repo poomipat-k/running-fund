@@ -27,5 +27,18 @@ func validateDetails(payload AddProjectRequest) error {
 	if payload.Details.Marketing.Online.Available.Other && payload.Details.Marketing.Online.HowTo.Other == "" {
 		return &OtherHowToIsRequired{}
 	}
+	// marketing.offline
+	if !payload.Details.Marketing.Offline.Available.PR &&
+		!payload.Details.Marketing.Offline.Available.LocalOfficial &&
+		!payload.Details.Marketing.Offline.Available.Booth &&
+		!payload.Details.Marketing.Offline.Available.Billboard &&
+		!payload.Details.Marketing.Offline.Available.TV &&
+		!payload.Details.Marketing.Offline.Available.Other {
+		return &OfflineAvailableRequiredOne{}
+	}
+	if payload.Details.Marketing.Offline.Available.Other && payload.Details.Marketing.Offline.Addition == "" {
+		return &OfflineAdditionRequiredError{}
+	}
+
 	return nil
 }
