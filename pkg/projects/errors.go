@@ -177,3 +177,21 @@ type VIPRequiredError struct{}
 func (e *VIPRequiredError) Error() string {
 	return "vip is required"
 }
+
+type ExpectedParticipantsRequiredError struct{}
+
+func (e *ExpectedParticipantsRequiredError) Error() string {
+	return "expectedParticipants is required"
+}
+
+type HasOrganizerRequiredError struct{}
+
+func (e *HasOrganizerRequiredError) Error() string {
+	return "hasOrganizer is required"
+}
+
+type OrganizerNameRequiredError struct{}
+
+func (e *OrganizerNameRequiredError) Error() string {
+	return "organizerName is required"
+}
