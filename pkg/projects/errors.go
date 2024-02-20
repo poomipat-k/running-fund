@@ -90,34 +90,34 @@ func (e *ToMinuteRequiredError) Error() string {
 	return "toMinute is required"
 }
 
-type AddressRequiredError struct{}
+type GeneralAddressRequiredError struct{}
 
-func (e *AddressRequiredError) Error() string {
-	return "address is required"
+func (e *GeneralAddressRequiredError) Error() string {
+	return "general address is required"
 }
 
-type ProvinceRequiredError struct{}
+type GeneralProvinceRequiredError struct{}
 
-func (e *ProvinceRequiredError) Error() string {
-	return "provinceId is required"
+func (e *GeneralProvinceRequiredError) Error() string {
+	return "general provinceId is required"
 }
 
-type DistrictIdRequiredError struct{}
+type GeneralDistrictIdRequiredError struct{}
 
-func (e *DistrictIdRequiredError) Error() string {
-	return "districtId is required"
+func (e *GeneralDistrictIdRequiredError) Error() string {
+	return "general districtId is required"
 }
 
-type SubdistrictIdRequiredError struct{}
+type GeneralSubdistrictIdRequiredError struct{}
 
-func (e *SubdistrictIdRequiredError) Error() string {
-	return "subdistrictIdId is required"
+func (e *GeneralSubdistrictIdRequiredError) Error() string {
+	return "general subdistrictIdId is required"
 }
 
-type PostcodeIdRequiredError struct{}
+type GeneralPostcodeIdRequiredError struct{}
 
-func (e *PostcodeIdRequiredError) Error() string {
-	return "postcodeId is required"
+func (e *GeneralPostcodeIdRequiredError) Error() string {
+	return "general postcodeId is required"
 }
 
 type StartPointRequiredError struct{}
