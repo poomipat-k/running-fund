@@ -108,6 +108,32 @@ func validateGeneral(payload AddProjectRequest) error {
 	if payload.General.EventDetails.Category.Available.Other && payload.General.EventDetails.Category.OtherType == "" {
 		return &OtherEventTypeRequiredError{}
 	}
+	// general.eventDetails.distanceAndFee
+	if len(payload.General.EventDetails.DistanceAndFee) == 0 {
+		return &DistanceRequiredOneError{}
+	}
+	dfCount := 0
+	for _, df := range payload.General.EventDetails.DistanceAndFee {
+		if df.Checked {
+			dfCount++
+			if df.Type == "" {
+				return &DistanceTypeRequiredError{}
+			}
+			if df.Fee == nil {
+				return &DistanceFeeRequiredError{}
+			}
+			if *df.Fee < 0 {
+				return &ValueNegativeError{}
+			}
+			if df.Dynamic == nil {
+				return &DistanceAndFeeDynamicRequiredError{}
+			}
+		}
+	}
+	if dfCount == 0 {
+		return &DistanceRequiredOneError{}
+	}
+
 	return nil
 }
 

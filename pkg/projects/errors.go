@@ -141,3 +141,33 @@ type OtherEventTypeRequiredError struct{}
 func (e *OtherEventTypeRequiredError) Error() string {
 	return "otherType is required"
 }
+
+type DistanceRequiredOneError struct{}
+
+func (e *DistanceRequiredOneError) Error() string {
+	return "must select at least one distance"
+}
+
+type DistanceTypeRequiredError struct{}
+
+func (e *DistanceTypeRequiredError) Error() string {
+	return "type is required"
+}
+
+type DistanceFeeRequiredError struct{}
+
+func (e *DistanceFeeRequiredError) Error() string {
+	return "fee is required"
+}
+
+type ValueNegativeError struct{}
+
+func (e *ValueNegativeError) Error() string {
+	return "value must >= 0"
+}
+
+type DistanceAndFeeDynamicRequiredError struct{}
+
+func (e *DistanceAndFeeDynamicRequiredError) Error() string {
+	return "dynamic is empty"
+}

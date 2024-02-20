@@ -59,7 +59,8 @@ type Address struct {
 }
 
 type EventDetails struct {
-	Category Category `json:"category,omitempty"`
+	Category       Category         `json:"category,omitempty"`
+	DistanceAndFee []DistanceAndFee `json:"distanceAndFee,omitempty"`
 }
 
 type Category struct {
@@ -71,4 +72,11 @@ type Available struct {
 	Other        bool `json:"other,omitempty"`
 	RoadRace     bool `json:"roadRace,omitempty"`
 	TrailRunning bool `json:"trailRunning,omitempty"`
+}
+
+type DistanceAndFee struct {
+	Checked bool     `json:"checked,omitempty"`
+	Type    string   `json:"type,omitempty"`
+	Fee     *float64 `json:"fee,omitempty"`
+	Dynamic *bool    `json:"dynamic,omitempty"`
 }
