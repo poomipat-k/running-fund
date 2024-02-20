@@ -98,6 +98,13 @@ func validateContact(payload AddProjectRequest) error {
 			return &RaceDirectorAlternativeLastNameRequiredError{}
 		}
 	}
+	// organization
+	if payload.Contact.Organization.Name == "" {
+		return &ContactOrganizationNameRequiredError{}
+	}
+	if payload.Contact.Organization.Type == "" {
+		return &ContactOrganizationTypeRequiredError{}
+	}
 	return nil
 }
 
