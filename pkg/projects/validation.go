@@ -133,6 +133,10 @@ func validateGeneral(payload AddProjectRequest) error {
 	if dfCount == 0 {
 		return &DistanceRequiredOneError{}
 	}
+	// general.eventDetails.vip
+	if payload.General.EventDetails.VIP == "" {
+		return &VIPRequiredError{}
+	}
 
 	return nil
 }
