@@ -7,6 +7,44 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
+var GeneralDetailsOkPayload = projects.AddProjectGeneralDetails{
+	ProjectName: "A",
+	EventDate: projects.EventDate{
+		Year:       2024,
+		Month:      2,
+		Day:        20,
+		FromHour:   newInt(0),
+		FromMinute: newInt(25),
+		ToHour:     newInt(10),
+		ToMinute:   newInt(20),
+	},
+	Address: projects.Address{
+		Address:       "A",
+		ProvinceId:    1,
+		DistrictId:    2,
+		SubdistrictId: 3,
+		PostcodeId:    4,
+	},
+	StartPoint:  "X",
+	FinishPoint: "Y",
+	EventDetails: projects.EventDetails{
+		Category: projects.Category{
+			Available: projects.Available{
+				Other:        false,
+				RoadRace:     false,
+				TrailRunning: true,
+			},
+		},
+		DistanceAndFee: []projects.DistanceAndFee{
+			{Checked: true, Type: "half", Fee: newFloat64(330), Dynamic: newTrue()},
+		},
+		VIP: newFalse(),
+	},
+	ExpectedParticipants: "3501-4500",
+	HasOrganizer:         newTrue(),
+	OrganizerName:        "ABC",
+}
+
 var GeneralAndCollaboratedTestCases = []TestCase{
 	/*
 		STEP 0 START (collaborated)

@@ -27,7 +27,8 @@ type Review struct {
 
 type AddProjectRequest struct {
 	Collaborated *bool                    `json:"collaborated,omitempty"`
-	General      AddProjectGeneralDetails `json:"general"`
+	General      AddProjectGeneralDetails `json:"general,omitempty"`
+	Contact      Contact                  `json:"contact,omitempty"`
 }
 
 // Sub-types for AddProjectRequest
@@ -84,3 +85,17 @@ type DistanceAndFee struct {
 	Fee     *float64 `json:"fee,omitempty"`
 	Dynamic *bool    `json:"dynamic,omitempty"`
 }
+
+type Contact struct {
+	ProjectHead ProjectHead `json:"projectHead,omitempty"`
+}
+
+type ProjectHead struct {
+	Prefix               string `json:"prefix,omitempty"`
+	FirstName            string `json:"firstName,omitempty"`
+	LastName             string `json:"lastName,omitempty"`
+	OrganizationPosition string `json:"organizationPosition,omitempty"`
+	EventPosition        string `json:"eventPosition,omitempty"`
+}
+
+// End sub-types for AddProjectRequest
