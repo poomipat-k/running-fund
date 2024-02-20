@@ -10,6 +10,7 @@ func (e *InvalidError) Error() string {
 	return fmt.Sprintf("%s is invalid", e.Name)
 }
 
+// Collaborated
 type CollaboratedRequiredError struct{}
 
 func (e *CollaboratedRequiredError) Error() string {
@@ -22,6 +23,7 @@ func (e *CollaboratedFilesRequiredError) Error() string {
 	return "collaboratedFiles are required"
 }
 
+// General
 type ProjectNameRequiredError struct{}
 
 func (e *ProjectNameRequiredError) Error() string {
@@ -194,4 +196,35 @@ type OrganizerNameRequiredError struct{}
 
 func (e *OrganizerNameRequiredError) Error() string {
 	return "organizerName is required"
+}
+
+// Contact
+type ProjectHeadPrefixRequiredError struct{}
+
+func (e *ProjectHeadPrefixRequiredError) Error() string {
+	return "projectHead prefix is required"
+}
+
+type ProjectHeadFirstNameRequiredError struct{}
+
+func (e *ProjectHeadFirstNameRequiredError) Error() string {
+	return "projectHead firstName is required"
+}
+
+type ProjectHeadLastNameRequiredError struct{}
+
+func (e *ProjectHeadLastNameRequiredError) Error() string {
+	return "projectHead lastName is required"
+}
+
+type ProjectHeadOrganizationPositionRequiredError struct{}
+
+func (e *ProjectHeadOrganizationPositionRequiredError) Error() string {
+	return "projectHead organizationPosition is required"
+}
+
+type ProjectHeadEventPositionRequiredError struct{}
+
+func (e *ProjectHeadEventPositionRequiredError) Error() string {
+	return "projectHead eventPosition is required"
 }

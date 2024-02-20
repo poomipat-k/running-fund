@@ -31,6 +31,7 @@ func TestAddProject(t *testing.T) {
 
 	pagesCases := [][]TestCase{
 		GeneralAndCollaboratedTestCases,
+		ContactTestCases,
 	}
 	for _, cases := range pagesCases {
 		for _, tt := range cases {
