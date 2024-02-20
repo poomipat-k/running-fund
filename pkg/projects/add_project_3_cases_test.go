@@ -170,4 +170,74 @@ var Details = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OtherHowToIsRequired{},
 	},
+	// marketing offline
+	{
+		name: "should error when none of details.marketing.offline.available is checked",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.OfflineAvailableRequiredOne{},
+	},
+	{
+		name: "should error when  details.marketing.offline.available is 'other' and details.marketing.offline.addition is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.OfflineAdditionRequiredError{},
+	},
 }

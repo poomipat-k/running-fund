@@ -430,3 +430,15 @@ type OtherHowToIsRequired struct{}
 func (e *OtherHowToIsRequired) Error() string {
 	return "other link is required"
 }
+
+type OfflineAvailableRequiredOne struct{}
+
+func (e *OfflineAvailableRequiredOne) Error() string {
+	return "offline marketing available required one"
+}
+
+type OfflineAdditionRequiredError struct{}
+
+func (e *OfflineAdditionRequiredError) Error() string {
+	return "offline addition is required"
+}

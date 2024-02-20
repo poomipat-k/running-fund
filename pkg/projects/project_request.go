@@ -146,7 +146,8 @@ type Details struct {
 }
 
 type Marketing struct {
-	Online Online `json:"online,omitempty"`
+	Online  Online  `json:"online,omitempty"`
+	Offline Offline `json:"offline,omitempty"`
 }
 
 type Online struct {
@@ -166,6 +167,20 @@ type OnlineHowTo struct {
 	Website    string `json:"website,omitempty"`
 	OnlinePage string `json:"onlinePage,omitempty"`
 	Other      string `json:"other,omitempty"`
+}
+
+type Offline struct {
+	Available OfflineAvailable `json:"available,omitempty"`
+	Addition  string           `json:"addition,omitempty"`
+}
+
+type OfflineAvailable struct {
+	PR            bool `json:"pr,omitempty"`
+	LocalOfficial bool `json:"localOfficial,omitempty"`
+	Booth         bool `json:"booth,omitempty"`
+	Billboard     bool `json:"billboard,omitempty"`
+	TV            bool `json:"tv,omitempty"`
+	Other         bool `json:"other,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
