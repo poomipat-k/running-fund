@@ -1,0 +1,173 @@
+package projects_test
+
+import (
+	"net/http"
+
+	"github.com/poomipat-k/running-fund/pkg/mock"
+	"github.com/poomipat-k/running-fund/pkg/projects"
+)
+
+var Details = []TestCase{
+	{
+		name: "should error when details.background is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.BackgroundRequiredError{},
+	},
+	{
+		name: "should error when details.objective is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ObjectiveRequiredError{},
+	},
+	// marketing
+	// marketing.online
+	{
+		name: "should error when none of details.marketing.online.available is selected",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.OnlineAvailableRequiredOne{},
+	},
+	{
+		name: "should error when  details.marketing.online.available.facebook is checked and details.marketing.online.howTo.facebook is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook: true,
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.FacebookHowToIsRequired{},
+	},
+	{
+		name: "should error when  details.marketing.online.available.website is checked and details.marketing.online.howTo.website is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook: true,
+							Website:  true,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook: "facebook.com/abc",
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.WebsiteHowToIsRequired{},
+	},
+	{
+		name: "should error when  details.marketing.online.available.onlinePage is checked and details.marketing.online.howTo.onlinePage is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook: "facebook.com/abc",
+							Website:  "test.com",
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.OnlinePageHowToIsRequired{},
+	},
+	{
+		name: "should error when  details.marketing.online.available.other is checked and details.marketing.online.howTo.other is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      true,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.OtherHowToIsRequired{},
+	},
+}

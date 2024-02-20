@@ -7,6 +7,52 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
+var ContactOkPayload = projects.Contact{
+	ProjectHead: projects.ProjectHead{
+		Prefix:               "Mr",
+		FirstName:            "Poomipat",
+		LastName:             "Khamai",
+		OrganizationPosition: "Software Engineer",
+		EventPosition:        "Head",
+	},
+	ProjectManager: projects.ProjectManager{
+		Prefix:               "Mr",
+		FirstName:            "AA",
+		LastName:             "BB",
+		OrganizationPosition: "COO",
+		EventPosition:        "Y",
+	},
+	ProjectCoordinator: projects.ProjectCoordinator{
+		Prefix:               "Mr",
+		FirstName:            "A",
+		LastName:             "B",
+		OrganizationPosition: "X",
+		EventPosition:        "Y",
+		Address: projects.Address{
+			Address:       "Test",
+			ProvinceId:    1,
+			DistrictId:    1,
+			SubdistrictId: 1,
+			PostcodeId:    2,
+		},
+		Email:       "abc", // can be free text
+		LineId:      "abcd",
+		PhoneNumber: "0992131234", // Only numbers allowed
+	},
+	RaceDirector: projects.RaceDirector{
+		Who: "other",
+		Alternative: projects.RaceDirectorAlternative{
+			Prefix:    "Mr",
+			FirstName: "A",
+			LastName:  "B",
+		},
+	},
+	Organization: projects.ContactOrganization{
+		Name: "government",
+		Type: "XX",
+	},
+}
+
 var ContactTestCases = []TestCase{
 	// contact.projectHead
 	{

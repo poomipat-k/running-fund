@@ -388,3 +388,45 @@ type ContactOrganizationTypeRequiredError struct{}
 func (e *ContactOrganizationTypeRequiredError) Error() string {
 	return "organization type is required"
 }
+
+type BackgroundRequiredError struct{}
+
+func (e *BackgroundRequiredError) Error() string {
+	return "background is required"
+}
+
+type ObjectiveRequiredError struct{}
+
+func (e *ObjectiveRequiredError) Error() string {
+	return "objective is required"
+}
+
+type OnlineAvailableRequiredOne struct{}
+
+func (e *OnlineAvailableRequiredOne) Error() string {
+	return "online marketing available required one"
+}
+
+type FacebookHowToIsRequired struct{}
+
+func (e *FacebookHowToIsRequired) Error() string {
+	return "facebook link is required"
+}
+
+type WebsiteHowToIsRequired struct{}
+
+func (e *WebsiteHowToIsRequired) Error() string {
+	return "website link is required"
+}
+
+type OnlinePageHowToIsRequired struct{}
+
+func (e *OnlinePageHowToIsRequired) Error() string {
+	return "onlinePage link is required"
+}
+
+type OtherHowToIsRequired struct{}
+
+func (e *OtherHowToIsRequired) Error() string {
+	return "other link is required"
+}
