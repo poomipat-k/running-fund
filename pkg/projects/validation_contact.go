@@ -34,5 +34,20 @@ func validateContact(payload AddProjectRequest) error {
 		return &ProjectManagerEventPositionRequiredError{}
 	}
 	// projectCoordinator
+	if payload.Contact.ProjectCoordinator.Prefix == "" {
+		return &ProjectCoordinatorPrefixRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.FirstName == "" {
+		return &ProjectCoordinatorFirstNameRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.LastName == "" {
+		return &ProjectCoordinatorLastNameRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.OrganizationPosition == "" {
+		return &ProjectCoordinatorOrganizationPositionRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.EventPosition == "" {
+		return &ProjectCoordinatorEventPositionRequiredError{}
+	}
 	return nil
 }

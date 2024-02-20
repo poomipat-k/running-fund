@@ -261,3 +261,34 @@ type ProjectManagerEventPositionRequiredError struct{}
 func (e *ProjectManagerEventPositionRequiredError) Error() string {
 	return "projectManager eventPosition is required"
 }
+
+// ProjectCoordinator
+type ProjectCoordinatorPrefixRequiredError struct{}
+
+func (e *ProjectCoordinatorPrefixRequiredError) Error() string {
+	return "projectCoordinator prefix is required"
+}
+
+type ProjectCoordinatorFirstNameRequiredError struct{}
+
+func (e *ProjectCoordinatorFirstNameRequiredError) Error() string {
+	return "projectCoordinator firstName is required"
+}
+
+type ProjectCoordinatorLastNameRequiredError struct{}
+
+func (e *ProjectCoordinatorLastNameRequiredError) Error() string {
+	return "projectCoordinator lastName is required"
+}
+
+type ProjectCoordinatorOrganizationPositionRequiredError struct{}
+
+func (e *ProjectCoordinatorOrganizationPositionRequiredError) Error() string {
+	return "projectCoordinator organizationPosition is required"
+}
+
+type ProjectCoordinatorEventPositionRequiredError struct{}
+
+func (e *ProjectCoordinatorEventPositionRequiredError) Error() string {
+	return "projectCoordinator eventPosition is required"
+}
