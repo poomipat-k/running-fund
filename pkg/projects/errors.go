@@ -169,5 +169,11 @@ func (e *ValueNegativeError) Error() string {
 type DistanceAndFeeDynamicRequiredError struct{}
 
 func (e *DistanceAndFeeDynamicRequiredError) Error() string {
-	return "dynamic is empty"
+	return "dynamic is required"
+}
+
+type VIPRequiredError struct{}
+
+func (e *VIPRequiredError) Error() string {
+	return "vip is required"
 }
