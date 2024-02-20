@@ -83,6 +83,10 @@ func validateContact(payload AddProjectRequest) error {
 	if !IsValidPhoneNumber(payload.Contact.ProjectCoordinator.PhoneNumber) {
 		return &ProjectCoordinatorPhoneNumberInvalidError{}
 	}
+	// raceDirector
+	if payload.Contact.RaceDirector.Who == "" {
+		return &RaceDirectorWhoRequiredError{}
+	}
 	return nil
 }
 

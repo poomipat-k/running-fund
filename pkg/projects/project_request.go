@@ -90,6 +90,7 @@ type Contact struct {
 	ProjectHead        ProjectHead        `json:"projectHead,omitempty"`
 	ProjectManager     ProjectManager     `json:"projectManager,omitempty"`
 	ProjectCoordinator ProjectCoordinator `json:"projectCoordinator,omitempty"`
+	RaceDirector       RaceDirector       `json:"raceDirector,omitempty"`
 }
 
 type ProjectHead struct {
@@ -118,6 +119,17 @@ type ProjectCoordinator struct {
 	Email                string  `json:"email,omitempty"`
 	LineId               string  `json:"lineId,omitempty"`
 	PhoneNumber          string  `json:"phoneNumber,omitempty"`
+}
+
+type RaceDirector struct {
+	Who                     string                  `json:"who,omitempty"`
+	RaceDirectorAlternative RaceDirectorAlternative `json:"raceDirectorAlternative,omitempty"`
+}
+
+type RaceDirectorAlternative struct {
+	Prefix    string `json:"prefix,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
+	LastName  string `json:"lastName,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
