@@ -199,6 +199,8 @@ func (e *OrganizerNameRequiredError) Error() string {
 }
 
 // Contact
+
+// ProjectHead
 type ProjectHeadPrefixRequiredError struct{}
 
 func (e *ProjectHeadPrefixRequiredError) Error() string {
@@ -227,4 +229,35 @@ type ProjectHeadEventPositionRequiredError struct{}
 
 func (e *ProjectHeadEventPositionRequiredError) Error() string {
 	return "projectHead eventPosition is required"
+}
+
+// ProjectManager
+type ProjectManagerPrefixRequiredError struct{}
+
+func (e *ProjectManagerPrefixRequiredError) Error() string {
+	return "projectManager prefix is required"
+}
+
+type ProjectManagerFirstNameRequiredError struct{}
+
+func (e *ProjectManagerFirstNameRequiredError) Error() string {
+	return "projectManager firstName is required"
+}
+
+type ProjectManagerLastNameRequiredError struct{}
+
+func (e *ProjectManagerLastNameRequiredError) Error() string {
+	return "projectManager lastName is required"
+}
+
+type ProjectManagerOrganizationPositionRequiredError struct{}
+
+func (e *ProjectManagerOrganizationPositionRequiredError) Error() string {
+	return "projectManager organizationPosition is required"
+}
+
+type ProjectManagerEventPositionRequiredError struct{}
+
+func (e *ProjectManagerEventPositionRequiredError) Error() string {
+	return "projectManager eventPosition is required"
 }
