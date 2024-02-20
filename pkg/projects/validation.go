@@ -134,7 +134,7 @@ func validateGeneral(payload AddProjectRequest) error {
 		return &DistanceRequiredOneError{}
 	}
 	// general.eventDetails.vip
-	if payload.General.EventDetails.VIP == "" {
+	if payload.General.EventDetails.VIP == nil {
 		return &VIPRequiredError{}
 	}
 

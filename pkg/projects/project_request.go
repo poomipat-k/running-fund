@@ -61,7 +61,7 @@ type Address struct {
 type EventDetails struct {
 	Category       Category         `json:"category,omitempty"`
 	DistanceAndFee []DistanceAndFee `json:"distanceAndFee,omitempty"`
-	VIP            string           `json:"vip,omitempty"`
+	VIP            *bool            `json:"vip,omitempty"`
 }
 
 type Category struct {
