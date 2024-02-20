@@ -376,3 +376,15 @@ type RaceDirectorAlternativeLastNameRequiredError struct{}
 func (e *RaceDirectorAlternativeLastNameRequiredError) Error() string {
 	return "raceDirector alternative lastName is required"
 }
+
+type ContactOrganizationNameRequiredError struct{}
+
+func (e *ContactOrganizationNameRequiredError) Error() string {
+	return "organization name is required"
+}
+
+type ContactOrganizationTypeRequiredError struct{}
+
+func (e *ContactOrganizationTypeRequiredError) Error() string {
+	return "organization type is required"
+}

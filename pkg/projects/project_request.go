@@ -87,10 +87,11 @@ type DistanceAndFee struct {
 }
 
 type Contact struct {
-	ProjectHead        ProjectHead        `json:"projectHead,omitempty"`
-	ProjectManager     ProjectManager     `json:"projectManager,omitempty"`
-	ProjectCoordinator ProjectCoordinator `json:"projectCoordinator,omitempty"`
-	RaceDirector       RaceDirector       `json:"raceDirector,omitempty"`
+	ProjectHead        ProjectHead         `json:"projectHead,omitempty"`
+	ProjectManager     ProjectManager      `json:"projectManager,omitempty"`
+	ProjectCoordinator ProjectCoordinator  `json:"projectCoordinator,omitempty"`
+	RaceDirector       RaceDirector        `json:"raceDirector,omitempty"`
+	Organization       ContactOrganization `json:"organization,omitempty"`
 }
 
 type ProjectHead struct {
@@ -130,6 +131,11 @@ type RaceDirectorAlternative struct {
 	Prefix    string `json:"prefix,omitempty"`
 	FirstName string `json:"firstName,omitempty"`
 	LastName  string `json:"lastName,omitempty"`
+}
+
+type ContactOrganization struct {
+	Name string `json:"name,omitempty"`
+	Type string `json:"type,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
