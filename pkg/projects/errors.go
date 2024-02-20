@@ -334,3 +334,21 @@ type ProjectCoordinatorLineIdRequiredError struct{}
 func (e *ProjectCoordinatorLineIdRequiredError) Error() string {
 	return "projectCoordinator lineId is required"
 }
+
+type ProjectCoordinatorPhoneNumberRequiredError struct{}
+
+func (e *ProjectCoordinatorPhoneNumberRequiredError) Error() string {
+	return "projectCoordinator phoneNumber is required"
+}
+
+type ProjectCoordinatorPhoneNumberLengthError struct{}
+
+func (e *ProjectCoordinatorPhoneNumberLengthError) Error() string {
+	return "projectCoordinator phoneNumber is shorter than 9 numbers"
+}
+
+type ProjectCoordinatorPhoneNumberInvalidError struct{}
+
+func (e *ProjectCoordinatorPhoneNumberInvalidError) Error() string {
+	return "projectCoordinator phoneNumber is invalid"
+}

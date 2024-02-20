@@ -1,5 +1,9 @@
 package projects
 
+import (
+	"regexp"
+)
+
 func validateContact(payload AddProjectRequest) error {
 	// projectHead
 	if payload.Contact.ProjectHead.Prefix == "" {
@@ -70,5 +74,20 @@ func validateContact(payload AddProjectRequest) error {
 	if payload.Contact.ProjectCoordinator.LineId == "" {
 		return &ProjectCoordinatorLineIdRequiredError{}
 	}
+	if payload.Contact.ProjectCoordinator.PhoneNumber == "" {
+		return &ProjectCoordinatorPhoneNumberRequiredError{}
+	}
+	if len(payload.Contact.ProjectCoordinator.PhoneNumber) < 9 {
+		return &ProjectCoordinatorPhoneNumberLengthError{}
+	}
+	if !IsValidPhoneNumber(payload.Contact.ProjectCoordinator.PhoneNumber) {
+		return &ProjectCoordinatorPhoneNumberInvalidError{}
+	}
 	return nil
+}
+
+func IsValidPhoneNumber(phoneNumber string) bool {
+	regex := `^[0-9]{9,}$`
+	re := regexp.MustCompile(regex)
+	return re.Find([]byte(phoneNumber)) != nil
 }
