@@ -49,5 +49,26 @@ func validateContact(payload AddProjectRequest) error {
 	if payload.Contact.ProjectCoordinator.EventPosition == "" {
 		return &ProjectCoordinatorEventPositionRequiredError{}
 	}
+	if payload.Contact.ProjectCoordinator.Address.Address == "" {
+		return &ProjectCoordinatorAddressRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.Address.ProvinceId <= 0 {
+		return &ProjectCoordinatorProvinceIdRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.Address.DistrictId <= 0 {
+		return &ProjectCoordinatorDistrictIdRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.Address.SubdistrictId <= 0 {
+		return &ProjectCoordinatorSubdistrictIdRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.Address.PostcodeId <= 0 {
+		return &ProjectCoordinatorPostcodeIdRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.Email == "" {
+		return &ProjectCoordinatorEmailRequiredError{}
+	}
+	if payload.Contact.ProjectCoordinator.LineId == "" {
+		return &ProjectCoordinatorLineIdRequiredError{}
+	}
 	return nil
 }
