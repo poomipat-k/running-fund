@@ -29,6 +29,7 @@ type AddProjectRequest struct {
 	Collaborated *bool                    `json:"collaborated,omitempty"`
 	General      AddProjectGeneralDetails `json:"general,omitempty"`
 	Contact      Contact                  `json:"contact,omitempty"`
+	Details      Details                  `json:"details,omitempty"`
 }
 
 // Sub-types for AddProjectRequest
@@ -136,6 +137,35 @@ type RaceDirectorAlternative struct {
 type ContactOrganization struct {
 	Name string `json:"name,omitempty"`
 	Type string `json:"type,omitempty"`
+}
+
+type Details struct {
+	Background string    `json:"background,omitempty"`
+	Objective  string    `json:"objective,omitempty"`
+	Marketing  Marketing `json:"marketing,omitempty"`
+}
+
+type Marketing struct {
+	Online Online `json:"online,omitempty"`
+}
+
+type Online struct {
+	Available OnlineAvailable `json:"available,omitempty"`
+	HowTo     OnlineHowTo     `json:"howTo,omitempty"`
+}
+
+type OnlineAvailable struct {
+	Facebook   bool `json:"facebook,omitempty"`
+	Website    bool `json:"website,omitempty"`
+	OnlinePage bool `json:"onlinePage,omitempty"`
+	Other      bool `json:"other,omitempty"`
+}
+
+type OnlineHowTo struct {
+	Facebook   string `json:"facebook,omitempty"`
+	Website    string `json:"website,omitempty"`
+	OnlinePage string `json:"onlinePage,omitempty"`
+	Other      string `json:"other,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
