@@ -6,6 +6,43 @@ import (
 
 func validateContact(payload AddProjectRequest) error {
 	// projectHead
+	if err := validateProjectHead(payload); err != nil {
+		return err
+	}
+	// projectManager
+	if err := validateProjectManager(payload); err != nil {
+		return err
+	}
+	// projectCoordinator
+	if err := validateProjectCoordinator(payload); err != nil {
+		return err
+	}
+	// raceDirector
+	if payload.Contact.RaceDirector.Who == "" {
+		return &RaceDirectorWhoRequiredError{}
+	}
+	if payload.Contact.RaceDirector.Who == "other" {
+		if payload.Contact.RaceDirector.Alternative.Prefix == "" {
+			return &RaceDirectorAlternativePrefixRequiredError{}
+		}
+		if payload.Contact.RaceDirector.Alternative.FirstName == "" {
+			return &RaceDirectorAlternativeFirstNameRequiredError{}
+		}
+		if payload.Contact.RaceDirector.Alternative.LastName == "" {
+			return &RaceDirectorAlternativeLastNameRequiredError{}
+		}
+	}
+	// organization
+	if payload.Contact.Organization.Name == "" {
+		return &ContactOrganizationNameRequiredError{}
+	}
+	if payload.Contact.Organization.Type == "" {
+		return &ContactOrganizationTypeRequiredError{}
+	}
+	return nil
+}
+
+func validateProjectHead(payload AddProjectRequest) error {
 	if payload.Contact.ProjectHead.Prefix == "" {
 		return &ProjectHeadPrefixRequiredError{}
 	}
@@ -21,7 +58,9 @@ func validateContact(payload AddProjectRequest) error {
 	if payload.Contact.ProjectHead.EventPosition == "" {
 		return &ProjectHeadEventPositionRequiredError{}
 	}
-	// projectManager
+	return nil
+}
+func validateProjectManager(payload AddProjectRequest) error {
 	if payload.Contact.ProjectManager.Prefix == "" {
 		return &ProjectManagerPrefixRequiredError{}
 	}
@@ -37,7 +76,9 @@ func validateContact(payload AddProjectRequest) error {
 	if payload.Contact.ProjectManager.EventPosition == "" {
 		return &ProjectManagerEventPositionRequiredError{}
 	}
-	// projectCoordinator
+	return nil
+}
+func validateProjectCoordinator(payload AddProjectRequest) error {
 	if payload.Contact.ProjectCoordinator.Prefix == "" {
 		return &ProjectCoordinatorPrefixRequiredError{}
 	}
@@ -83,31 +124,8 @@ func validateContact(payload AddProjectRequest) error {
 	if !IsValidPhoneNumber(payload.Contact.ProjectCoordinator.PhoneNumber) {
 		return &ProjectCoordinatorPhoneNumberInvalidError{}
 	}
-	// raceDirector
-	if payload.Contact.RaceDirector.Who == "" {
-		return &RaceDirectorWhoRequiredError{}
-	}
-	if payload.Contact.RaceDirector.Who == "other" {
-		if payload.Contact.RaceDirector.Alternative.Prefix == "" {
-			return &RaceDirectorAlternativePrefixRequiredError{}
-		}
-		if payload.Contact.RaceDirector.Alternative.FirstName == "" {
-			return &RaceDirectorAlternativeFirstNameRequiredError{}
-		}
-		if payload.Contact.RaceDirector.Alternative.LastName == "" {
-			return &RaceDirectorAlternativeLastNameRequiredError{}
-		}
-	}
-	// organization
-	if payload.Contact.Organization.Name == "" {
-		return &ContactOrganizationNameRequiredError{}
-	}
-	if payload.Contact.Organization.Type == "" {
-		return &ContactOrganizationTypeRequiredError{}
-	}
 	return nil
 }
-
 func IsValidPhoneNumber(phoneNumber string) bool {
 	regex := `^[0-9]{9,}$`
 	re := regexp.MustCompile(regex)
