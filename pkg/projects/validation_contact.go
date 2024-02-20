@@ -87,6 +87,17 @@ func validateContact(payload AddProjectRequest) error {
 	if payload.Contact.RaceDirector.Who == "" {
 		return &RaceDirectorWhoRequiredError{}
 	}
+	if payload.Contact.RaceDirector.Who == "other" {
+		if payload.Contact.RaceDirector.Alternative.Prefix == "" {
+			return &RaceDirectorAlternativePrefixRequiredError{}
+		}
+		if payload.Contact.RaceDirector.Alternative.FirstName == "" {
+			return &RaceDirectorAlternativeFirstNameRequiredError{}
+		}
+		if payload.Contact.RaceDirector.Alternative.LastName == "" {
+			return &RaceDirectorAlternativeLastNameRequiredError{}
+		}
+	}
 	return nil
 }
 

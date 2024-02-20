@@ -833,4 +833,155 @@ var ContactTestCases = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.RaceDirectorWhoRequiredError{},
 	},
+	{
+		name: "should error when contact.raceDirector.who is other and raceDirector.alternative.prefix is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:       "Test",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    2,
+					},
+					Email:       "abc", // can be free text
+					LineId:      "abcd",
+					PhoneNumber: "0992131234", // Only numbers allowed
+				},
+				RaceDirector: projects.RaceDirector{
+					Who: "other",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.RaceDirectorAlternativePrefixRequiredError{},
+	},
+	{
+		name: "should error when contact.raceDirector.who is other and raceDirector.alternative.firstName is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:       "Test",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    2,
+					},
+					Email:       "abc", // can be free text
+					LineId:      "abcd",
+					PhoneNumber: "0992131234", // Only numbers allowed
+				},
+				RaceDirector: projects.RaceDirector{
+					Who: "other",
+					Alternative: projects.RaceDirectorAlternative{
+						Prefix: "Mr",
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.RaceDirectorAlternativeFirstNameRequiredError{},
+	},
+	{
+		name: "should error when contact.raceDirector.who is other and raceDirector.alternative.lastName is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:       "Test",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    2,
+					},
+					Email:       "abc", // can be free text
+					LineId:      "abcd",
+					PhoneNumber: "0992131234", // Only numbers allowed
+				},
+				RaceDirector: projects.RaceDirector{
+					Who: "other",
+					Alternative: projects.RaceDirectorAlternative{
+						Prefix:    "Mr",
+						FirstName: "A",
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.RaceDirectorAlternativeLastNameRequiredError{},
+	},
 }

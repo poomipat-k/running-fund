@@ -122,8 +122,8 @@ type ProjectCoordinator struct {
 }
 
 type RaceDirector struct {
-	Who                     string                  `json:"who,omitempty"`
-	RaceDirectorAlternative RaceDirectorAlternative `json:"raceDirectorAlternative,omitempty"`
+	Who         string                  `json:"who,omitempty"`
+	Alternative RaceDirectorAlternative `json:"alternative,omitempty"`
 }
 
 type RaceDirectorAlternative struct {
