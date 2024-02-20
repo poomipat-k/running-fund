@@ -90,19 +90,19 @@ func validateEventDate(payload AddProjectRequest) error {
 
 func validateGeneralAddress(payload AddProjectRequest) error {
 	if payload.General.Address.Address == "" {
-		return &AddressRequiredError{}
+		return &GeneralAddressRequiredError{}
 	}
 	if payload.General.Address.ProvinceId <= 0 {
-		return &ProvinceRequiredError{}
+		return &GeneralProvinceRequiredError{}
 	}
 	if payload.General.Address.DistrictId <= 0 {
-		return &DistrictIdRequiredError{}
+		return &GeneralDistrictIdRequiredError{}
 	}
 	if payload.General.Address.SubdistrictId <= 0 {
-		return &SubdistrictIdRequiredError{}
+		return &GeneralSubdistrictIdRequiredError{}
 	}
 	if payload.General.Address.PostcodeId <= 0 {
-		return &PostcodeIdRequiredError{}
+		return &GeneralPostcodeIdRequiredError{}
 	}
 	return nil
 }

@@ -414,7 +414,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 			AddProjectFunc: addProjectSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.AddressRequiredError{},
+		expectedError:  &projects.GeneralAddressRequiredError{},
 	},
 	{
 		name: "should error when general.address.provinceId is empty",
@@ -439,7 +439,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 			AddProjectFunc: addProjectSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.ProvinceRequiredError{},
+		expectedError:  &projects.GeneralProvinceRequiredError{},
 	},
 	{
 		name: "should error when general.address.districtId is empty",
@@ -465,7 +465,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 			AddProjectFunc: addProjectSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.DistrictIdRequiredError{},
+		expectedError:  &projects.GeneralDistrictIdRequiredError{},
 	},
 	{
 		name: "should error when general.address.subdistrictId is empty",
@@ -492,7 +492,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 			AddProjectFunc: addProjectSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.SubdistrictIdRequiredError{},
+		expectedError:  &projects.GeneralSubdistrictIdRequiredError{},
 	},
 	{
 		name: "should error when general.address.postcodeId is empty",
@@ -520,7 +520,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 			AddProjectFunc: addProjectSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.PostcodeIdRequiredError{},
+		expectedError:  &projects.GeneralPostcodeIdRequiredError{},
 	},
 	// general.startPoint and general.finishPoint
 	{
