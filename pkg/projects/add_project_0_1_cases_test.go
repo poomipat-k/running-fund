@@ -544,7 +544,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.FinishPointRequiredError{},
 	},
-	// general.eventDetails
+	// general.eventDetails.category
 	{
 		name: "should error when none of general.category.available is selected",
 		payload: projects.AddProjectRequest{
@@ -569,6 +569,15 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 				StartPoint:  "X",
 				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: false,
+						},
+					},
+				},
 			}},
 		store: &mock.MockProjectStore{
 			AddProjectFunc: addProjectSuccess,
@@ -604,8 +613,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 					Category: projects.Category{
 						Available: projects.Available{
 							Other:        true,
-							RoadRace:     true,
-							TrailRunning: true,
+							RoadRace:     false,
+							TrailRunning: false,
 						},
 					},
 				},
@@ -615,6 +624,262 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OtherEventTypeRequiredError{},
+	},
+	// general.eventDetails.distanceAndFee
+	{
+		name: "should error when general.eventDetails.distanceAndFee len is 0",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: true,
+						},
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DistanceRequiredOneError{},
+	},
+	{
+		name: "should error when general.eventDetails.distanceAndFee has 0 checked",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: true,
+						},
+					},
+					DistanceAndFee: []projects.DistanceAndFee{
+						{Checked: false, Type: "fun", Fee: newFloat64(222.75), Dynamic: newFalse()},
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DistanceRequiredOneError{},
+	},
+	{
+		name: "should error when general.eventDetails.distanceAndFee.type is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: true,
+						},
+					},
+					DistanceAndFee: []projects.DistanceAndFee{
+						{Checked: true, Type: "", Fee: newFloat64(222.50), Dynamic: newFalse()},
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DistanceTypeRequiredError{},
+	},
+	{
+		name: "should error when general.eventDetails.distanceAndFee.fee is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: true,
+						},
+					},
+					DistanceAndFee: []projects.DistanceAndFee{
+						{Checked: true, Type: "half", Dynamic: newFalse()},
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DistanceFeeRequiredError{},
+	},
+	{
+		name: "should error when general.eventDetails.distanceAndFee.fee is negative",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: true,
+						},
+					},
+					DistanceAndFee: []projects.DistanceAndFee{
+						{Checked: true, Type: "half", Fee: newFloat64(-30), Dynamic: newFalse()},
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ValueNegativeError{},
+	},
+	{
+		name: "should error when general.eventDetails.distanceAndFee.dynamic is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General: projects.AddProjectGeneralDetails{
+				ProjectName: "A",
+				EventDate: projects.EventDate{
+					Year:       2024,
+					Month:      2,
+					Day:        20,
+					FromHour:   newInt(0),
+					FromMinute: newInt(25),
+					ToHour:     newInt(10),
+					ToMinute:   newInt(20),
+				},
+				Address: projects.Address{
+					Address:       "A",
+					ProvinceId:    1,
+					DistrictId:    2,
+					SubdistrictId: 3,
+					PostcodeId:    4,
+				},
+				StartPoint:  "X",
+				FinishPoint: "Y",
+				EventDetails: projects.EventDetails{
+					Category: projects.Category{
+						Available: projects.Available{
+							Other:        false,
+							RoadRace:     false,
+							TrailRunning: true,
+						},
+					},
+					DistanceAndFee: []projects.DistanceAndFee{
+						{Checked: true, Type: "half", Fee: newFloat64(330)},
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DistanceAndFeeDynamicRequiredError{},
 	},
 
 	// 1 END - general

@@ -117,6 +117,11 @@ func newInt(val int) *int {
 	return &v
 }
 
+func newFloat64(val float64) *float64 {
+	v := val
+	return &v
+}
+
 func newFalse() *bool {
 	b := false
 	return &b
