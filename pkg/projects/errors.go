@@ -352,3 +352,9 @@ type ProjectCoordinatorPhoneNumberInvalidError struct{}
 func (e *ProjectCoordinatorPhoneNumberInvalidError) Error() string {
 	return "projectCoordinator phoneNumber is invalid"
 }
+
+type RaceDirectorWhoRequiredError struct{}
+
+func (e *RaceDirectorWhoRequiredError) Error() string {
+	return "raceDirector who is required"
+}
