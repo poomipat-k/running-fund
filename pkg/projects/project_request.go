@@ -109,11 +109,15 @@ type ProjectManager struct {
 }
 
 type ProjectCoordinator struct {
-	Prefix               string `json:"prefix,omitempty"`
-	FirstName            string `json:"firstName,omitempty"`
-	LastName             string `json:"lastName,omitempty"`
-	OrganizationPosition string `json:"organizationPosition,omitempty"`
-	EventPosition        string `json:"eventPosition,omitempty"`
+	Prefix               string  `json:"prefix,omitempty"`
+	FirstName            string  `json:"firstName,omitempty"`
+	LastName             string  `json:"lastName,omitempty"`
+	OrganizationPosition string  `json:"organizationPosition,omitempty"`
+	EventPosition        string  `json:"eventPosition,omitempty"`
+	Address              Address `json:"address,omitempty"`
+	Email                string  `json:"email,omitempty"`
+	LineId               string  `json:"lineId,omitempty"`
+	PhoneNumber          string  `json:"phoneNumber,omitempty"`
 }
 
 // End sub-types for AddProjectRequest

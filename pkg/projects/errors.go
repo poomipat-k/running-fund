@@ -292,3 +292,45 @@ type ProjectCoordinatorEventPositionRequiredError struct{}
 func (e *ProjectCoordinatorEventPositionRequiredError) Error() string {
 	return "projectCoordinator eventPosition is required"
 }
+
+type ProjectCoordinatorAddressRequiredError struct{}
+
+func (e *ProjectCoordinatorAddressRequiredError) Error() string {
+	return "projectCoordinator address is required"
+}
+
+type ProjectCoordinatorProvinceIdRequiredError struct{}
+
+func (e *ProjectCoordinatorProvinceIdRequiredError) Error() string {
+	return "projectCoordinator provinceId is required"
+}
+
+type ProjectCoordinatorDistrictIdRequiredError struct{}
+
+func (e *ProjectCoordinatorDistrictIdRequiredError) Error() string {
+	return "projectCoordinator districtId is required"
+}
+
+type ProjectCoordinatorSubdistrictIdRequiredError struct{}
+
+func (e *ProjectCoordinatorSubdistrictIdRequiredError) Error() string {
+	return "projectCoordinator subdistrictId is required"
+}
+
+type ProjectCoordinatorPostcodeIdRequiredError struct{}
+
+func (e *ProjectCoordinatorPostcodeIdRequiredError) Error() string {
+	return "projectCoordinator postcodeId is required"
+}
+
+type ProjectCoordinatorEmailRequiredError struct{}
+
+func (e *ProjectCoordinatorEmailRequiredError) Error() string {
+	return "projectCoordinator email is required"
+}
+
+type ProjectCoordinatorLineIdRequiredError struct{}
+
+func (e *ProjectCoordinatorLineIdRequiredError) Error() string {
+	return "projectCoordinator lineId is required"
+}

@@ -374,4 +374,283 @@ var ContactTestCases = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorEventPositionRequiredError{},
 	},
+	// contact.projectCoordinator.address
+	{
+		name: "should error when contact.projectCoordinator.address.address is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorAddressRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.address.provinceId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address: "Test",
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorProvinceIdRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.address.districtId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:    "Test",
+						ProvinceId: 1,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorDistrictIdRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.address.subdistrictId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:    "Test",
+						ProvinceId: 1,
+						DistrictId: 1,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorSubdistrictIdRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.address.postcodeId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:       "Test",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorPostcodeIdRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.email is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:       "Test",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    2,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorEmailRequiredError{},
+	},
+	{
+		name: "should error when contact.projectCoordinator.lineId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+				},
+				ProjectManager: projects.ProjectManager{
+					Prefix:               "Mr",
+					FirstName:            "AA",
+					LastName:             "BB",
+					OrganizationPosition: "COO",
+					EventPosition:        "Y",
+				},
+				ProjectCoordinator: projects.ProjectCoordinator{
+					Prefix:               "Mr",
+					FirstName:            "A",
+					LastName:             "B",
+					OrganizationPosition: "X",
+					EventPosition:        "Y",
+					Address: projects.Address{
+						Address:       "Test",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    2,
+					},
+					Email: "abc", // can be free text
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc: addProjectSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectCoordinatorLineIdRequiredError{},
+	},
 }
