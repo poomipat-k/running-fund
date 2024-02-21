@@ -186,6 +186,12 @@ func (e *ExpectedParticipantsRequiredError) Error() string {
 	return "expectedParticipants is required"
 }
 
+type ExpectedParticipantsInvalidError struct{}
+
+func (e *ExpectedParticipantsInvalidError) Error() string {
+	return "expectedParticipants is invalid"
+}
+
 type HasOrganizerRequiredError struct{}
 
 func (e *HasOrganizerRequiredError) Error() string {
@@ -499,4 +505,22 @@ type RouteTrafficManagementRequiredOneError struct{}
 
 func (e *RouteTrafficManagementRequiredOneError) Error() string {
 	return "route trafficManagement required one"
+}
+
+type JudgeTypeRequiredError struct{}
+
+func (e *JudgeTypeRequiredError) Error() string {
+	return "judge type is required"
+}
+
+type JudgeTypeInvalidError struct{}
+
+func (e *JudgeTypeInvalidError) Error() string {
+	return "judge type is invalid"
+}
+
+type JudgeOtherTypeRequiredError struct{}
+
+func (e *JudgeOtherTypeRequiredError) Error() string {
+	return "judge otherType is required"
 }
