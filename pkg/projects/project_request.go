@@ -147,6 +147,7 @@ type Details struct {
 	Safety     Safety         `json:"Safety,omitempty"`
 	Route      Route          `json:"route,omitempty"`
 	Judge      Judge          `json:"judge,omitempty"`
+	Support    Support        `json:"support,omitempty"`
 }
 
 type Marketing struct {
@@ -226,6 +227,20 @@ type TrafficManagement struct {
 type Judge struct {
 	Type      string `json:"type,omitempty"`
 	OtherType string `json:"otherType,omitempty"`
+}
+
+type Support struct {
+	Addition     string       `json:"addition,omitempty"`
+	Organization Organization `json:"organization,omitempty"`
+}
+
+type Organization struct {
+	ProvincialAdministration bool `json:"provincialAdministration,omitempty"`
+	Safety                   bool `json:"safety,omitempty"`
+	Health                   bool `json:"health,omitempty"`
+	Volunteer                bool `json:"volunteer,omitempty"`
+	Community                bool `json:"community,omitempty"`
+	Other                    bool `json:"other,omitempty"`
 }
 
 // End sub-types for AddProjectRequest

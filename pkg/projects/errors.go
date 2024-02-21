@@ -524,3 +524,15 @@ type JudgeOtherTypeRequiredError struct{}
 func (e *JudgeOtherTypeRequiredError) Error() string {
 	return "judge otherType is required"
 }
+
+type SupportOrganizationRequiredOneError struct{}
+
+func (e *SupportOrganizationRequiredOneError) Error() string {
+	return "support organization required one"
+}
+
+type SupportAdditionRequiredError struct{}
+
+func (e *SupportAdditionRequiredError) Error() string {
+	return "support addition is required"
+}

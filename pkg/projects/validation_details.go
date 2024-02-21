@@ -106,6 +106,19 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Judge.Type == "other" && payload.Details.Judge.OtherType == "" {
 		return &JudgeOtherTypeRequiredError{}
 	}
+	// support
+	if !payload.Details.Support.Organization.ProvincialAdministration &&
+		!payload.Details.Support.Organization.Safety &&
+		!payload.Details.Support.Organization.Health &&
+		!payload.Details.Support.Organization.Volunteer &&
+		!payload.Details.Support.Organization.Community &&
+		!payload.Details.Support.Organization.Other {
+		return &SupportOrganizationRequiredOneError{}
+	}
+	if payload.Details.Support.Organization.Other && payload.Details.Support.Addition == "" {
+		return &SupportAdditionRequiredError{}
+	}
+
 	return nil
 }
 
