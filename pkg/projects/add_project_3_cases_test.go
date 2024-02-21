@@ -561,4 +561,172 @@ var Details = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.SafetyAdditionRequiredError{},
 	},
+	// details.route
+	{
+		name: "should error when none of details.route.measurement is checked",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 3,
+				},
+				Safety: projects.Safety{
+					Ready: projects.SafetyReady{
+						RunnerInformation: true,
+						AED:               true,
+						Other:             true,
+					},
+					AEDCount: 5,
+					Addition: "X",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.RouteMeasurementRequiredOneError{},
+	},
+	{
+		name: "should error when details.route.measurement.selfMeasurement is checked and details.route.tool is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 3,
+				},
+				Safety: projects.Safety{
+					Ready: projects.SafetyReady{
+						RunnerInformation: true,
+						AED:               true,
+						Other:             true,
+					},
+					AEDCount: 5,
+					Addition: "X",
+				},
+				Route: projects.Route{
+					Measurement: projects.RouteMeasurement{
+						SelfMeasurement: true,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.RouteToolRequiredError{},
+	},
+	{
+		name: "should error when none of details.route.trafficManagement is checked",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 3,
+				},
+				Safety: projects.Safety{
+					Ready: projects.SafetyReady{
+						RunnerInformation: true,
+						AED:               true,
+						Other:             true,
+					},
+					AEDCount: 5,
+					Addition: "X",
+				},
+				Route: projects.Route{
+					Measurement: projects.RouteMeasurement{
+						SelfMeasurement: true,
+					},
+					Tool: "UU",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.RouteTrafficManagementRequiredOneError{},
+	},
 }

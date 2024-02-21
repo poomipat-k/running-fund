@@ -482,3 +482,21 @@ type SafetyAdditionRequiredError struct{}
 func (e *SafetyAdditionRequiredError) Error() string {
 	return "safety addition is required"
 }
+
+type RouteMeasurementRequiredOneError struct{}
+
+func (e *RouteMeasurementRequiredOneError) Error() string {
+	return "route measurement required one"
+}
+
+type RouteToolRequiredError struct{}
+
+func (e *RouteToolRequiredError) Error() string {
+	return "route tool is required"
+}
+
+type RouteTrafficManagementRequiredOneError struct{}
+
+func (e *RouteTrafficManagementRequiredOneError) Error() string {
+	return "route trafficManagement required one"
+}

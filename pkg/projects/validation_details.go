@@ -74,6 +74,23 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Safety.Ready.Other && payload.Details.Safety.Addition == "" {
 		return &SafetyAdditionRequiredError{}
 	}
+	// route
+	if !payload.Details.Route.Measurement.AthleticsAssociation &&
+		!payload.Details.Route.Measurement.CalibratedBicycle &&
+		!payload.Details.Route.Measurement.SelfMeasurement {
+		return &RouteMeasurementRequiredOneError{}
+	}
+	if payload.Details.Route.Measurement.SelfMeasurement && payload.Details.Route.Tool == "" {
+		return &RouteToolRequiredError{}
+	}
+	if !payload.Details.Route.TrafficManagement.AskPermission &&
+		!payload.Details.Route.TrafficManagement.HasSupporter &&
+		!payload.Details.Route.TrafficManagement.RoadClosure &&
+		!payload.Details.Route.TrafficManagement.Signs &&
+		!payload.Details.Route.TrafficManagement.Lighting {
+		return &RouteTrafficManagementRequiredOneError{}
+	}
+
 	return nil
 }
 
