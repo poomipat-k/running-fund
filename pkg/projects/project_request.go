@@ -148,6 +148,7 @@ type Details struct {
 	Route      Route          `json:"route,omitempty"`
 	Judge      Judge          `json:"judge,omitempty"`
 	Support    Support        `json:"support,omitempty"`
+	Feedback   string         `json:"feedback,omitempty"`
 }
 
 type Marketing struct {

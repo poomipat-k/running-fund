@@ -536,3 +536,9 @@ type SupportAdditionRequiredError struct{}
 func (e *SupportAdditionRequiredError) Error() string {
 	return "support addition is required"
 }
+
+type FeedbackRequiredError struct{}
+
+func (e *FeedbackRequiredError) Error() string {
+	return "feedback is required"
+}

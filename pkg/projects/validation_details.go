@@ -118,6 +118,10 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Support.Organization.Other && payload.Details.Support.Addition == "" {
 		return &SupportAdditionRequiredError{}
 	}
+	// feedback
+	if payload.Details.Feedback == "" {
+		return &FeedbackRequiredError{}
+	}
 
 	return nil
 }
