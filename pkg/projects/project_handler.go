@@ -201,7 +201,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		utils.ErrorJSON(w, err, "APPLICANT_CRITERIA_VERSION", http.StatusBadRequest)
 		return
 	}
-	log.Println("===criteriaVersion:", criteriaVersion)
 	criteria, err := h.store.GetApplicantCriteria(criteriaVersion)
 	if err != nil {
 		slog.Error(err.Error())
@@ -209,15 +208,12 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("===2")
 	err = validateAddProjectPayload(payload, collaborateFiles, criteria)
-	log.Println("===3")
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
-	log.Println("===4")
 
 	projectCode, err := h.store.AddProject(userId, collaborateFiles, otherFiles)
 	if err != nil {

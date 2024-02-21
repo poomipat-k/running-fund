@@ -249,43 +249,171 @@ var Details = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OfflineAdditionRequiredError{},
 	},
-	// // details.score
-	// {
-	// 	name: "should error when  details.score.q_1_1 is invalid",
-	// 	payload: projects.AddProjectRequest{
-	// 		Collaborated: newFalse(),
-	// 		General:      GeneralDetailsOkPayload,
-	// 		Contact:      ContactOkPayload,
-	// 		Details: projects.Details{
-	// 			Background: "Some background",
-	// 			Objective:  "Some objective",
-	// 			Marketing: projects.Marketing{
-	// 				Online: projects.Online{
-	// 					Available: projects.OnlineAvailable{
-	// 						Facebook:   true,
-	// 						Website:    true,
-	// 						OnlinePage: true,
-	// 						Other:      false,
-	// 					},
-	// 					HowTo: projects.OnlineHowTo{
-	// 						Facebook:   "facebook.com/abc",
-	// 						Website:    "test.com",
-	// 						OnlinePage: "abc",
-	// 					},
-	// 				},
-	// 				Offline: projects.Offline{
-	// 					Available: projects.OfflineAvailable{
-	// 						Other: true,
-	// 					},
-	// 					Addition: "Test",
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// 	store: &mock.MockProjectStore{
-	// 		AddProjectFunc: addProjectSuccess,
-	// 	},
-	// 	expectedStatus: http.StatusBadRequest,
-	// 	expectedError:  &projects.ScoreInvalidError{Name: "q_1_1"},
-	// },
+	// details.score
+	{
+		name: "should error when applicant criteria len = 0",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaNotFound,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ApplicantCriteriaNotFoundError{},
+	},
+	{
+		name: "should error when some score.q_{version}_{order} is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ScoreRequiredError{Name: "q_1_2"},
+	},
+	{
+		name: "should error when first score.q_1_1 is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_2": 4,
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ScoreRequiredError{Name: "q_1_1"},
+	},
+	{
+		name: "should error when not all details.score.q_[criteriaVersion]_[orderNumber] is valid",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 24,
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ScoreInvalidError{Name: "q_1_2"},
+	},
 }

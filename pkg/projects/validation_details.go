@@ -1,6 +1,11 @@
 package projects
 
-func validateDetails(payload AddProjectRequest) error {
+import (
+	"fmt"
+	"log"
+)
+
+func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCriteria) error {
 	if payload.Details.Background == "" {
 		return &BackgroundRequiredError{}
 	}
@@ -40,7 +45,25 @@ func validateDetails(payload AddProjectRequest) error {
 		return &OfflineAdditionRequiredError{}
 	}
 	// score
-	// q_1_1 - q_1_10
-
+	log.Println("==criteria")
+	log.Println(criteria)
+	criteriaCount := len(criteria)
+	if criteriaCount == 0 {
+		return &ApplicantCriteriaNotFoundError{}
+	}
+	for _, c := range criteria {
+		key := fmt.Sprintf("q_%d_%d", c.CriteriaVersion, c.OrderNumber)
+		input, exists := payload.Details.Score[key]
+		if !exists {
+			return &ScoreRequiredError{Name: key}
+		}
+		if !isScoreValid(input) {
+			return &ScoreInvalidError{Name: key}
+		}
+	}
 	return nil
+}
+
+func isScoreValid(score int) bool {
+	return score >= 1 && score <= 5
 }
