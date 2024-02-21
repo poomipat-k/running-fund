@@ -7,6 +7,66 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
+var DetailsOkPayload = projects.Details{
+	Background: "Some background",
+	Objective:  "Some objective",
+	Marketing: projects.Marketing{
+		Online: projects.Online{
+			Available: projects.OnlineAvailable{
+				Facebook:   true,
+				Website:    true,
+				OnlinePage: true,
+				Other:      false,
+			},
+			HowTo: projects.OnlineHowTo{
+				Facebook:   "facebook.com/abc",
+				Website:    "test.com",
+				OnlinePage: "abc",
+			},
+		},
+		Offline: projects.Offline{
+			Available: projects.OfflineAvailable{
+				Other: true,
+			},
+			Addition: "Test",
+		},
+	},
+	Score: map[string]int{
+		"q_1_1": 4,
+		"q_1_2": 3,
+	},
+	Safety: projects.Safety{
+		Ready: projects.SafetyReady{
+			RunnerInformation: true,
+			AED:               true,
+			Other:             true,
+		},
+		AEDCount: 5,
+		Addition: "X",
+	},
+	Route: projects.Route{
+		Measurement: projects.RouteMeasurement{
+			SelfMeasurement: true,
+		},
+		Tool: "UU",
+		TrafficManagement: projects.TrafficManagement{
+			AskPermission: true,
+		},
+	},
+	Judge: projects.Judge{
+		Type:      "other",
+		OtherType: "Any",
+	},
+	Support: projects.Support{
+		Organization: projects.Organization{
+			Safety: true,
+			Other:  true,
+		},
+		Addition: "X",
+	},
+	Feedback: "My feedback",
+}
+
 var Details = []TestCase{
 	{
 		name: "should error when details.background is empty",

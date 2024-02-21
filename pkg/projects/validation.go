@@ -28,6 +28,9 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 	if err := validateDetails(payload, criteria); err != nil {
 		return err
 	}
+	if err := validateExperience(payload); err != nil {
+		return err
+	}
 
 	return nil
 }

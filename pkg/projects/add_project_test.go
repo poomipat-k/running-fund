@@ -33,6 +33,7 @@ func TestAddProject(t *testing.T) {
 		GeneralAndCollaboratedTestCases,
 		ContactTestCases,
 		Details,
+		Experience,
 	}
 	t.Setenv("APPLICANT_CRITERIA_VERSION", "1")
 	for _, cases := range pagesCases {

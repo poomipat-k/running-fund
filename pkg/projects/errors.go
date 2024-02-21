@@ -542,3 +542,9 @@ type FeedbackRequiredError struct{}
 func (e *FeedbackRequiredError) Error() string {
 	return "feedback is required"
 }
+
+type ThisSeriesFirstTimeRequiredError struct{}
+
+func (e *ThisSeriesFirstTimeRequiredError) Error() string {
+	return "thisSeries firstTime is required"
+}

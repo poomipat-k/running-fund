@@ -30,6 +30,7 @@ type AddProjectRequest struct {
 	General      AddProjectGeneralDetails `json:"general,omitempty"`
 	Contact      Contact                  `json:"contact,omitempty"`
 	Details      Details                  `json:"details,omitempty"`
+	Experience   Experience               `json:"experience,omitempty"`
 }
 
 // Sub-types for AddProjectRequest
@@ -242,6 +243,31 @@ type Organization struct {
 	Volunteer                bool `json:"volunteer,omitempty"`
 	Community                bool `json:"community,omitempty"`
 	Other                    bool `json:"other,omitempty"`
+}
+
+type Experience struct {
+	ThisSeries ThisSeries `json:"thisSeries,omitempty"`
+}
+
+type ThisSeries struct {
+	FirstTime *bool             `json:"firstTime,omitempty"`
+	History   ThisSeriesHistory `json:"history,omitempty"`
+}
+
+type ThisSeriesHistory struct {
+	Completed1    HistoryCompleted `json:"completed1,omitempty"`
+	Completed2    HistoryCompleted `json:"completed2,omitempty"`
+	Completed3    HistoryCompleted `json:"completed3,omitempty"`
+	OrdinalNumber int              `json:"ordinalNumber,omitempty"`
+	Year          int              `json:"year,omitempty"`
+	Month         int              `json:"month,omitempty"`
+	Day           int              `json:"day,omitempty"`
+}
+
+type HistoryCompleted struct {
+	Year        int    `json:"year,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Participant int    `json:"participant,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
