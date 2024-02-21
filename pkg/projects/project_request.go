@@ -144,6 +144,7 @@ type Details struct {
 	Objective  string         `json:"objective,omitempty"`
 	Marketing  Marketing      `json:"marketing,omitempty"`
 	Score      map[string]int `json:"score,omitempty"`
+	Safety     Safety         `json:"Safety,omitempty"`
 }
 
 type Marketing struct {
@@ -182,6 +183,22 @@ type OfflineAvailable struct {
 	Billboard     bool `json:"billboard,omitempty"`
 	TV            bool `json:"tv,omitempty"`
 	Other         bool `json:"other,omitempty"`
+}
+
+type Safety struct {
+	Ready    SafetyReady `json:"ready,omitempty"`
+	AEDCount int         `json:"aedCount,omitempty"`
+	Addition string      `json:"addition,omitempty"`
+}
+
+type SafetyReady struct {
+	RunnerInformation bool `json:"runnerInformation,omitempty"`
+	HealthDecider     bool `json:"healthDecider,omitempty"`
+	Ambulance         bool `json:"ambulance,omitempty"`
+	FirstAid          bool `json:"firstAid,omitempty"`
+	AED               bool `json:"aed,omitempty"`
+	Insurance         bool `json:"insurance,omitempty"`
+	Other             bool `json:"other,omitempty"`
 }
 
 // End sub-types for AddProjectRequest

@@ -416,4 +416,149 @@ var Details = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ScoreInvalidError{Name: "q_1_2"},
 	},
+	// details.safety
+	{
+		name: "should error when none of details.safety.ready is checked",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 3,
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.SafetyReadyRequiredOneError{},
+	},
+	{
+		name: "should error when details.safety.ready.aed is checked and details.safety.aedCount < 1",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 3,
+				},
+				Safety: projects.Safety{
+					Ready: projects.SafetyReady{
+						RunnerInformation: true,
+						AED:               true,
+					},
+					AEDCount: 0,
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.AEDCountInvalidError{},
+	},
+	{
+		name: "should error when details.safety.ready.other is checked and details.safety.addition is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details: projects.Details{
+				Background: "Some background",
+				Objective:  "Some objective",
+				Marketing: projects.Marketing{
+					Online: projects.Online{
+						Available: projects.OnlineAvailable{
+							Facebook:   true,
+							Website:    true,
+							OnlinePage: true,
+							Other:      false,
+						},
+						HowTo: projects.OnlineHowTo{
+							Facebook:   "facebook.com/abc",
+							Website:    "test.com",
+							OnlinePage: "abc",
+						},
+					},
+					Offline: projects.Offline{
+						Available: projects.OfflineAvailable{
+							Other: true,
+						},
+						Addition: "Test",
+					},
+				},
+				Score: map[string]int{
+					"q_1_1": 4,
+					"q_1_2": 3,
+				},
+				Safety: projects.Safety{
+					Ready: projects.SafetyReady{
+						RunnerInformation: true,
+						AED:               true,
+						Other:             true,
+					},
+					AEDCount: 5,
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.SafetyAdditionRequiredError{},
+	},
 }

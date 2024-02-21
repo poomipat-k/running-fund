@@ -2,7 +2,6 @@ package projects
 
 import (
 	"fmt"
-	"log"
 )
 
 func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCriteria) error {
@@ -45,8 +44,6 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 		return &OfflineAdditionRequiredError{}
 	}
 	// score
-	log.Println("==criteria")
-	log.Println(criteria)
 	criteriaCount := len(criteria)
 	if criteriaCount == 0 {
 		return &ApplicantCriteriaNotFoundError{}
@@ -60,6 +57,22 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 		if !isScoreValid(input) {
 			return &ScoreInvalidError{Name: key}
 		}
+	}
+	// safety
+	if !payload.Details.Safety.Ready.RunnerInformation &&
+		!payload.Details.Safety.Ready.HealthDecider &&
+		!payload.Details.Safety.Ready.Ambulance &&
+		!payload.Details.Safety.Ready.FirstAid &&
+		!payload.Details.Safety.Ready.AED &&
+		!payload.Details.Safety.Ready.Insurance &&
+		!payload.Details.Safety.Ready.Other {
+		return &SafetyReadyRequiredOneError{}
+	}
+	if payload.Details.Safety.Ready.AED && payload.Details.Safety.AEDCount < 1 {
+		return &AEDCountInvalidError{}
+	}
+	if payload.Details.Safety.Ready.Other && payload.Details.Safety.Addition == "" {
+		return &SafetyAdditionRequiredError{}
 	}
 	return nil
 }
