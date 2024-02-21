@@ -23,4 +23,24 @@ var Experience = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ThisSeriesFirstTimeRequiredError{},
 	},
+	{
+		name: "should error when experience.thisSeries.firstTime false and ordinalNumber is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.HistoryOrdinalNumberInvalidError{},
+	},
 }

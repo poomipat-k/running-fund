@@ -548,3 +548,9 @@ type ThisSeriesFirstTimeRequiredError struct{}
 func (e *ThisSeriesFirstTimeRequiredError) Error() string {
 	return "thisSeries firstTime is required"
 }
+
+type HistoryOrdinalNumberInvalidError struct{}
+
+func (e *HistoryOrdinalNumberInvalidError) Error() string {
+	return "thisSeries history ordinalNumber is invalid"
+}
