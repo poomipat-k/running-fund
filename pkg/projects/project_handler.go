@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -193,12 +194,30 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err = validateAddProjectPayload(payload, collaborateFiles)
+	v := os.Getenv("APPLICANT_CRITERIA_VERSION")
+	criteriaVersion, err := strconv.Atoi(v)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "APPLICANT_CRITERIA_VERSION", http.StatusBadRequest)
+		return
+	}
+	log.Println("===criteriaVersion:", criteriaVersion)
+	criteria, err := h.store.GetApplicantCriteria(criteriaVersion)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("===2")
+	err = validateAddProjectPayload(payload, collaborateFiles, criteria)
+	log.Println("===3")
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
+	log.Println("===4")
 
 	projectCode, err := h.store.AddProject(userId, collaborateFiles, otherFiles)
 	if err != nil {

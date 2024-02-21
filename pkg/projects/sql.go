@@ -30,11 +30,6 @@ WHERE project.project_code = $2
 LIMIT 1;
 `
 
-const getApplicantCriteriaSQL = `
-SELECT criteria_version, order_number, display
-FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
-ORDER BY order_number ASC;
-`
 const getProjectCriteriaSQL = `
 SELECT criteria_version ,order_number, group_number, in_group_number, display_text
 FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
@@ -53,4 +48,10 @@ const countProjectCreatedToday = `
 SELECT count(*) FROM project 
 WHERE created_at >= date_trunc('day', now()) + interval '- 7 hour' 
 AND created_at < date_trunc('day', now()) + interval '1 day - 7 hour - 1 microsecond';
+`
+
+const getApplicantCriteriaSQL = `
+SELECT criteria_version, order_number, display
+FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
+ORDER BY order_number ASC;
 `

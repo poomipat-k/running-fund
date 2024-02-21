@@ -62,7 +62,8 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectHeadPrefixRequiredError{},
@@ -78,7 +79,8 @@ var ContactTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectHeadFirstNameRequiredError{},
@@ -95,7 +97,8 @@ var ContactTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectHeadLastNameRequiredError{},
@@ -113,7 +116,8 @@ var ContactTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectHeadOrganizationPositionRequiredError{},
@@ -132,7 +136,8 @@ var ContactTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectHeadEventPositionRequiredError{},
@@ -154,7 +159,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectManagerPrefixRequiredError{},
@@ -178,7 +184,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectManagerFirstNameRequiredError{},
@@ -203,7 +210,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectManagerLastNameRequiredError{},
@@ -229,7 +237,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectManagerOrganizationPositionRequiredError{},
@@ -256,7 +265,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectManagerEventPositionRequiredError{},
@@ -285,7 +295,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorPrefixRequiredError{},
@@ -316,7 +327,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorFirstNameRequiredError{},
@@ -348,7 +360,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorLastNameRequiredError{},
@@ -381,7 +394,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorOrganizationPositionRequiredError{},
@@ -415,7 +429,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorEventPositionRequiredError{},
@@ -451,7 +466,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorAddressRequiredError{},
@@ -489,7 +505,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorProvinceIdRequiredError{},
@@ -528,7 +545,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorDistrictIdRequiredError{},
@@ -568,7 +586,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorSubdistrictIdRequiredError{},
@@ -609,7 +628,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorPostcodeIdRequiredError{},
@@ -651,7 +671,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorEmailRequiredError{},
@@ -694,7 +715,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorLineIdRequiredError{},
@@ -738,7 +760,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorPhoneNumberRequiredError{},
@@ -783,7 +806,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorPhoneNumberLengthError{},
@@ -828,7 +852,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectCoordinatorPhoneNumberInvalidError{},
@@ -874,7 +899,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.RaceDirectorWhoRequiredError{},
@@ -922,7 +948,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.RaceDirectorAlternativePrefixRequiredError{},
@@ -973,7 +1000,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.RaceDirectorAlternativeFirstNameRequiredError{},
@@ -1025,7 +1053,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.RaceDirectorAlternativeLastNameRequiredError{},
@@ -1079,7 +1108,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ContactOrganizationNameRequiredError{},
@@ -1135,7 +1165,8 @@ var ContactTestCases = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ContactOrganizationTypeRequiredError{},
