@@ -464,3 +464,21 @@ type ScoreInvalidError struct {
 func (e *ScoreInvalidError) Error() string {
 	return fmt.Sprintf("score %s is invalid. 1 <= score <= 5", e.Name)
 }
+
+type SafetyReadyRequiredOneError struct{}
+
+func (e *SafetyReadyRequiredOneError) Error() string {
+	return "safety ready required one"
+}
+
+type AEDCountInvalidError struct{}
+
+func (e *AEDCountInvalidError) Error() string {
+	return "safety aedCount is invalid. aedCount must >= 1"
+}
+
+type SafetyAdditionRequiredError struct{}
+
+func (e *SafetyAdditionRequiredError) Error() string {
+	return "safety addition is required"
+}
