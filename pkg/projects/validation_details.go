@@ -4,6 +4,12 @@ import (
 	"fmt"
 )
 
+var judgeTypeOptions = map[string]bool{
+	"manual": true,
+	"auto":   true,
+	"other":  true,
+}
+
 func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCriteria) error {
 	if payload.Details.Background == "" {
 		return &BackgroundRequiredError{}
@@ -90,7 +96,16 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 		!payload.Details.Route.TrafficManagement.Lighting {
 		return &RouteTrafficManagementRequiredOneError{}
 	}
-
+	// judge
+	if payload.Details.Judge.Type == "" {
+		return &JudgeTypeRequiredError{}
+	}
+	if _, found := judgeTypeOptions[payload.Details.Judge.Type]; !found {
+		return &JudgeTypeInvalidError{}
+	}
+	if payload.Details.Judge.Type == "other" && payload.Details.Judge.OtherType == "" {
+		return &JudgeOtherTypeRequiredError{}
+	}
 	return nil
 }
 

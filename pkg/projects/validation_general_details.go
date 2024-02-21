@@ -1,5 +1,15 @@
 package projects
 
+var expectedParticipantsOptions = map[string]bool{
+	"<=500":     true,
+	"501-1500":  true,
+	"1501-2500": true,
+	"2501-3500": true,
+	"3501-4500": true,
+	"4501-5500": true,
+	">=5501":    true,
+}
+
 func validateGeneral(payload AddProjectRequest) error {
 
 	if payload.General.ProjectName == "" {
@@ -31,6 +41,9 @@ func validateGeneral(payload AddProjectRequest) error {
 	// general.expectedParticipants
 	if payload.General.ExpectedParticipants == "" {
 		return &ExpectedParticipantsRequiredError{}
+	}
+	if _, found := expectedParticipantsOptions[payload.General.ExpectedParticipants]; !found {
+		return &ExpectedParticipantsInvalidError{}
 	}
 	// general.hasOrganizer
 	if payload.General.HasOrganizer == nil {

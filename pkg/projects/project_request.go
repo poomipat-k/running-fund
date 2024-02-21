@@ -146,6 +146,7 @@ type Details struct {
 	Score      map[string]int `json:"score,omitempty"`
 	Safety     Safety         `json:"Safety,omitempty"`
 	Route      Route          `json:"route,omitempty"`
+	Judge      Judge          `json:"judge,omitempty"`
 }
 
 type Marketing struct {
@@ -220,6 +221,11 @@ type TrafficManagement struct {
 	RoadClosure   bool `json:"roadClosure,omitempty"`
 	Signs         bool `json:"signs,omitempty"`
 	Lighting      bool `json:"lighting,omitempty"`
+}
+
+type Judge struct {
+	Type      string `json:"type,omitempty"`
+	OtherType string `json:"otherType,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
