@@ -554,3 +554,39 @@ type HistoryOrdinalNumberInvalidError struct{}
 func (e *HistoryOrdinalNumberInvalidError) Error() string {
 	return "thisSeries history ordinalNumber is invalid"
 }
+
+type HistoryYearRequiredError struct{}
+
+func (e *HistoryYearRequiredError) Error() string {
+	return "thisSeries history year is required"
+}
+
+type HistoryYearOutOfBoundError struct{}
+
+func (e *HistoryYearOutOfBoundError) Error() string {
+	return "thisSeries history year is out of bound"
+}
+
+type HistoryMonthRequiredError struct{}
+
+func (e *HistoryMonthRequiredError) Error() string {
+	return "thisSeries history month is required"
+}
+
+type HistoryMonthOutOfBoundError struct{}
+
+func (e *HistoryMonthOutOfBoundError) Error() string {
+	return "thisSeries history month is out of bound"
+}
+
+type HistoryDayRequiredError struct{}
+
+func (e *HistoryDayRequiredError) Error() string {
+	return "thisSeries history day is required"
+}
+
+type HistoryDayOutOfBoundError struct{}
+
+func (e *HistoryDayOutOfBoundError) Error() string {
+	return "thisSeries history day is out of bound"
+}
