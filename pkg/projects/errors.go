@@ -442,3 +442,11 @@ type OfflineAdditionRequiredError struct{}
 func (e *OfflineAdditionRequiredError) Error() string {
 	return "offline addition is required"
 }
+
+type ScoreInvalidError struct {
+	Name string
+}
+
+func (e *ScoreInvalidError) Error() string {
+	return fmt.Sprintf("score %s is invalid, 1 <= score <= 5", e.Name)
+}

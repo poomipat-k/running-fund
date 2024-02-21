@@ -140,9 +140,10 @@ type ContactOrganization struct {
 }
 
 type Details struct {
-	Background string    `json:"background,omitempty"`
-	Objective  string    `json:"objective,omitempty"`
-	Marketing  Marketing `json:"marketing,omitempty"`
+	Background string         `json:"background,omitempty"`
+	Objective  string         `json:"objective,omitempty"`
+	Marketing  Marketing      `json:"marketing,omitempty"`
+	Score      map[string]int `json:"score,omitempty"`
 }
 
 type Marketing struct {

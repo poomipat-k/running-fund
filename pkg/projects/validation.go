@@ -4,7 +4,6 @@ import (
 	"mime/multipart"
 )
 
-// []int{4, 6, 9, 11}
 var thirtyDaysMonth = map[int]int{
 	4:  30,
 	6:  30,
@@ -12,7 +11,7 @@ var thirtyDaysMonth = map[int]int{
 	11: 30,
 }
 
-func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*multipart.FileHeader) error {
+func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*multipart.FileHeader, criteria []ApplicantSelfScoreCriteria) error {
 	if payload.Collaborated == nil {
 		return &CollaboratedRequiredError{}
 	}

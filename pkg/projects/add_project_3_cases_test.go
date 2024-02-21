@@ -16,7 +16,8 @@ var Details = []TestCase{
 			Contact:      ContactOkPayload,
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.BackgroundRequiredError{},
@@ -32,7 +33,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ObjectiveRequiredError{},
@@ -51,7 +53,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OnlineAvailableRequiredOne{},
@@ -75,7 +78,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.FacebookHowToIsRequired{},
@@ -103,7 +107,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.WebsiteHowToIsRequired{},
@@ -133,7 +138,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OnlinePageHowToIsRequired{},
@@ -165,7 +171,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OtherHowToIsRequired{},
@@ -198,7 +205,8 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OfflineAvailableRequiredOne{},
@@ -235,9 +243,49 @@ var Details = []TestCase{
 			},
 		},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OfflineAdditionRequiredError{},
 	},
+	// // details.score
+	// {
+	// 	name: "should error when  details.score.q_1_1 is invalid",
+	// 	payload: projects.AddProjectRequest{
+	// 		Collaborated: newFalse(),
+	// 		General:      GeneralDetailsOkPayload,
+	// 		Contact:      ContactOkPayload,
+	// 		Details: projects.Details{
+	// 			Background: "Some background",
+	// 			Objective:  "Some objective",
+	// 			Marketing: projects.Marketing{
+	// 				Online: projects.Online{
+	// 					Available: projects.OnlineAvailable{
+	// 						Facebook:   true,
+	// 						Website:    true,
+	// 						OnlinePage: true,
+	// 						Other:      false,
+	// 					},
+	// 					HowTo: projects.OnlineHowTo{
+	// 						Facebook:   "facebook.com/abc",
+	// 						Website:    "test.com",
+	// 						OnlinePage: "abc",
+	// 					},
+	// 				},
+	// 				Offline: projects.Offline{
+	// 					Available: projects.OfflineAvailable{
+	// 						Other: true,
+	// 					},
+	// 					Addition: "Test",
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// 	store: &mock.MockProjectStore{
+	// 		AddProjectFunc: addProjectSuccess,
+	// 	},
+	// 	expectedStatus: http.StatusBadRequest,
+	// 	expectedError:  &projects.ScoreInvalidError{Name: "q_1_1"},
+	// },
 }

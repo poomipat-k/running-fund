@@ -39,6 +39,8 @@ func validateDetails(payload AddProjectRequest) error {
 	if payload.Details.Marketing.Offline.Available.Other && payload.Details.Marketing.Offline.Addition == "" {
 		return &OfflineAdditionRequiredError{}
 	}
+	// score
+	// q_1_1 - q_1_10
 
 	return nil
 }

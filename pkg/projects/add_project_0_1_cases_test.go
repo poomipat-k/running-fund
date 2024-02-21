@@ -53,7 +53,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		name:    "should error collaborated required",
 		payload: projects.AddProjectRequest{},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.CollaboratedRequiredError{},
@@ -63,7 +64,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		payload: projects.AddProjectRequest{
 			Collaborated: newTrue()},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.CollaboratedFilesRequiredError{},
@@ -75,7 +77,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		payload: projects.AddProjectRequest{
 			Collaborated: newFalse()},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectNameRequiredError{},
@@ -89,7 +92,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				ProjectName: "A",
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.YearRequiredError{},
@@ -105,7 +109,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.YearInvalidError{},
@@ -121,7 +126,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.MonthRequiredError{},
@@ -138,7 +144,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.MonthOutOfBoundError{},
@@ -155,7 +162,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DayRequiredError{},
@@ -173,7 +181,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DayOutOfBoundError{},
@@ -191,7 +200,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DayOutOfBoundError{},
@@ -209,7 +219,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DayOutOfBoundError{},
@@ -227,7 +238,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DayOutOfBoundError{},
@@ -245,7 +257,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.FromHourRequiredError{},
@@ -264,7 +277,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.InvalidError{Name: "fromHour"},
@@ -283,7 +297,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.FromMinuteRequiredError{},
@@ -303,7 +318,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.InvalidError{Name: "fromMinute"},
@@ -323,7 +339,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ToHourRequiredError{},
@@ -344,7 +361,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.InvalidError{Name: "toHour"},
@@ -365,7 +383,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ToMinuteRequiredError{},
@@ -387,7 +406,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.InvalidError{Name: "toMinute"},
@@ -411,7 +431,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.GeneralAddressRequiredError{},
@@ -436,7 +457,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.GeneralProvinceRequiredError{},
@@ -462,7 +484,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.GeneralDistrictIdRequiredError{},
@@ -489,7 +512,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.GeneralSubdistrictIdRequiredError{},
@@ -517,7 +541,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.GeneralPostcodeIdRequiredError{},
@@ -547,7 +572,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.StartPointRequiredError{},
@@ -577,7 +603,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				StartPoint: "X",
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.FinishPointRequiredError{},
@@ -618,7 +645,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.CategoryAvailableRequiredOneError{},
@@ -658,7 +686,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OtherEventTypeRequiredError{},
@@ -699,7 +728,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DistanceRequiredOneError{},
@@ -742,7 +772,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DistanceRequiredOneError{},
@@ -785,7 +816,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DistanceTypeRequiredError{},
@@ -828,7 +860,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DistanceFeeRequiredError{},
@@ -871,7 +904,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ValueNegativeError{},
@@ -914,7 +948,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.DistanceAndFeeDynamicRequiredError{},
@@ -958,7 +993,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.VIPRequiredError{},
@@ -1003,7 +1039,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				},
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ExpectedParticipantsRequiredError{},
@@ -1049,7 +1086,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				ExpectedParticipants: "3501-4500",
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.HasOrganizerRequiredError{},
@@ -1095,7 +1133,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 				HasOrganizer:         newTrue(),
 			}},
 		store: &mock.MockProjectStore{
-			AddProjectFunc: addProjectSuccess,
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.OrganizerNameRequiredError{},

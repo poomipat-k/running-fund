@@ -34,6 +34,7 @@ func TestAddProject(t *testing.T) {
 		ContactTestCases,
 		Details,
 	}
+	t.Setenv("APPLICANT_CRITERIA_VERSION", "1")
 	for _, cases := range pagesCases {
 		for _, tt := range cases {
 			t.Run(tt.name, func(t *testing.T) {
@@ -136,4 +137,19 @@ func newTrue() *bool {
 
 func addProjectSuccess(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []projects.DetailsFiles) (string, error) {
 	return "", nil
+}
+
+func getApplicantCriteriaSuccess(version int) ([]projects.ApplicantSelfScoreCriteria, error) {
+	return []projects.ApplicantSelfScoreCriteria{
+		{
+			CriteriaVersion: 1,
+			OrderNumber:     1,
+			Display:         "A",
+		},
+		{
+			CriteriaVersion: 1,
+			OrderNumber:     2,
+			Display:         "B",
+		},
+	}, nil
 }
