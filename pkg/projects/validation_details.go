@@ -18,6 +18,39 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 		return &ObjectiveRequiredError{}
 	}
 	// marketing
+	if err := validateMarketing(payload); err != nil {
+		return err
+	}
+
+	// score
+	if err := validateScore(payload, criteria); err != nil {
+		return err
+	}
+	// safety
+	if err := validateSafety(payload); err != nil {
+		return err
+	}
+	// route
+	if err := validateRoute(payload); err != nil {
+		return err
+	}
+	// judge
+	if err := validateJudge(payload); err != nil {
+		return err
+	}
+	// support
+	if err := validateSupport(payload); err != nil {
+		return err
+	}
+	// feedback
+	if payload.Details.Feedback == "" {
+		return &FeedbackRequiredError{}
+	}
+
+	return nil
+}
+
+func validateMarketing(payload AddProjectRequest) error {
 	// marketing.online
 	if !payload.Details.Marketing.Online.Available.Facebook &&
 		!payload.Details.Marketing.Online.Available.Website &&
@@ -49,7 +82,10 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Marketing.Offline.Available.Other && payload.Details.Marketing.Offline.Addition == "" {
 		return &OfflineAdditionRequiredError{}
 	}
-	// score
+	return nil
+}
+
+func validateScore(payload AddProjectRequest, criteria []ApplicantSelfScoreCriteria) error {
 	criteriaCount := len(criteria)
 	if criteriaCount == 0 {
 		return &ApplicantCriteriaNotFoundError{}
@@ -64,7 +100,10 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 			return &ScoreInvalidError{Name: key}
 		}
 	}
-	// safety
+	return nil
+}
+
+func validateSafety(payload AddProjectRequest) error {
 	if !payload.Details.Safety.Ready.RunnerInformation &&
 		!payload.Details.Safety.Ready.HealthDecider &&
 		!payload.Details.Safety.Ready.Ambulance &&
@@ -80,7 +119,10 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Safety.Ready.Other && payload.Details.Safety.Addition == "" {
 		return &SafetyAdditionRequiredError{}
 	}
-	// route
+	return nil
+}
+
+func validateRoute(payload AddProjectRequest) error {
 	if !payload.Details.Route.Measurement.AthleticsAssociation &&
 		!payload.Details.Route.Measurement.CalibratedBicycle &&
 		!payload.Details.Route.Measurement.SelfMeasurement {
@@ -96,7 +138,10 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 		!payload.Details.Route.TrafficManagement.Lighting {
 		return &RouteTrafficManagementRequiredOneError{}
 	}
-	// judge
+	return nil
+}
+
+func validateJudge(payload AddProjectRequest) error {
 	if payload.Details.Judge.Type == "" {
 		return &JudgeTypeRequiredError{}
 	}
@@ -106,7 +151,10 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Judge.Type == "other" && payload.Details.Judge.OtherType == "" {
 		return &JudgeOtherTypeRequiredError{}
 	}
-	// support
+	return nil
+}
+
+func validateSupport(payload AddProjectRequest) error {
 	if !payload.Details.Support.Organization.ProvincialAdministration &&
 		!payload.Details.Support.Organization.Safety &&
 		!payload.Details.Support.Organization.Health &&
@@ -118,11 +166,6 @@ func validateDetails(payload AddProjectRequest, criteria []ApplicantSelfScoreCri
 	if payload.Details.Support.Organization.Other && payload.Details.Support.Addition == "" {
 		return &SupportAdditionRequiredError{}
 	}
-	// feedback
-	if payload.Details.Feedback == "" {
-		return &FeedbackRequiredError{}
-	}
-
 	return nil
 }
 
