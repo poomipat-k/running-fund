@@ -153,3 +153,7 @@ func getApplicantCriteriaSuccess(version int) ([]projects.ApplicantSelfScoreCrit
 		},
 	}, nil
 }
+
+func getApplicantCriteriaNotFound(version int) ([]projects.ApplicantSelfScoreCriteria, error) {
+	return []projects.ApplicantSelfScoreCriteria{}, nil
+}

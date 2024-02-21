@@ -443,10 +443,24 @@ func (e *OfflineAdditionRequiredError) Error() string {
 	return "offline addition is required"
 }
 
+type ApplicantCriteriaNotFoundError struct{}
+
+func (e *ApplicantCriteriaNotFoundError) Error() string {
+	return "applicant criteria not found"
+}
+
+type ScoreRequiredError struct {
+	Name string
+}
+
+func (e *ScoreRequiredError) Error() string {
+	return fmt.Sprintf("score %s is required", e.Name)
+}
+
 type ScoreInvalidError struct {
 	Name string
 }
 
 func (e *ScoreInvalidError) Error() string {
-	return fmt.Sprintf("score %s is invalid, 1 <= score <= 5", e.Name)
+	return fmt.Sprintf("score %s is invalid. 1 <= score <= 5", e.Name)
 }
