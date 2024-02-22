@@ -26,5 +26,24 @@ func validateExperience(payload AddProjectRequest) error {
 	if !isValidDay(payload.Experience.ThisSeries.History.Year, payload.Experience.ThisSeries.History.Month, payload.Experience.ThisSeries.History.Day) {
 		return &HistoryDayOutOfBoundError{}
 	}
+	if payload.Experience.ThisSeries.History.Completed1.Year == 0 {
+		return &CompletedYearRequiredError{}
+	}
+	if payload.Experience.ThisSeries.History.Completed1.Year < 1970 || payload.Experience.ThisSeries.History.Completed1.Year > localYear {
+		return &CompletedYearOutOfBoundError{}
+	}
+	if payload.Experience.ThisSeries.History.Completed1.Name == "" {
+		return &CompletedNameRequiredError{}
+	}
+	if payload.Experience.ThisSeries.History.Completed1.Participant == 0 {
+		return &CompletedParticipantRequiredError{}
+	}
+	if payload.Experience.ThisSeries.History.Completed1.Participant < 0 {
+		return &CompletedParticipantInvalidError{}
+	}
 	return nil
 }
+
+// func historyCompleted1IsValid(payload AddProjectRequest) error {
+// 	return nil
+// }
