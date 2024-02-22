@@ -590,3 +590,33 @@ type HistoryDayOutOfBoundError struct{}
 func (e *HistoryDayOutOfBoundError) Error() string {
 	return "thisSeries history day is out of bound"
 }
+
+type CompletedYearRequiredError struct{}
+
+func (e *CompletedYearRequiredError) Error() string {
+	return "thisSeries history completed year is required"
+}
+
+type CompletedYearOutOfBoundError struct{}
+
+func (e *CompletedYearOutOfBoundError) Error() string {
+	return "thisSeries history completed year is out of bound"
+}
+
+type CompletedNameRequiredError struct{}
+
+func (e *CompletedNameRequiredError) Error() string {
+	return "thisSeries history completed name is required"
+}
+
+type CompletedParticipantRequiredError struct{}
+
+func (e *CompletedParticipantRequiredError) Error() string {
+	return "thisSeries history completed participant is required"
+}
+
+type CompletedParticipantInvalidError struct{}
+
+func (e *CompletedParticipantInvalidError) Error() string {
+	return "thisSeries history completed participant is invalid"
+}
