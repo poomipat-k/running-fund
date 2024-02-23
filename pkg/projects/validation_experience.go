@@ -1,7 +1,5 @@
 package projects
 
-import "log"
-
 const MIN_YEAR = 2010
 
 func validateExperience(payload AddProjectRequest) error {
@@ -11,7 +9,6 @@ func validateExperience(payload AddProjectRequest) error {
 	if experience.ThisSeries.FirstTime == nil {
 		return &ThisSeriesFirstTimeRequiredError{}
 	}
-	log.Println("===!(*experience.ThisSeries.FirstTime)", !(*experience.ThisSeries.FirstTime))
 	if !(*experience.ThisSeries.FirstTime) {
 		if experience.ThisSeries.History.OrdinalNumber < 2 {
 			return &HistoryOrdinalNumberInvalidError{}

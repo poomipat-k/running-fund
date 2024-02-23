@@ -632,3 +632,51 @@ type TotalBudgetRequiredError struct{}
 func (e *TotalBudgetRequiredError) Error() string {
 	return "budget total is required"
 }
+
+type BudgetSupportOrganizationRequiredError struct{}
+
+func (e *BudgetSupportOrganizationRequiredError) Error() string {
+	return "budget supportOrganization is required"
+}
+
+type FundRequestTypeRequiredOneError struct{}
+
+func (e *FundRequestTypeRequiredOneError) Error() string {
+	return "fund request type is required"
+}
+
+type FundRequestAmountRequiredError struct{}
+
+func (e *FundRequestAmountRequiredError) Error() string {
+	return "request fundAmount is required"
+}
+
+type FundRequestAmountInvalidError struct{}
+
+func (e *FundRequestAmountInvalidError) Error() string {
+	return "request fundAmount is invalid"
+}
+
+type BibRequestAmountRequiredError struct{}
+
+func (e *BibRequestAmountRequiredError) Error() string {
+	return "request bibAmount is required"
+}
+
+type BibRequestAmountInvalidError struct{}
+
+func (e *BibRequestAmountInvalidError) Error() string {
+	return "request bibAmount is invalid"
+}
+
+type SeminarRequiredError struct{}
+
+func (e *SeminarRequiredError) Error() string {
+	return "request details seminar is required"
+}
+
+type OtherRequestRequiredError struct{}
+
+func (e *OtherRequestRequiredError) Error() string {
+	return "request details otherRequest is required"
+}
