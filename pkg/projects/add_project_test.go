@@ -34,6 +34,7 @@ func TestAddProject(t *testing.T) {
 		ContactTestCases,
 		Details,
 		Experience,
+		Fund,
 	}
 	t.Setenv("APPLICANT_CRITERIA_VERSION", "1")
 	for _, cases := range pagesCases {

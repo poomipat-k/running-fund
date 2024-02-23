@@ -7,6 +7,43 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
+var ExperienceOkPayload = projects.Experience{
+	ThisSeries: projects.ThisSeries{
+		FirstTime: newFalse(),
+		History: projects.ThisSeriesHistory{
+			OrdinalNumber: 2,
+			Year:          2023,
+			Month:         2,
+			Day:           20,
+			Completed1: projects.HistoryCompleted{
+				Year:        2024,
+				Name:        "XX",
+				Participant: 100,
+			},
+			Completed3: projects.HistoryCompleted{
+				Year:        2020,
+				Name:        "x",
+				Participant: 1100,
+			},
+		},
+	},
+	OtherSeries: projects.OtherSeries{
+		DoneBefore: newTrue(),
+		History: projects.OtherSeriesHistory{
+			Completed1: projects.HistoryCompleted{
+				Year:        2022,
+				Name:        "ABC",
+				Participant: 3000,
+			},
+			Completed3: projects.HistoryCompleted{
+				Year:        2020,
+				Name:        "A",
+				Participant: 300,
+			},
+		},
+	},
+}
+
 var Experience = []TestCase{
 	// thisSeries
 	{
