@@ -546,79 +546,79 @@ func (e *FeedbackRequiredError) Error() string {
 type ThisSeriesFirstTimeRequiredError struct{}
 
 func (e *ThisSeriesFirstTimeRequiredError) Error() string {
-	return "thisSeries firstTime is required"
+	return "firstTime is required"
 }
 
 type HistoryOrdinalNumberInvalidError struct{}
 
 func (e *HistoryOrdinalNumberInvalidError) Error() string {
-	return "thisSeries history ordinalNumber is invalid"
+	return "history ordinalNumber is invalid"
 }
 
 type HistoryYearRequiredError struct{}
 
 func (e *HistoryYearRequiredError) Error() string {
-	return "thisSeries history year is required"
+	return "history year is required"
 }
 
 type HistoryYearOutOfBoundError struct{}
 
 func (e *HistoryYearOutOfBoundError) Error() string {
-	return "thisSeries history year is out of bound"
+	return "history year is out of bound"
 }
 
 type HistoryMonthRequiredError struct{}
 
 func (e *HistoryMonthRequiredError) Error() string {
-	return "thisSeries history month is required"
+	return "history month is required"
 }
 
 type HistoryMonthOutOfBoundError struct{}
 
 func (e *HistoryMonthOutOfBoundError) Error() string {
-	return "thisSeries history month is out of bound"
+	return "history month is out of bound"
 }
 
 type HistoryDayRequiredError struct{}
 
 func (e *HistoryDayRequiredError) Error() string {
-	return "thisSeries history day is required"
+	return "history day is required"
 }
 
 type HistoryDayOutOfBoundError struct{}
 
 func (e *HistoryDayOutOfBoundError) Error() string {
-	return "thisSeries history day is out of bound"
+	return "history day is out of bound"
 }
 
 type CompletedYearRequiredError struct{}
 
 func (e *CompletedYearRequiredError) Error() string {
-	return "thisSeries history completed year is required"
+	return "history completed year is required"
 }
 
 type CompletedYearOutOfBoundError struct{}
 
 func (e *CompletedYearOutOfBoundError) Error() string {
-	return "thisSeries history completed year is out of bound"
+	return "history completed year is out of bound"
 }
 
 type CompletedNameRequiredError struct{}
 
 func (e *CompletedNameRequiredError) Error() string {
-	return "thisSeries history completed name is required"
+	return "history completed name is required"
 }
 
 type CompletedParticipantRequiredError struct{}
 
 func (e *CompletedParticipantRequiredError) Error() string {
-	return "thisSeries history completed participant is required"
+	return "history completed participant is required"
 }
 
 type CompletedParticipantInvalidError struct{}
 
 func (e *CompletedParticipantInvalidError) Error() string {
-	return "thisSeries history completed participant is invalid"
+	return "history completed participant is invalid"
 }
 
 type DoneBeforeRequiredError struct{}
