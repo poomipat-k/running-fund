@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"log/slog"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -24,7 +23,7 @@ type projectStore interface {
 	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
-	AddProject(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []DetailsFiles) (string, error)
+	AddProject(userId int, otherFiles []DetailsFiles) (string, error)
 }
 
 type ProjectHandler struct {
@@ -173,23 +172,27 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
 	otherFiles := []DetailsFiles{
 		{
-			DirName: "marketing",
+			DirName: "collaboration",
+			Files:   collaborateFiles,
+		},
+		{
+			DirName: "attachment/marketing",
 			Files:   marketingFiles,
 		},
 		{
-			DirName: "route",
+			DirName: "attachment/route",
 			Files:   routeFiles,
 		},
 		{
-			DirName: "eventMap",
+			DirName: "attachment/eventMap",
 			Files:   eventMapFiles,
 		},
 		{
-			DirName: "eventDetails",
+			DirName: "attachment/eventDetails",
 			Files:   eventDetailsFiles,
 		},
 		{
-			DirName: "form",
+			DirName: "attachment/form",
 			Files:   screenshotFiles,
 		},
 	}
@@ -215,7 +218,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projectCode, err := h.store.AddProject(userId, collaborateFiles, otherFiles)
+	projectCode, err := h.store.AddProject(userId, otherFiles)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
