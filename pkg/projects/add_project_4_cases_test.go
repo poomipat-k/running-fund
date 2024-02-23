@@ -292,6 +292,7 @@ var Experience = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.HistoryDayOutOfBoundError{},
 	},
+	// Complete1
 	{
 		name: "should error when experience.thisSeries.firstTime is false and experience.thisSeries.history.completed1.year is empty",
 		payload: projects.AddProjectRequest{
@@ -781,6 +782,267 @@ var Experience = []TestCase{
 							Year:        2020,
 							Name:        "x",
 							Participant: -100,
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.CompletedParticipantInvalidError{},
+	},
+	// otherSeries
+	{
+		name: "should error when experience.otherSeries.doneBefore is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+					History: projects.ThisSeriesHistory{
+						OrdinalNumber: 2,
+						Year:          2023,
+						Month:         2,
+						Day:           20,
+						Completed1: projects.HistoryCompleted{
+							Year:        2024,
+							Name:        "XX",
+							Participant: 100,
+						},
+						Completed3: projects.HistoryCompleted{
+							Year:        2020,
+							Name:        "x",
+							Participant: 1100,
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.DoneBeforeRequiredError{},
+	},
+	// otherSeries.completed1
+	{
+		name: "should error when experience.thisSeries.doneBefore is true and experience.thisSeries.history.completed1.year is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+					History: projects.ThisSeriesHistory{
+						OrdinalNumber: 2,
+						Year:          2023,
+						Month:         2,
+						Day:           20,
+						Completed1: projects.HistoryCompleted{
+							Year:        2024,
+							Name:        "XX",
+							Participant: 100,
+						},
+						Completed3: projects.HistoryCompleted{
+							Year:        2020,
+							Name:        "x",
+							Participant: 1100,
+						},
+					},
+				},
+				OtherSeries: projects.OtherSeries{
+					DoneBefore: newTrue(),
+					// History: projects.OtherSeriesHistory{
+					// 	Completed1: projects.HistoryCompleted{
+					// 		Year: 2020,
+					// 	},
+					// },
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.CompletedYearRequiredError{},
+	},
+	{
+		name: "should error when experience.otherSeries.doneBefore is true and experience.otherSeries.history.completed1.year is invalid",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+					History: projects.ThisSeriesHistory{
+						OrdinalNumber: 2,
+						Year:          2023,
+						Month:         2,
+						Day:           20,
+						Completed1: projects.HistoryCompleted{
+							Year:        2024,
+							Name:        "XX",
+							Participant: 100,
+						},
+						Completed3: projects.HistoryCompleted{
+							Year:        2020,
+							Name:        "x",
+							Participant: 1100,
+						},
+					},
+				},
+				OtherSeries: projects.OtherSeries{
+					DoneBefore: newTrue(),
+					History: projects.OtherSeriesHistory{
+						Completed1: projects.HistoryCompleted{
+							Year: 1999,
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.CompletedYearOutOfBoundError{},
+	},
+	{
+		name: "should error when experience.otherSeries.doneBefore is true and experience.otherSeries.history.completed1.name is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+					History: projects.ThisSeriesHistory{
+						OrdinalNumber: 2,
+						Year:          2023,
+						Month:         2,
+						Day:           20,
+						Completed1: projects.HistoryCompleted{
+							Year:        2024,
+							Name:        "XX",
+							Participant: 100,
+						},
+						Completed3: projects.HistoryCompleted{
+							Year:        2020,
+							Name:        "x",
+							Participant: 1100,
+						},
+					},
+				},
+				OtherSeries: projects.OtherSeries{
+					DoneBefore: newTrue(),
+					History: projects.OtherSeriesHistory{
+						Completed1: projects.HistoryCompleted{
+							Year: 2022,
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.CompletedNameRequiredError{},
+	},
+	{
+		name: "should error when experience.otherSeries.doneBefore is true and experience.otherSeries.history.completed1.participant is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+					History: projects.ThisSeriesHistory{
+						OrdinalNumber: 2,
+						Year:          2023,
+						Month:         2,
+						Day:           20,
+						Completed1: projects.HistoryCompleted{
+							Year:        2024,
+							Name:        "XX",
+							Participant: 100,
+						},
+						Completed3: projects.HistoryCompleted{
+							Year:        2020,
+							Name:        "x",
+							Participant: 1100,
+						},
+					},
+				},
+				OtherSeries: projects.OtherSeries{
+					DoneBefore: newTrue(),
+					History: projects.OtherSeriesHistory{
+						Completed1: projects.HistoryCompleted{
+							Year: 2022,
+							Name: "ABC",
+						},
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.CompletedParticipantRequiredError{},
+	},
+	{
+		name: "should error when experience.otherSeries.doneBefore is true and experience.otherSeries.history.completed1.participant < 0",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience: projects.Experience{
+				ThisSeries: projects.ThisSeries{
+					FirstTime: newFalse(),
+					History: projects.ThisSeriesHistory{
+						OrdinalNumber: 2,
+						Year:          2023,
+						Month:         2,
+						Day:           20,
+						Completed1: projects.HistoryCompleted{
+							Year:        2024,
+							Name:        "XX",
+							Participant: 100,
+						},
+						Completed3: projects.HistoryCompleted{
+							Year:        2020,
+							Name:        "x",
+							Participant: 1100,
+						},
+					},
+				},
+				OtherSeries: projects.OtherSeries{
+					DoneBefore: newTrue(),
+					History: projects.OtherSeriesHistory{
+						Completed1: projects.HistoryCompleted{
+							Year:        2022,
+							Name:        "ABC",
+							Participant: -10,
 						},
 					},
 				},

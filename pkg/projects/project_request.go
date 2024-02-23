@@ -246,7 +246,8 @@ type Organization struct {
 }
 
 type Experience struct {
-	ThisSeries ThisSeries `json:"thisSeries,omitempty"`
+	ThisSeries  ThisSeries  `json:"thisSeries,omitempty"`
+	OtherSeries OtherSeries `json:"otherSeries,omitempty"`
 }
 
 type ThisSeries struct {
@@ -268,6 +269,17 @@ type HistoryCompleted struct {
 	Year        int    `json:"year,omitempty"`
 	Name        string `json:"name,omitempty"`
 	Participant int    `json:"participant,omitempty"`
+}
+
+type OtherSeries struct {
+	DoneBefore *bool              `json:"doneBefore,omitempty"`
+	History    OtherSeriesHistory `json:"history,omitempty"`
+}
+
+type OtherSeriesHistory struct {
+	Completed1 HistoryCompleted `json:"completed1,omitempty"`
+	Completed2 HistoryCompleted `json:"completed2,omitempty"`
+	Completed3 HistoryCompleted `json:"completed3,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
