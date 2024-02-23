@@ -72,7 +72,7 @@ func validateExperience(payload AddProjectRequest) error {
 		}
 	}
 	// otherSeries
-	//otherSeries.history.completed1
+	// otherSeries.history.completed1
 	if experience.OtherSeries.DoneBefore == nil {
 		return &DoneBeforeRequiredError{}
 	}
@@ -91,7 +91,19 @@ func validateExperience(payload AddProjectRequest) error {
 	if experience.OtherSeries.History.Completed1.Participant < 0 {
 		return &CompletedParticipantInvalidError{}
 	}
-	//otherSeries.history.completed2
+	// otherSeries.history.completed2
+	if experience.OtherSeries.History.Completed2.Year != 0 ||
+		experience.OtherSeries.History.Completed2.Name != "" ||
+		experience.OtherSeries.History.Completed2.Participant != 0 {
+		err := historyCompletedIsValid(
+			experience.OtherSeries.History.Completed2.Year,
+			experience.OtherSeries.History.Completed2.Name,
+			experience.OtherSeries.History.Completed2.Participant,
+		)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
