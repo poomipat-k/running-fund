@@ -137,7 +137,7 @@ func newTrue() *bool {
 	return &b
 }
 
-func addProjectSuccess(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []projects.DetailsFiles) (string, error) {
+func addProjectSuccess(userId int, otherFiles []projects.DetailsFiles) (string, error) {
 	return "", nil
 }
 

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"mime/multipart"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -304,20 +303,15 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	return data, nil
 }
 
-func (s *store) AddProject(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []DetailsFiles) (string, error) {
+func (s *store) AddProject(userId int, otherFiles []DetailsFiles) (string, error) {
 	projectCode, err := s.generateProjectCode()
 	if err != nil {
 		return "", err
 	}
 
 	baseFilePrefix := getBasePrefix(userId, projectCode)
-	err = s.awsS3Service.UploadToS3(collaborateFiles, fmt.Sprintf("%s/collaboration", baseFilePrefix))
-	if err != nil {
-		slog.Error("Failed to upload collaboration files to s3", "error", err.Error())
-		return "", err
-	}
 	for _, files := range otherFiles {
-		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/other/%s", baseFilePrefix, files.DirName))
+		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
 		if err != nil {
 			slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
 			return "", err

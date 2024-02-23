@@ -208,7 +208,7 @@ type SafetyReady struct {
 }
 
 type Route struct {
-	Measurement       RouteMeasurement  `json:"routeMeasurement,omitempty"`
+	Measurement       RouteMeasurement  `json:"measurement,omitempty"`
 	Tool              string            `json:"tool,omitempty"`
 	TrafficManagement TrafficManagement `json:"trafficManagement,omitempty"`
 }

@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"mime/multipart"
 	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -50,7 +49,7 @@ type MockProjectStore struct {
 	GetReviewPeriodFunc           func() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetailsFunc func(userId int, projectCode string) (projects.ProjectReviewDetails, error)
 	GetProjectCriteriaFunc        func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	AddProjectFunc                func(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []projects.DetailsFiles) (string, error)
+	AddProjectFunc                func(userId int, otherFiles []projects.DetailsFiles) (string, error)
 	GetApplicantCriteriaFunc      func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 }
 
@@ -74,6 +73,6 @@ func (m *MockProjectStore) GetApplicantCriteria(version int) ([]projects.Applica
 	return m.GetApplicantCriteriaFunc(version)
 }
 
-func (m *MockProjectStore) AddProject(userId int, collaborateFiles []*multipart.FileHeader, otherFiles []projects.DetailsFiles) (string, error) {
-	return m.AddProjectFunc(userId, collaborateFiles, otherFiles)
+func (m *MockProjectStore) AddProject(userId int, otherFiles []projects.DetailsFiles) (string, error) {
+	return m.AddProjectFunc(userId, otherFiles)
 }
