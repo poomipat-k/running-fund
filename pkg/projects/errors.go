@@ -620,3 +620,9 @@ type CompletedParticipantInvalidError struct{}
 func (e *CompletedParticipantInvalidError) Error() string {
 	return "thisSeries history completed participant is invalid"
 }
+
+type DoneBeforeRequiredError struct{}
+
+func (e *DoneBeforeRequiredError) Error() string {
+	return "otherSeries doneBefore is required"
+}
