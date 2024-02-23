@@ -626,3 +626,9 @@ type DoneBeforeRequiredError struct{}
 func (e *DoneBeforeRequiredError) Error() string {
 	return "otherSeries doneBefore is required"
 }
+
+type TotalBudgetRequiredError struct{}
+
+func (e *TotalBudgetRequiredError) Error() string {
+	return "budget total is required"
+}

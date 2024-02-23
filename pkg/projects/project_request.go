@@ -31,6 +31,7 @@ type AddProjectRequest struct {
 	Contact      Contact                  `json:"contact,omitempty"`
 	Details      Details                  `json:"details,omitempty"`
 	Experience   Experience               `json:"experience,omitempty"`
+	Fund         Fund                     `json:"fund,omitempty"`
 }
 
 // Sub-types for AddProjectRequest
@@ -280,6 +281,15 @@ type OtherSeriesHistory struct {
 	Completed1 HistoryCompleted `json:"completed1,omitempty"`
 	Completed2 HistoryCompleted `json:"completed2,omitempty"`
 	Completed3 HistoryCompleted `json:"completed3,omitempty"`
+}
+
+type Fund struct {
+	Budget Budget `json:"budget,omitempty"`
+}
+
+type Budget struct {
+	Total               int    `json:"total,omitempty"`
+	SupportOrganization string `json:"supportOrganization,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
