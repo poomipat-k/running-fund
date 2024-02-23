@@ -284,12 +284,33 @@ type OtherSeriesHistory struct {
 }
 
 type Fund struct {
-	Budget Budget `json:"budget,omitempty"`
+	Budget  Budget      `json:"budget,omitempty"`
+	Request FundRequest `json:"request,omitempty"`
 }
 
 type Budget struct {
 	Total               int    `json:"total,omitempty"`
 	SupportOrganization string `json:"supportOrganization,omitempty"`
+}
+
+type FundRequest struct {
+	Type    FundRequestType    `json:"type,omitempty"`
+	Details FundRequestDetails `json:"details,omitempty"`
+}
+
+type FundRequestType struct {
+	Fund    bool `json:"fund,omitempty"`
+	BIB     bool `json:"bib,omitempty"`
+	Pr      bool `json:"pr,omitempty"`
+	Seminar bool `json:"seminar,omitempty"`
+	Other   bool `json:"other,omitempty"`
+}
+
+type FundRequestDetails struct {
+	FundAmount int    `json:"fundAmount,omitempty"`
+	BibAmount  int    `json:"bibAmount,omitempty"`
+	Seminar    string `json:"seminar,omitempty"`
+	Other      string `json:"other,omitempty"`
 }
 
 // End sub-types for AddProjectRequest
