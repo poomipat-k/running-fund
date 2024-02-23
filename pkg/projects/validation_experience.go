@@ -104,6 +104,19 @@ func validateExperience(payload AddProjectRequest) error {
 			return err
 		}
 	}
+	// otherSeries.history.completed3
+	if experience.OtherSeries.History.Completed3.Year != 0 ||
+		experience.OtherSeries.History.Completed3.Name != "" ||
+		experience.OtherSeries.History.Completed3.Participant != 0 {
+		err := historyCompletedIsValid(
+			experience.OtherSeries.History.Completed3.Year,
+			experience.OtherSeries.History.Completed3.Name,
+			experience.OtherSeries.History.Completed3.Participant,
+		)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
