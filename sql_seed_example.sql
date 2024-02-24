@@ -85,11 +85,6 @@ SET project_history_id = (
         SELECT id
         FROM project_history
         WHERE project_code = 'OCT66_16'
-            AND project_version = (
-                SELECT project_version
-                FROM project
-                WHERE project_code = 'OCT66_16'
-            )
     )
 WHERE project_code = 'OCT66_16';
 INSERT INTO project_history (
@@ -117,11 +112,6 @@ SET project_history_id = (
         SELECT id
         FROM project_history
         WHERE project_code = 'OCT66_17'
-            AND project_version = (
-                SELECT project_version
-                FROM project
-                WHERE project_code = 'OCT66_17'
-            )
     )
 WHERE project_code = 'OCT66_17';
 INSERT INTO project_history (
@@ -149,11 +139,6 @@ SET project_history_id = (
         SELECT id
         FROM project_history
         WHERE project_code = 'OCT66_21'
-            AND project_version = (
-                SELECT project_version
-                FROM project
-                WHERE project_code = 'OCT66_21'
-            )
     )
 WHERE project_code = 'OCT66_21';
 INSERT INTO project_history (
@@ -181,11 +166,6 @@ SET project_history_id = (
         SELECT id
         FROM project_history
         WHERE project_code = 'NOV66_10'
-            AND project_version = (
-                SELECT project_version
-                FROM project
-                WHERE project_code = 'NOV66_10'
-            )
     )
 WHERE project_code = 'NOV66_10';
 INSERT INTO project_history (
@@ -213,11 +193,6 @@ SET project_history_id = (
         SELECT id
         FROM project_history
         WHERE project_code = 'NOV66_18'
-            AND project_version = (
-                SELECT project_version
-                FROM project
-                WHERE project_code = 'NOV66_18'
-            )
     )
 WHERE project_code = 'NOV66_18';
 -- END project_history
