@@ -30,13 +30,15 @@ var GeneralDetailsOkPayload = projects.AddProjectGeneralDetails{
 	EventDetails: projects.EventDetails{
 		Category: projects.Category{
 			Available: projects.Available{
-				Other:        false,
+				Other:        true,
 				RoadRace:     false,
 				TrailRunning: true,
 			},
+			OtherType: "Tri",
 		},
 		DistanceAndFee: []projects.DistanceAndFee{
-			{Checked: true, Type: "half", Fee: newFloat64(330), Dynamic: newTrue()},
+			{Checked: true, Type: "half", Fee: newFloat64(330), Dynamic: newFalse()},
+			{Checked: true, Type: "iron man", Fee: newFloat64(1000), Dynamic: newTrue()},
 		},
 		VIP: newFalse(),
 	},
