@@ -680,3 +680,33 @@ type OtherRequestRequiredError struct{}
 func (e *OtherRequestRequiredError) Error() string {
 	return "request details otherRequest is required"
 }
+
+type MarketingFilesRequiredError struct{}
+
+func (e *MarketingFilesRequiredError) Error() string {
+	return "marketingFiles are required"
+}
+
+type RouteFilesRequiredError struct{}
+
+func (e *RouteFilesRequiredError) Error() string {
+	return "routeFiles are required"
+}
+
+type EventMapFilesRequiredError struct{}
+
+func (e *EventMapFilesRequiredError) Error() string {
+	return "EventMapFiles are required"
+}
+
+type EventDetailsFilesRequiredError struct{}
+
+func (e *EventDetailsFilesRequiredError) Error() string {
+	return "eventDetailsFiles are required"
+}
+
+type ScreenshotFilesRequiredError struct{}
+
+func (e *ScreenshotFilesRequiredError) Error() string {
+	return "screenshotFiles are required"
+}
