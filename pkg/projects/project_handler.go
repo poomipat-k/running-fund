@@ -24,7 +24,7 @@ type projectStore interface {
 	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
-	AddProject(userId int, otherFiles []DetailsFiles) (string, error)
+	AddProject(userId int, attachments []DetailsFiles) (string, error)
 }
 
 type ProjectHandler struct {
@@ -152,8 +152,8 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
-	// log.Println("====r.Form")
-	// log.Println(r.Form)
+	log.Println("====r.Form")
+	log.Println(r.Form)
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
@@ -162,8 +162,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log.Println("======PAYLOAD======")
-	// log.Println(payload)
 	var collaborateFiles []*multipart.FileHeader
 	if payload.Collaborated != nil && *payload.Collaborated {
 		collaborateFiles = r.MultipartForm.File["collaborationFiles"]
@@ -173,7 +171,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
 	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
-	otherFiles := []DetailsFiles{
+	attachments := []DetailsFiles{
 		{
 			DirName: "collaboration",
 			Files:   collaborateFiles,
@@ -221,7 +219,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projectCode, err := h.store.AddProject(userId, otherFiles)
+	projectCode, err := h.store.AddProject(userId, attachments)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return

@@ -73,6 +73,6 @@ func (m *MockProjectStore) GetApplicantCriteria(version int) ([]projects.Applica
 	return m.GetApplicantCriteriaFunc(version)
 }
 
-func (m *MockProjectStore) AddProject(userId int, otherFiles []projects.DetailsFiles) (string, error) {
-	return m.AddProjectFunc(userId, otherFiles)
+func (m *MockProjectStore) AddProject(userId int, attachments []projects.DetailsFiles) (string, error) {
+	return m.AddProjectFunc(userId, attachments)
 }
