@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -163,8 +164,10 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	// log.Println("======PAYLOAD======")
 	// log.Println(payload)
-
-	collaborateFiles := r.MultipartForm.File["collaborationFiles"]
+	var collaborateFiles []*multipart.FileHeader
+	if payload.Collaborated != nil && *payload.Collaborated {
+		collaborateFiles = r.MultipartForm.File["collaborationFiles"]
+	}
 	marketingFiles := r.MultipartForm.File["marketingFiles"]
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
@@ -211,7 +214,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validateAddProjectPayload(payload, collaborateFiles, criteria)
+	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)

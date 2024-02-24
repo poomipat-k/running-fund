@@ -11,7 +11,11 @@ var thirtyDaysMonth = map[int]int{
 	11: 30,
 }
 
-func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*multipart.FileHeader, criteria []ApplicantSelfScoreCriteria) error {
+func validateAddProjectPayload(
+	payload AddProjectRequest,
+	collaborateFiles []*multipart.FileHeader,
+	criteria []ApplicantSelfScoreCriteria,
+	marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles []*multipart.FileHeader) error {
 	if payload.Collaborated == nil {
 		return &CollaboratedRequiredError{}
 	}
@@ -32,6 +36,9 @@ func validateAddProjectPayload(payload AddProjectRequest, collaborateFiles []*mu
 		return err
 	}
 	if err := validateFund(payload); err != nil {
+		return err
+	}
+	if err := validateAttachment(marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles); err != nil {
 		return err
 	}
 

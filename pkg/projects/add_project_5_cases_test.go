@@ -7,6 +7,27 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 )
 
+var FundOkPayload = projects.Fund{
+	Budget: projects.Budget{
+		Total:               50000,
+		SupportOrganization: "ABC",
+	},
+	Request: projects.FundRequest{
+		Type: projects.FundRequestType{
+			Fund:    true,
+			BIB:     true,
+			Seminar: true,
+			Other:   true,
+		},
+		Details: projects.FundRequestDetails{
+			FundAmount: 50000,
+			BibAmount:  500,
+			Seminar:    "How to run fast",
+			Other:      "Test",
+		},
+	},
+}
+
 var Fund = []TestCase{
 	// budget
 	{

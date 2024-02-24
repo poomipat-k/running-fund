@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
@@ -20,11 +21,17 @@ type ErrorBody struct {
 }
 
 type TestCase struct {
-	name           string
-	payload        projects.AddProjectRequest
-	store          *mock.MockProjectStore
-	expectedStatus int
-	expectedError  error
+	name                   string
+	payload                projects.AddProjectRequest
+	store                  *mock.MockProjectStore
+	expectedStatus         int
+	expectedError          error
+	collaborationFilesPath string
+	marketingFilesPath     string
+	routeFilesPath         string
+	eventMapFilesPath      string
+	eventDetailsFilesPath  string
+	screenshotFilesPath    string
 }
 
 func TestAddProject(t *testing.T) {
@@ -35,6 +42,7 @@ func TestAddProject(t *testing.T) {
 		Details,
 		Experience,
 		Fund,
+		Attachment,
 	}
 	t.Setenv("APPLICANT_CRITERIA_VERSION", "1")
 	for _, cases := range pagesCases {
@@ -70,6 +78,74 @@ func TestAddProject(t *testing.T) {
 
 					// write string to the form field writer for form
 					formStr.Write(body)
+
+					filePath := "test.png"
+					file, err := os.Open(filePath)
+					if err != nil {
+						t.Error(err)
+					}
+					defer file.Close()
+
+					if tt.collaborationFilesPath != "" {
+						mk, err := multipartWriter.CreateFormFile("collaborationFiles", filePath)
+						if err != nil {
+							t.Error(err)
+						}
+						if _, err := io.Copy(mk, file); err != nil {
+							t.Error(err)
+						}
+					}
+
+					if tt.marketingFilesPath != "" {
+						mk, err := multipartWriter.CreateFormFile("marketingFiles", filePath)
+						if err != nil {
+							t.Error(err)
+						}
+						if _, err := io.Copy(mk, file); err != nil {
+							t.Error(err)
+						}
+					}
+
+					if tt.routeFilesPath != "" {
+						mk, err := multipartWriter.CreateFormFile("routeFiles", filePath)
+						if err != nil {
+							t.Error(err)
+						}
+						if _, err := io.Copy(mk, file); err != nil {
+							t.Error(err)
+						}
+					}
+
+					if tt.eventMapFilesPath != "" {
+						mk, err := multipartWriter.CreateFormFile("eventMapFiles", filePath)
+						if err != nil {
+							t.Error(err)
+						}
+						if _, err := io.Copy(mk, file); err != nil {
+							t.Error(err)
+						}
+					}
+
+					if tt.eventDetailsFilesPath != "" {
+						mk, err := multipartWriter.CreateFormFile("eventDetailsFiles", filePath)
+						if err != nil {
+							t.Error(err)
+						}
+						if _, err := io.Copy(mk, file); err != nil {
+							t.Error(err)
+						}
+					}
+
+					if tt.screenshotFilesPath != "" {
+						mk, err := multipartWriter.CreateFormFile("screenshotFiles", filePath)
+						if err != nil {
+							t.Error(err)
+						}
+						if _, err := io.Copy(mk, file); err != nil {
+							t.Error(err)
+						}
+					}
+
 				}()
 
 				// End multipart/form-data setup
