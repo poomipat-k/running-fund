@@ -24,7 +24,7 @@ type projectStore interface {
 	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
-	AddProject(userId int, attachments []DetailsFiles) (int, error)
+	AddProject(addProject AddProjectRequest, userId int, attachments []DetailsFiles) (int, error)
 }
 
 type ProjectHandler struct {
@@ -219,7 +219,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	projectId, err := h.store.AddProject(userId, attachments)
+	projectId, err := h.store.AddProject(payload, userId, attachments)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return

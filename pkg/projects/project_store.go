@@ -303,7 +303,7 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	return data, nil
 }
 
-func (s *store) AddProject(userId int, attachments []DetailsFiles) (int, error) {
+func (s *store) AddProject(addProject AddProjectRequest, userId int, attachments []DetailsFiles) (int, error) {
 	projectCode, err := s.generateProjectCode()
 	if err != nil {
 		return 0, err
