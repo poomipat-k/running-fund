@@ -322,7 +322,7 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []
 
 	defer tx.Rollback()
 
-	// now := time.Now()
+	now := time.Now()
 	// Add address rows
 	var addressId int
 	err = tx.QueryRowContext(ctx, addAddressSQL, payload.General.Address.Address, payload.General.Address.PostcodeId).Scan(&addressId)
@@ -398,6 +398,18 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []
 		if err != nil {
 			return failAdd(err)
 		}
+	}
+	// Add project
+	var projectId int
+	err = tx.QueryRowContext(
+		ctx,
+		addProjectSQL,
+		projectCode,
+		now,
+		userId,
+	).Scan(&projectId)
+	if err != nil {
+		return failAdd(err)
 	}
 
 	// // upload files

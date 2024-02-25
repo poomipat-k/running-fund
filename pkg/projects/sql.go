@@ -76,3 +76,9 @@ INSERT INTO contact
 (prefix, first_name, last_name) 
 VALUES ($1, $2, $3) RETURNING id;
 `
+
+const addProjectSQL = `
+INSERT INTO project
+(project_code, created_at, user_id)
+VALUES ($1, $2, $3) RETURNING id;
+`
