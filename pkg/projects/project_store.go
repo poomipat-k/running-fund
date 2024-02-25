@@ -303,10 +303,10 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	return data, nil
 }
 
-func (s *store) AddProject(userId int, attachments []DetailsFiles) (string, error) {
+func (s *store) AddProject(userId int, attachments []DetailsFiles) (int, error) {
 	projectCode, err := s.generateProjectCode()
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	baseFilePrefix := getBasePrefix(userId, projectCode)
@@ -314,10 +314,10 @@ func (s *store) AddProject(userId int, attachments []DetailsFiles) (string, erro
 		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
 		if err != nil {
 			slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
-			return "", err
+			return 0, err
 		}
 	}
-	return projectCode, nil
+	return 1, nil
 }
 
 func (s *store) generateProjectCode() (string, error) {

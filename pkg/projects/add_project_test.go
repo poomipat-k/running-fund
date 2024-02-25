@@ -213,8 +213,8 @@ func newTrue() *bool {
 	return &b
 }
 
-func addProjectSuccess(userId int, otherFiles []projects.DetailsFiles) (string, error) {
-	return "", nil
+func addProjectSuccess(userId int, otherFiles []projects.DetailsFiles) (int, error) {
+	return 1, nil
 }
 
 func getApplicantCriteriaSuccess(version int) ([]projects.ApplicantSelfScoreCriteria, error) {
