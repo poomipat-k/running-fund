@@ -157,7 +157,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
-		log.Println("===Handler unmarshal error", err)
 		utils.ErrorJSON(w, err, "")
 		return
 	}

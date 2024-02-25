@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -303,21 +304,121 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	return data, nil
 }
 
-func (s *store) AddProject(addProject AddProjectRequest, userId int, attachments []DetailsFiles) (int, error) {
+func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []DetailsFiles) (int, error) {
 	projectCode, err := s.generateProjectCode()
 	if err != nil {
 		return 0, err
 	}
+	// baseFilePrefix := getBasePrefix(userId, projectCode)
+	_ = getBasePrefix(userId, projectCode)
+	// start transaction
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	baseFilePrefix := getBasePrefix(userId, projectCode)
-	for _, files := range attachments {
-		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return failAdd(err)
+	}
+
+	defer tx.Rollback()
+
+	// now := time.Now()
+	// Add address rows
+	var addressId int
+	err = tx.QueryRowContext(ctx, addAddressSQL, payload.General.Address.Address, payload.General.Address.PostcodeId).Scan(&addressId)
+	if err != nil {
+		return failAdd(err)
+	}
+	var projectCoordinatorAddressId int
+	err = tx.QueryRowContext(
+		ctx,
+		addAddressSQL,
+		payload.Contact.ProjectCoordinator.Address.Address,
+		payload.Contact.ProjectCoordinator.Address.PostcodeId,
+	).Scan(&projectCoordinatorAddressId)
+	if err != nil {
+		return failAdd(err)
+	}
+	// Add contact rows
+	var projectHeadContactId int
+	err = tx.QueryRowContext(
+		ctx,
+		addContactMainSQL,
+		payload.Contact.ProjectHead.Prefix,
+		payload.Contact.ProjectHead.FirstName,
+		payload.Contact.ProjectHead.LastName,
+		payload.Contact.ProjectHead.OrganizationPosition,
+		payload.Contact.ProjectHead.EventPosition,
+	).Scan(&projectHeadContactId)
+	if err != nil {
+		return failAdd(err)
+	}
+
+	var projectManagerContactId int
+	err = tx.QueryRowContext(
+		ctx,
+		addContactMainSQL,
+		payload.Contact.ProjectManager.Prefix,
+		payload.Contact.ProjectManager.FirstName,
+		payload.Contact.ProjectManager.LastName,
+		payload.Contact.ProjectManager.OrganizationPosition,
+		payload.Contact.ProjectManager.EventPosition,
+	).Scan(&projectManagerContactId)
+	if err != nil {
+		return failAdd(err)
+	}
+
+	var projectCoordinatorContactId int
+	err = tx.QueryRowContext(
+		ctx,
+		addContactFullSQL,
+		payload.Contact.ProjectCoordinator.Prefix,
+		payload.Contact.ProjectCoordinator.FirstName,
+		payload.Contact.ProjectCoordinator.LastName,
+		payload.Contact.ProjectCoordinator.OrganizationPosition,
+		payload.Contact.ProjectCoordinator.EventPosition,
+		projectCoordinatorAddressId,
+		payload.Contact.ProjectCoordinator.Email,
+		payload.Contact.ProjectCoordinator.LineId,
+		payload.Contact.ProjectCoordinator.PhoneNumber,
+	).Scan(&projectCoordinatorContactId)
+	if err != nil {
+		return failAdd(err)
+	}
+
+	var projectRaceDirectorContactId int
+	if payload.Contact.RaceDirector.Who == "other" {
+		err = tx.QueryRowContext(
+			ctx,
+			addContactOnlyRequiredParamSQL,
+			payload.Contact.RaceDirector.Alternative.Prefix,
+			payload.Contact.RaceDirector.Alternative.FirstName,
+			payload.Contact.RaceDirector.Alternative.LastName,
+		).Scan(&projectRaceDirectorContactId)
 		if err != nil {
-			slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
-			return 0, err
+			return failAdd(err)
 		}
 	}
+
+	// // upload files
+	// for _, files := range attachments {
+	// 	err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
+	// 	if err != nil {
+	// 		slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
+	// 		return 0, err
+	// 	}
+	// }
+
+	err = tx.Commit()
+	if err != nil {
+		return failAdd(err)
+	}
+	// commit
 	return 1, nil
+}
+
+func failAdd(err error) (int, error) {
+	return 0, fmt.Errorf("addProject: %w", err)
 }
 
 func (s *store) generateProjectCode() (string, error) {

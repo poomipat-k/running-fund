@@ -55,3 +55,24 @@ SELECT criteria_version, order_number, display
 FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
 ORDER BY order_number ASC;
 `
+const addAddressSQL = `
+INSERT INTO address (address, postcode_id) VALUES ($1, $2) RETURNING id;
+`
+
+const addContactMainSQL = `
+INSERT INTO contact 
+(prefix, first_name, last_name, organization_position, event_position) 
+VALUES ($1, $2, $3, $4, $5) RETURNING id;
+`
+
+const addContactFullSQL = `
+INSERT INTO contact 
+(prefix, first_name, last_name, organization_position, event_position, address_id, email, line_id, phone_number) 
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;
+`
+
+const addContactOnlyRequiredParamSQL = `
+INSERT INTO contact 
+(prefix, first_name, last_name) 
+VALUES ($1, $2, $3) RETURNING id;
+`
