@@ -1,0 +1,416 @@
+package projects
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"log/slog"
+	"time"
+)
+
+func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []DetailsFiles) (int, error) {
+	projectCode, err := s.generateProjectCode()
+	if err != nil {
+		return 0, err
+	}
+	// baseFilePrefix := getBasePrefix(userId, projectCode)
+	_ = getBasePrefix(userId, projectCode)
+	// start transaction
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return failAdd(err)
+	}
+
+	defer tx.Rollback()
+
+	now := time.Now()
+	// Add address rows
+
+	addressId, err := addGeneralAddress(ctx, tx, payload)
+	// _, err = addGeneralAddress(ctx, tx, payload)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("===addressId", addressId)
+
+	// var projectCoordinatorAddressId int
+	projectCoordinatorAddressId, err := addProjectCoordinatorAddress(ctx, tx, payload)
+	if err != nil {
+		return failAdd(err)
+	}
+
+	// Add contact rows
+	projectHeadContactId, err := addProjectHeadContactId(ctx, tx, payload)
+	// _, err = addProjectHeadContactId(ctx, tx, payload)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==projectHeadContactId", projectHeadContactId)
+
+	projectManagerContactId, err := addProjectManagerContactId(ctx, tx, payload)
+	// _, err = addProjectManagerContactId(ctx, tx, payload)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==projectManagerContactId", projectManagerContactId)
+
+	projectCoordinatorContactId, err := addProjectCoordinatorContactId(ctx, tx, payload, projectCoordinatorAddressId)
+	// _, err = addProjectCoordinatorContactId(ctx, tx, payload, projectCoordinatorAddressId)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==projectCoordinatorContactId", projectCoordinatorContactId)
+
+	var projectRaceDirectorContactId int
+	if payload.Contact.RaceDirector.Who == "other" {
+		projectRaceDirectorContactId, err = addProjectRaceDirectorContactId(ctx, tx, payload)
+		if err != nil {
+			return failAdd(err)
+		}
+	}
+	log.Println("==projectRaceDirectorContactId", projectRaceDirectorContactId)
+	// Add project
+	projectId, err := addProjectRow(ctx, tx, payload, projectCode, now, userId)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==projectId", projectId)
+	// Add project_history
+	projectHistoryId, err := addProjectHistory(
+		ctx,
+		tx,
+		payload,
+		projectCode,
+		now,
+		addressId,
+		projectHeadContactId,
+		projectManagerContactId,
+		projectCoordinatorContactId,
+	)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==projectHistoryId", projectHistoryId)
+
+	// // upload files
+	// for _, files := range attachments {
+	// 	err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
+	// 	if err != nil {
+	// 		slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
+	// 		return 0, err
+	// 	}
+	// }
+
+	// update project_history.project_race_director_contact_id if needed
+	// update project_history_id on project.project_history_id
+
+	err = tx.Commit()
+	if err != nil {
+		return failAdd(err)
+	}
+	// commit
+	return projectId, nil
+}
+
+func addProjectHistory(
+	ctx context.Context,
+	tx *sql.Tx,
+	payload AddProjectRequest,
+	projectCode string,
+	now time.Time,
+	addressId int,
+	projectHeadContactId int,
+	projectManagerContactId int,
+	projectCoordinatorContactId int,
+
+) (int, error) {
+	fromDate, toDate, thisSeriesLatestCompletedDate, err := buildTimeFromPayload(payload)
+	if err != nil {
+		slog.Error("addProjectHistory err get fromDate and toDate", "error", err)
+		return 0, err
+	}
+	log.Println("===fromDate", fromDate)
+	log.Println("===toDate", toDate)
+	log.Println("===thisSeriesLatestCompletedDate", thisSeriesLatestCompletedDate)
+
+	var id int
+	err = tx.QueryRowContext(
+		ctx,
+		addProjectHistorySQL,
+		projectCode,
+		1,
+		now,
+		payload.Collaborated,
+		payload.General.ProjectName,
+		fromDate,
+		toDate,
+		addressId,
+		payload.General.StartPoint,
+		payload.General.FinishPoint,
+		payload.General.EventDetails.Category.Available.RoadRace,
+		payload.General.EventDetails.Category.Available.TrailRunning,
+		payload.General.EventDetails.Category.Available.Other,
+		payload.General.EventDetails.Category.OtherType,
+		payload.General.EventDetails.VIP,
+		payload.General.ExpectedParticipants,
+		payload.General.HasOrganizer,
+		payload.General.OrganizerName,
+		projectHeadContactId,
+		projectManagerContactId,
+		projectCoordinatorContactId,
+		payload.Contact.Organization.Type,
+		payload.Contact.Organization.Name,
+		payload.Details.Background,
+		payload.Details.Objective,
+		payload.Details.Marketing.Online.Available.Facebook,
+		payload.Details.Marketing.Online.HowTo.Facebook,
+		payload.Details.Marketing.Online.Available.Website,
+		payload.Details.Marketing.Online.HowTo.Website,
+		payload.Details.Marketing.Online.Available.OnlinePage,
+		payload.Details.Marketing.Online.HowTo.OnlinePage,
+		payload.Details.Marketing.Online.Available.Other,
+		payload.Details.Marketing.Online.HowTo.Other,
+		payload.Details.Marketing.Offline.Available.PR,
+		payload.Details.Marketing.Offline.Available.LocalOfficial,
+		payload.Details.Marketing.Offline.Available.Booth,
+		payload.Details.Marketing.Offline.Available.Billboard,
+		payload.Details.Marketing.Offline.Available.TV,
+		payload.Details.Marketing.Offline.Available.Other,
+		payload.Details.Marketing.Offline.Addition,
+		payload.Details.Safety.Ready.RunnerInformation,
+		payload.Details.Safety.Ready.HealthDecider,
+		payload.Details.Safety.Ready.Ambulance,
+		payload.Details.Safety.Ready.FirstAid,
+		payload.Details.Safety.Ready.AED,
+		payload.Details.Safety.AEDCount,
+		payload.Details.Safety.Ready.Insurance,
+		payload.Details.Safety.Ready.Other,
+		payload.Details.Safety.Addition,
+		payload.Details.Route.Measurement.AthleticsAssociation,
+		payload.Details.Route.Measurement.CalibratedBicycle,
+		payload.Details.Route.Measurement.SelfMeasurement,
+		payload.Details.Route.Tool,
+		payload.Details.Route.TrafficManagement.AskPermission,
+		payload.Details.Route.TrafficManagement.HasSupporter,
+		payload.Details.Route.TrafficManagement.RoadClosure,
+		payload.Details.Route.TrafficManagement.Signs,
+		payload.Details.Route.TrafficManagement.Lighting,
+		payload.Details.Judge.Type,
+		payload.Details.Judge.OtherType,
+		payload.Details.Support.Organization.ProvincialAdministration,
+		payload.Details.Support.Organization.Safety,
+		payload.Details.Support.Organization.Health,
+		payload.Details.Support.Organization.Volunteer,
+		payload.Details.Support.Organization.Community,
+		payload.Details.Support.Organization.Other,
+		payload.Details.Support.Addition,
+		payload.Details.Feedback,
+		*payload.Experience.ThisSeries.FirstTime,
+		payload.Experience.ThisSeries.History.OrdinalNumber,
+		thisSeriesLatestCompletedDate,
+		payload.Experience.ThisSeries.History.Completed1.Year,
+		payload.Experience.ThisSeries.History.Completed1.Name,
+		payload.Experience.ThisSeries.History.Completed1.Participant,
+		payload.Experience.ThisSeries.History.Completed2.Year,
+		payload.Experience.ThisSeries.History.Completed2.Name,
+		payload.Experience.ThisSeries.History.Completed2.Participant,
+		payload.Experience.ThisSeries.History.Completed3.Year,
+		payload.Experience.ThisSeries.History.Completed3.Name,
+		payload.Experience.ThisSeries.History.Completed3.Participant,
+		*payload.Experience.OtherSeries.DoneBefore,
+		payload.Experience.OtherSeries.History.Completed1.Year,
+		payload.Experience.OtherSeries.History.Completed1.Name,
+		payload.Experience.OtherSeries.History.Completed1.Participant,
+		payload.Experience.OtherSeries.History.Completed2.Year,
+		payload.Experience.OtherSeries.History.Completed2.Name,
+		payload.Experience.OtherSeries.History.Completed2.Participant,
+		payload.Experience.OtherSeries.History.Completed3.Year,
+		payload.Experience.OtherSeries.History.Completed3.Name,
+		payload.Experience.OtherSeries.History.Completed3.Participant,
+		payload.Fund.Budget.Total,
+		payload.Fund.Budget.SupportOrganization,
+		payload.Fund.Request.Type.Fund,
+		payload.Fund.Request.Details.FundAmount,
+		payload.Fund.Request.Type.BIB,
+		payload.Fund.Request.Details.BibAmount,
+		payload.Fund.Request.Type.Pr,
+		payload.Fund.Request.Type.Seminar,
+		payload.Fund.Request.Details.Seminar,
+		payload.Fund.Request.Type.Other,
+		payload.Fund.Request.Details.Other,
+		"SomeFilePrefix",
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func getTimeLocation() (*time.Location, error) {
+	loc, err := time.LoadLocation(TIMEZONE)
+	if err != nil {
+		return &time.Location{}, err
+	}
+	// set timezone,
+	// x := time.Now().In(loc)
+	return loc, nil
+}
+
+func addGeneralAddress(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+	var id int
+	err := tx.QueryRowContext(ctx, addAddressSQL, payload.General.Address.Address, payload.General.Address.PostcodeId).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func addProjectCoordinatorAddress(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		addAddressSQL,
+		payload.Contact.ProjectCoordinator.Address.Address,
+		payload.Contact.ProjectCoordinator.Address.PostcodeId,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func addProjectHeadContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		addContactMainSQL,
+		payload.Contact.ProjectHead.Prefix,
+		payload.Contact.ProjectHead.FirstName,
+		payload.Contact.ProjectHead.LastName,
+		payload.Contact.ProjectHead.OrganizationPosition,
+		payload.Contact.ProjectHead.EventPosition,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func addProjectManagerContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		addContactMainSQL,
+		payload.Contact.ProjectManager.Prefix,
+		payload.Contact.ProjectManager.FirstName,
+		payload.Contact.ProjectManager.LastName,
+		payload.Contact.ProjectManager.OrganizationPosition,
+		payload.Contact.ProjectManager.EventPosition,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func addProjectCoordinatorContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectCoordinatorAddressId int) (int, error) {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		addContactFullSQL,
+		payload.Contact.ProjectCoordinator.Prefix,
+		payload.Contact.ProjectCoordinator.FirstName,
+		payload.Contact.ProjectCoordinator.LastName,
+		payload.Contact.ProjectCoordinator.OrganizationPosition,
+		payload.Contact.ProjectCoordinator.EventPosition,
+		projectCoordinatorAddressId,
+		payload.Contact.ProjectCoordinator.Email,
+		payload.Contact.ProjectCoordinator.LineId,
+		payload.Contact.ProjectCoordinator.PhoneNumber,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func addProjectRaceDirectorContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		addContactOnlyRequiredParamSQL,
+		payload.Contact.RaceDirector.Alternative.Prefix,
+		payload.Contact.RaceDirector.Alternative.FirstName,
+		payload.Contact.RaceDirector.Alternative.LastName,
+	).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func addProjectRow(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectCode string, now time.Time, userId int) (int, error) {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		addProjectSQL,
+		projectCode,
+		now,
+		userId,
+	).Scan(&id)
+	if err != nil {
+		return failAdd(err)
+	}
+	return id, nil
+}
+
+func failAdd(err error) (int, error) {
+	return 0, fmt.Errorf("addProject: %w", err)
+}
+
+func buildTimeFromPayload(payload AddProjectRequest) (time.Time, time.Time, time.Time, error) {
+	loc, err := getTimeLocation()
+	if err != nil {
+		return time.Time{}, time.Time{}, time.Time{}, err
+	}
+
+	fromDate := time.Date(
+		payload.General.EventDate.Year,
+		time.Month(payload.General.EventDate.Month),
+		payload.General.EventDate.Day,
+		*payload.General.EventDate.FromHour,
+		*payload.General.EventDate.FromMinute,
+		0,
+		0,
+		loc,
+	)
+	toDate := time.Date(
+		payload.General.EventDate.Year,
+		time.Month(payload.General.EventDate.Month),
+		payload.General.EventDate.Day,
+		*payload.General.EventDate.ToHour,
+		*payload.General.EventDate.ToMinute,
+		0,
+		0,
+		loc,
+	)
+
+	var thisSeriesLatestDate time.Time
+	if !(*payload.Experience.ThisSeries.FirstTime) {
+		thisSeriesLatestDate = time.Date(
+			payload.Experience.ThisSeries.History.Year,
+			time.Month(payload.Experience.ThisSeries.History.Month),
+			payload.Experience.ThisSeries.History.Day,
+			0,
+			0,
+			0,
+			0,
+			loc,
+		)
+	}
+	return fromDate, toDate, thisSeriesLatestDate, nil
+}

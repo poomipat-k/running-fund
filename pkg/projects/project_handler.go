@@ -225,7 +225,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("===[Success] projectId", projectId)
-	utils.WriteJSON(w, http.StatusOK, "OK")
+	utils.WriteJSON(w, http.StatusOK, projectId)
 }
 
 func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {

@@ -18,7 +18,7 @@ CREATE TABLE project_history(
   admin_comment VARCHAR(512),
   project_id INT,
   -- STEP 0
-  collaborated INT NOT NULL,
+  collaborated BOOLEAN NOT NULL,
   -- STEP 1
   project_name VARCHAR(512) NOT NULL,
   from_date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE project_history(
   cat_has_other BOOLEAN NOT NULL,
   cat_other_type VARCHAR(255) NOT NULL,
   vip BOOLEAN NOT NULL,
-  expected_participants INT NOT NULL,
+  expected_participants VARCHAR(64) NOT NULL,
   has_organizer BOOLEAN NOT NULL,
   organizer_name VARCHAR(255) NOT NULL,
   -- STEP 2
@@ -112,11 +112,11 @@ CREATE TABLE project_history(
   exp_other_completed3_participant INT,
   -- STEP 5
   fund_total INT NOT NULL,
-  fund_support_organization BOOLEAN NOT NULL,
+  fund_support_organization TEXT NOT NULL,
   fund_req_fund BOOLEAN NOT NULL,
   fund_req_fund_amount INT,
-  fund_req_bid BOOLEAN NOT NULL,
-  fund_req_bid_amount INT,
+  fund_req_bib BOOLEAN NOT NULL,
+  fund_req_bib_amount INT,
   fund_req_pr BOOLEAN NOT NULL,
   fund_req_seminar BOOLEAN NOT NULL,
   fund_req_seminar_topic VARCHAR(255),
