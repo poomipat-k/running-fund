@@ -6,6 +6,18 @@ CREATE TABLE applicant_criteria(
   order_number SMALLINT NOT NULL,
   display VARCHAR(512) NOT NULL
 );
+
+CREATE TABLE applicant_score (
+  id SERIAL PRIMARY KEY NOT NULL,
+  project_history_id INT,
+  applicant_criteria_id INT,
+  score SMALLINT NOT NULL
+);
+
+ALTER TABLE applicant_score ADD CONSTRAINT fk_project_history_applicant_score FOREIGN KEY (project_history_id) REFERENCES project_history(id);
+ALTER TABLE applicant_score ADD CONSTRAINT fk_applicant_criteria_applicant_score FOREIGN KEY (applicant_criteria_id) REFERENCES applicant_criteria(id);
+
+-- SEED DATA
 INSERT INTO applicant_criteria (code, criteria_version, order_number, display)
 VALUES (
     'project_self_score',
@@ -78,4 +90,8 @@ VALUES (
   );
 
 -- +goose Down
+ALTER TABLE applicant_score DROP COLUMN project_history_id;
+ALTER TABLE applicant_score DROP COLUMN applicant_criteria_id;
+
+DROP TABLE applicant_score;
 DROP TABLE applicant_criteria;
