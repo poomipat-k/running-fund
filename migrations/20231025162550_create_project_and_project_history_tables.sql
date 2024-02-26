@@ -13,7 +13,7 @@ CREATE TABLE project_history(
   project_name VARCHAR(512) NOT NULL,
   from_date TIMESTAMP WITH TIME ZONE NOT NULL,
   to_date TIMESTAMP WITH TIME ZONE NOT NULL,
-  address_id INT, CONSTRAINT fk_project_history_address FOREIGN KEY (address_id) REFERENCES address (id),
+  address_id INT REFERENCES address (id),
   start_point VARCHAR(255) NOT NULL,
   finish_point VARCHAR(255) NOT NULL,
   cat_road_race BOOLEAN NOT NULL,
@@ -119,8 +119,8 @@ CREATE TABLE project (
   id SERIAL PRIMARY KEY NOT NULL,
   project_code VARCHAR(255) UNIQUE NOT NULL,
   created_at  TIMESTAMP WITH TIME ZONE NOT NULL  DEFAULT now(),
-  project_history_id INT ,CONSTRAINT fk_project_project_history FOREIGN KEY(project_history_id) REFERENCES project_history (id),
-  user_id INT ,CONSTRAINT fk_project_users FOREIGN KEY (user_id) REFERENCES users (id)
+  project_history_id INT REFERENCES project_history (id), 
+  user_id INT REFERENCES users (id)
 );
 
 CREATE TABLE distance(
@@ -128,8 +128,7 @@ CREATE TABLE distance(
   type VARCHAR(255) NOT NULL,
   fee FLOAT NOT NULL,
   is_dynamic BOOLEAN NOT NULL,
-  project_history_id INT,
-  CONSTRAINT fk_distance_project_history FOREIGN KEY (project_history_id) REFERENCES project_history (id)
+  project_history_id INT REFERENCES project_history (id)
 );
 
 -- INDEX
