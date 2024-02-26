@@ -12,6 +12,8 @@ import (
 	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
 )
 
+const applicantCriteriaCachePrefix = "applicant_criteria"
+
 type store struct {
 	db           *sql.DB
 	c            *cache.Cache
@@ -230,6 +232,17 @@ func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreC
 	if criteriaVersion == 0 {
 		criteriaVersion = 1
 	}
+	// check cache
+	cacheKey := fmt.Sprintf("%s_%d", applicantCriteriaCachePrefix, criteriaVersion)
+	raw, found := s.c.Get(cacheKey)
+	if found {
+		cachedData, ok := raw.([]ApplicantSelfScoreCriteria)
+		if ok {
+			return cachedData, nil
+		}
+	}
+
+	// Fetch data from the db
 	rows, err := s.db.Query(getApplicantCriteriaSQL, criteriaVersion)
 	if err != nil {
 		return nil, err
@@ -253,6 +266,9 @@ func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreC
 	}
 	if len(data) == 0 {
 		return nil, errors.New("criteria version not found")
+	}
+	if len(data) > 0 {
+		s.c.Set(cacheKey, data, cache.NoExpiration)
 	}
 	return data, nil
 }
