@@ -62,15 +62,12 @@ func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix 
 		bucketName := os.Getenv("AWS_S3_BUCKET_NAME")
 		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
 		objectKey := fmt.Sprintf("%s/%s", objectPrefix, fileName)
-		log.Println("===objectKey", objectKey)
-		// fmt.Sprintf("%s/%s_%d%s", targetDirPath, fileHeader.Filename, time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
 
 		_, err = client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
 			Bucket: aws.String(bucketName),
 			Key:    aws.String(objectKey),
 			Body:   file,
 		})
-		// log.Println("===output", output)
 		if err != nil {
 			log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
 				objectKey, bucketName, objectKey, err)

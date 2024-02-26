@@ -152,8 +152,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
-	// log.Println("====r.Form")
-	// log.Println(r.Form)
+	log.Println("AddProject payload: ", r.Form)
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
@@ -224,7 +223,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println("===[Success] projectId", projectId)
 	utils.WriteJSON(w, http.StatusOK, projectId)
 }
 
@@ -237,7 +235,6 @@ func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {
 	utils.ReadJSON(w, r, &payload)
 	objects, err := h.awsS3Service.ListObjects(payload.BucketName, payload.Prefix)
 	if err != nil {
-		log.Println("err: ", err)
 		utils.ErrorJSON(w, err, "")
 		return
 	}
