@@ -51,7 +51,7 @@ AND created_at < date_trunc('day', now()) + interval '1 day - 7 hour - 1 microse
 `
 
 const getApplicantCriteriaSQL = `
-SELECT criteria_version, order_number, display
+SELECT id, criteria_version, order_number, display
 FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
 ORDER BY order_number ASC;
 `
@@ -85,6 +85,10 @@ VALUES ($1, $2, $3) RETURNING id;
 
 const addManyDistanceSQL = `
 INSERT INTO distance (type, fee, is_dynamic, project_history_id) VALUES 
+`
+
+const addManyApplicantScoreSQL = `
+INSERT INTO applicant_score (project_history_id, applicant_criteria_id, score) VALUES 
 `
 
 const addProjectHistorySQL = `

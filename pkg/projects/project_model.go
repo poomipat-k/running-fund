@@ -63,6 +63,7 @@ type ReviewDetails struct {
 }
 
 type ApplicantSelfScoreCriteria struct {
+	Id              int    `json:"id,omitempty"`
 	CriteriaVersion int    `json:"criteriaVersion,omitempty"`
 	OrderNumber     int    `json:"orderNumber,omitempty"`
 	Display         string `json:"display,omitempty"`

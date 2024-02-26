@@ -76,11 +76,11 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 	}
 
 	// insert review_details
-	valuesString := []string{}
+	valuesStrStatement := []string{}
 	values := []any{}
 
 	for i := 0; i < len(criteriaList); i++ {
-		valuesString = append(valuesString, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
+		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
 		scoreName := fmt.Sprintf("q_%d_%d", criteriaList[i].CriteriaVersion, criteriaList[i].OrderNumber)
 		score, exist := payload.Review.Scores[scoreName]
 		if !exist {
@@ -88,7 +88,7 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 		}
 		values = append(values, reviewId, criteriaList[i].CriteriaId, score)
 	}
-	customSQL := insertReviewDetailsSQL + strings.Join(valuesString, ",") + ";"
+	customSQL := insertReviewDetailsSQL + strings.Join(valuesStrStatement, ",") + ";"
 
 	stmt, err := tx.Prepare(customSQL)
 	if err != nil {
