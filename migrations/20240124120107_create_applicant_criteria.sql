@@ -9,13 +9,10 @@ CREATE TABLE applicant_criteria(
 
 CREATE TABLE applicant_score (
   id SERIAL PRIMARY KEY NOT NULL,
-  project_history_id INT,
-  applicant_criteria_id INT,
+  project_history_id INT REFERENCES project_history(id),
+  applicant_criteria_id INT REFERENCES applicant_criteria(id),
   score SMALLINT NOT NULL
 );
-
-ALTER TABLE applicant_score ADD CONSTRAINT fk_project_history_applicant_score FOREIGN KEY (project_history_id) REFERENCES project_history(id);
-ALTER TABLE applicant_score ADD CONSTRAINT fk_applicant_criteria_applicant_score FOREIGN KEY (applicant_criteria_id) REFERENCES applicant_criteria(id);
 
 -- SEED DATA
 INSERT INTO applicant_criteria (code, criteria_version, order_number, display)
