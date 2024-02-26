@@ -10,7 +10,12 @@ import (
 	"time"
 )
 
-func (s *store) AddProject(payload AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []DetailsFiles) (int, error) {
+func (s *store) AddProject(
+	payload AddProjectRequest,
+	userId int,
+	criteria []ApplicantSelfScoreCriteria,
+	attachments []DetailsFiles,
+) (int, error) {
 	projectCode, err := s.generateProjectCode()
 	log.Println("====projectCode", projectCode)
 	if err != nil {
@@ -109,6 +114,7 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, criteria []App
 		return failAdd(err)
 	}
 	log.Println("==applicantScoreRowsAffected", applicantScoreRowsAffected)
+	// update project.project_history_id
 
 	// // upload files
 	// for _, files := range attachments {
@@ -147,9 +153,6 @@ func addProjectHistory(
 		slog.Error("addProjectHistory err get fromDate and toDate", "error", err)
 		return 0, err
 	}
-	log.Println("===fromDate", fromDate)
-	log.Println("===toDate", toDate)
-	log.Println("===thisSeriesLatestCompletedDate", thisSeriesLatestCompletedDate)
 	projectRaceDirectorContactId := rawProjectRaceDirectorContactId
 	if rawProjectRaceDirectorContactId == 0 {
 		if payload.Contact.RaceDirector.Who == "projectHead" {
@@ -308,8 +311,6 @@ func addDistances(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, pr
 	if err != nil {
 		return 0, err
 	}
-	log.Println("====result")
-	log.Println(result)
 
 	return result.RowsAffected()
 }
@@ -319,24 +320,23 @@ func addApplicantScores(
 	tx *sql.Tx,
 	payload AddProjectRequest,
 	projectHistoryId int,
-	criteria []ApplicantSelfScoreCriteria,
+	criteriaList []ApplicantSelfScoreCriteria,
 ) (int64, error) {
-	dis := payload.General.EventDetails.DistanceAndFee
-	checkedDistances := []DistanceAndFee{}
-	for i := 0; i < len(dis); i++ {
-		if dis[i].Checked {
-			checkedDistances = append(checkedDistances, dis[i])
-		}
-	}
-
 	valuesStrStatement := []string{}
 	values := []any{}
+	scores := payload.Details.Score
 
-	for i := 0; i < len(checkedDistances); i++ {
-		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
-		values = append(values, checkedDistances[i].Type, checkedDistances[i].Fee, checkedDistances[i].Dynamic, projectHistoryId)
+	for i := 0; i < len(criteriaList); i++ {
+		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
+		scoreName := fmt.Sprintf("q_%d_%d", criteriaList[i].CriteriaVersion, criteriaList[i].OrderNumber)
+		score, exist := scores[scoreName]
+		if !exist {
+			return 0, fmt.Errorf("applicant score %s is not exist", scoreName)
+		}
+		values = append(values, projectHistoryId, criteriaList[i].Id, score)
 	}
-	customSQL := addManyDistanceSQL + strings.Join(valuesStrStatement, ",") + ";"
+
+	customSQL := addManyApplicantScoreSQL + strings.Join(valuesStrStatement, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
 	if err != nil {
 		return 0, err
@@ -345,8 +345,6 @@ func addApplicantScores(
 	if err != nil {
 		return 0, err
 	}
-	log.Println("====result")
-	log.Println(result)
 
 	return result.RowsAffected()
 }

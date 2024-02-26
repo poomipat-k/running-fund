@@ -240,7 +240,7 @@ func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreC
 	for rows.Next() {
 		var row ApplicantSelfScoreCriteria
 
-		err := rows.Scan(&row.CriteriaVersion, &row.OrderNumber, &row.Display)
+		err := rows.Scan(&row.Id, &row.CriteriaVersion, &row.OrderNumber, &row.Display)
 		if err != nil {
 			return nil, err
 		}
@@ -258,6 +258,7 @@ func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreC
 }
 
 func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error) {
+	// TODO: cache criteria
 	if criteriaVersion == 0 {
 		criteriaVersion = 1
 	}
