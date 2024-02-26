@@ -17,19 +17,17 @@ func (s *store) AddProject(
 	attachments []DetailsFiles,
 ) (int, error) {
 	projectCode, err := s.generateProjectCode()
-	log.Println("====projectCode", projectCode)
 	if err != nil {
 		return 0, err
 	}
-	// baseFilePrefix := getBasePrefix(userId, projectCode)
-	_ = getBasePrefix(userId, projectCode)
+	baseFilePrefix := getBasePrefix(userId, projectCode)
 	// start transaction
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("tx", err)
 	}
 
 	defer tx.Rollback()
@@ -39,51 +37,42 @@ func (s *store) AddProject(
 
 	addressId, err := addGeneralAddress(ctx, tx, payload)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("addressId", err)
 	}
-	log.Println("===addressId", addressId)
 
 	projectCoordinatorAddressId, err := addProjectCoordinatorAddress(ctx, tx, payload)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("projectCoordinatorAddressId", err)
 	}
 
 	// Add contact rows
 	projectHeadContactId, err := addProjectHeadContactId(ctx, tx, payload)
-	// _, err = addProjectHeadContactId(ctx, tx, payload)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("projectHeadContactId", err)
 	}
-	log.Println("==projectHeadContactId", projectHeadContactId)
 
 	projectManagerContactId, err := addProjectManagerContactId(ctx, tx, payload)
-	// _, err = addProjectManagerContactId(ctx, tx, payload)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("projectManagerContactId", err)
 	}
-	log.Println("==projectManagerContactId", projectManagerContactId)
 
 	projectCoordinatorContactId, err := addProjectCoordinatorContactId(ctx, tx, payload, projectCoordinatorAddressId)
-	// _, err = addProjectCoordinatorContactId(ctx, tx, payload, projectCoordinatorAddressId)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("projectCoordinatorContactId", err)
 	}
-	log.Println("==projectCoordinatorContactId", projectCoordinatorContactId)
 
 	var projectRaceDirectorContactId int
 	if payload.Contact.RaceDirector.Who == "other" {
 		projectRaceDirectorContactId, err = addProjectRaceDirectorContactId(ctx, tx, payload)
 		if err != nil {
-			return failAdd(err)
+			return failAdd("projectRaceDirectorContactId", err)
 		}
 	}
-	log.Println("==projectRaceDirectorContactId", projectRaceDirectorContactId)
 	// Add project
 	projectId, err := addProjectRow(ctx, tx, payload, projectCode, now, userId)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("projectId", err)
 	}
-	log.Println("==projectId", projectId)
 	// Add project_history
 	projectHistoryId, err := addProjectHistory(
 		ctx,
@@ -96,25 +85,30 @@ func (s *store) AddProject(
 		projectManagerContactId,
 		projectCoordinatorContactId,
 		projectRaceDirectorContactId,
+		baseFilePrefix,
 	)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("projectHistoryId", err)
 	}
 	log.Println("==projectHistoryId", projectHistoryId)
 
 	// Add distance
 	distanceRowsAffected, err := addDistances(ctx, tx, payload, projectHistoryId)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("distanceRowsAffected", err)
 	}
 	log.Println("==distanceRowsAffected", distanceRowsAffected)
 	// Add applicant scores
 	applicantScoreRowsAffected, err := addApplicantScores(ctx, tx, payload, projectHistoryId, criteria)
 	if err != nil {
-		return failAdd(err)
+		return failAdd("applicantScoreRowsAffected", err)
 	}
 	log.Println("==applicantScoreRowsAffected", applicantScoreRowsAffected)
-	// update project.project_history_id
+	// // update project.project_history_id
+	// err = updateProjectFK(ctx, tx, projectHistoryId, projectId)
+	// if err != nil {
+	// 	return failAdd("update project.project_history_id", err)
+	// }
 
 	// // upload files
 	// for _, files := range attachments {
@@ -125,14 +119,92 @@ func (s *store) AddProject(
 	// 	}
 	// }
 
-	// update project_history_id on project.project_history_id
-
 	err = tx.Commit()
 	if err != nil {
-		return failAdd(err)
+		return failAdd("tx.Commit()", err)
 	}
 	// commit
 	return projectId, nil
+}
+
+func updateProjectFK(ctx context.Context, tx *sql.Tx, projectHistoryId int, projectId int) error {
+	log.Println("===projectHistoryId", projectHistoryId)
+	log.Println("===projectId", projectId)
+	// Debug
+	rows, err := tx.QueryContext(ctx, "SELECT id, project_code FROM project WHERE id=$1 LIMIT 1;", projectId)
+	if err != nil {
+		log.Panic("====panic 1", err)
+	}
+	data := []struct {
+		Id               int
+		ProjectCode      string
+		ProjectHistoryId int
+	}{}
+	for rows.Next() {
+		var row struct {
+			Id               int
+			ProjectCode      string
+			ProjectHistoryId int
+		}
+		err := rows.Scan(&row.Id, &row.ProjectCode)
+		if err != nil {
+			log.Panic("====panic 2", err)
+		}
+
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Panic("===panic 3", err)
+	}
+	log.Println("==reach here")
+	log.Println(data[0])
+
+	// prjHist
+	rows, err = tx.QueryContext(ctx, "SELECT id, project_code, project_id FROM project_history WHERE id=$1 LIMIT 1;", projectHistoryId)
+	if err != nil {
+		log.Panic("====panic 4", err)
+	}
+	data2 := []struct {
+		Id          int
+		ProjectCode string
+		ProjectId   sql.NullInt64
+	}{}
+	for rows.Next() {
+		var row struct {
+			Id          int
+			ProjectCode string
+			ProjectId   sql.NullInt64
+		}
+		err := rows.Scan(&row.Id, &row.ProjectCode, &row.ProjectId)
+		if err != nil {
+			log.Panic("====panic 5", err)
+		}
+
+		data2 = append(data2, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Panic("===panic 6", err)
+	}
+	log.Println("==reach here")
+	log.Println(data2[0])
+
+	result, err := tx.ExecContext(ctx, "SET CONSTRAINTS ALL DEFERRED;")
+	if err != nil {
+		log.Panic("===Panic7 ", err)
+	}
+	log.Println("===result:", result)
+
+	// END debug
+	var modifiedId int
+	err = tx.QueryRowContext(ctx, updateProjectProjectHistoryIdSQL, projectHistoryId, projectId).Scan(&modifiedId)
+	log.Println("===modifiedId", modifiedId)
+	if err != nil {
+		return err
+	}
+	log.Println()
+	return nil
 }
 
 func addProjectHistory(
@@ -146,6 +218,7 @@ func addProjectHistory(
 	projectManagerContactId int,
 	projectCoordinatorContactId int,
 	rawProjectRaceDirectorContactId int,
+	baseFilePrefix string,
 
 ) (int, error) {
 	fromDate, toDate, thisSeriesLatestCompletedDate, err := buildTimeFromPayload(payload)
@@ -270,7 +343,7 @@ func addProjectHistory(
 		payload.Fund.Request.Details.Seminar,
 		payload.Fund.Request.Type.Other,
 		payload.Fund.Request.Details.Other,
-		"SomeFilePrefix",
+		baseFilePrefix,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -452,13 +525,14 @@ func addProjectRow(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, p
 		userId,
 	).Scan(&id)
 	if err != nil {
-		return failAdd(err)
+		return 0, err
 	}
+	log.Println("===AddProjectRow id:", id)
 	return id, nil
 }
 
-func failAdd(err error) (int, error) {
-	return 0, fmt.Errorf("addProject: %w", err)
+func failAdd(name string, err error) (int, error) {
+	return 0, fmt.Errorf("addProject name: %s, error: %w", name, err)
 }
 
 func buildTimeFromPayload(payload AddProjectRequest) (time.Time, time.Time, time.Time, error) {
