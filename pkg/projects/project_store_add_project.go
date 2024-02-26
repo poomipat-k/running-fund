@@ -101,15 +101,15 @@ func (s *store) AddProject(
 	if err != nil {
 		return failAdd("applicantScoreRowsAffected", err)
 	}
-	// upload files
-	for _, files := range attachments {
-		folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
-		err = s.awsS3Service.UploadToS3(files.Files, folder)
-		if err != nil {
-			slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
-			return 0, err
-		}
-	}
+	// // upload files
+	// for _, files := range attachments {
+	// 	folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
+	// 	err = s.awsS3Service.UploadToS3(files.Files, folder)
+	// 	if err != nil {
+	// 		slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
+	// 		return 0, err
+	// 	}
+	// }
 
 	if err != nil {
 		return failAdd("tx.Commit()", err)
