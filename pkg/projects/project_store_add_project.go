@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"strings"
 	"time"
@@ -68,11 +67,6 @@ func (s *store) AddProject(
 			return failAdd("projectRaceDirectorContactId", err)
 		}
 	}
-	// Add project
-	projectId, err := addProjectRow(ctx, tx, payload, projectCode, now, userId)
-	if err != nil {
-		return failAdd("projectId", err)
-	}
 	// Add project_history
 	projectHistoryId, err := addProjectHistory(
 		ctx,
@@ -90,121 +84,39 @@ func (s *store) AddProject(
 	if err != nil {
 		return failAdd("projectHistoryId", err)
 	}
-	log.Println("==projectHistoryId", projectHistoryId)
+
+	// Add project
+	projectId, err := addProjectRow(ctx, tx, payload, projectCode, now, projectHistoryId, userId)
+	if err != nil {
+		return failAdd("projectId", err)
+	}
 
 	// Add distance
-	distanceRowsAffected, err := addDistances(ctx, tx, payload, projectHistoryId)
+	_, err = addDistances(ctx, tx, payload, projectHistoryId)
 	if err != nil {
 		return failAdd("distanceRowsAffected", err)
 	}
-	log.Println("==distanceRowsAffected", distanceRowsAffected)
 	// Add applicant scores
-	applicantScoreRowsAffected, err := addApplicantScores(ctx, tx, payload, projectHistoryId, criteria)
+	_, err = addApplicantScores(ctx, tx, payload, projectHistoryId, criteria)
 	if err != nil {
 		return failAdd("applicantScoreRowsAffected", err)
 	}
-	log.Println("==applicantScoreRowsAffected", applicantScoreRowsAffected)
-	// // update project.project_history_id
-	// err = updateProjectFK(ctx, tx, projectHistoryId, projectId)
-	// if err != nil {
-	// 	return failAdd("update project.project_history_id", err)
-	// }
+	// upload files
+	for _, files := range attachments {
+		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
+		if err != nil {
+			slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
+			return 0, err
+		}
+	}
 
-	// // upload files
-	// for _, files := range attachments {
-	// 	err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
-	// 	if err != nil {
-	// 		slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
-	// 		return 0, err
-	// 	}
-	// }
-
+	time.Sleep(3 * time.Second)
 	err = tx.Commit()
 	if err != nil {
 		return failAdd("tx.Commit()", err)
 	}
 	// commit
 	return projectId, nil
-}
-
-func updateProjectFK(ctx context.Context, tx *sql.Tx, projectHistoryId int, projectId int) error {
-	log.Println("===projectHistoryId", projectHistoryId)
-	log.Println("===projectId", projectId)
-	// Debug
-	rows, err := tx.QueryContext(ctx, "SELECT id, project_code FROM project WHERE id=$1 LIMIT 1;", projectId)
-	if err != nil {
-		log.Panic("====panic 1", err)
-	}
-	data := []struct {
-		Id               int
-		ProjectCode      string
-		ProjectHistoryId int
-	}{}
-	for rows.Next() {
-		var row struct {
-			Id               int
-			ProjectCode      string
-			ProjectHistoryId int
-		}
-		err := rows.Scan(&row.Id, &row.ProjectCode)
-		if err != nil {
-			log.Panic("====panic 2", err)
-		}
-
-		data = append(data, row)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Panic("===panic 3", err)
-	}
-	log.Println("==reach here")
-	log.Println(data[0])
-
-	// prjHist
-	rows, err = tx.QueryContext(ctx, "SELECT id, project_code, project_id FROM project_history WHERE id=$1 LIMIT 1;", projectHistoryId)
-	if err != nil {
-		log.Panic("====panic 4", err)
-	}
-	data2 := []struct {
-		Id          int
-		ProjectCode string
-		ProjectId   sql.NullInt64
-	}{}
-	for rows.Next() {
-		var row struct {
-			Id          int
-			ProjectCode string
-			ProjectId   sql.NullInt64
-		}
-		err := rows.Scan(&row.Id, &row.ProjectCode, &row.ProjectId)
-		if err != nil {
-			log.Panic("====panic 5", err)
-		}
-
-		data2 = append(data2, row)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Panic("===panic 6", err)
-	}
-	log.Println("==reach here")
-	log.Println(data2[0])
-
-	result, err := tx.ExecContext(ctx, "SET CONSTRAINTS ALL DEFERRED;")
-	if err != nil {
-		log.Panic("===Panic7 ", err)
-	}
-	log.Println("===result:", result)
-
-	// END debug
-	var modifiedId int
-	err = tx.QueryRowContext(ctx, updateProjectProjectHistoryIdSQL, projectHistoryId, projectId).Scan(&modifiedId)
-	log.Println("===modifiedId", modifiedId)
-	if err != nil {
-		return err
-	}
-	log.Println()
-	return nil
 }
 
 func addProjectHistory(
@@ -515,19 +427,19 @@ func addProjectRaceDirectorContactId(ctx context.Context, tx *sql.Tx, payload Ad
 	return id, nil
 }
 
-func addProjectRow(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectCode string, now time.Time, userId int) (int, error) {
+func addProjectRow(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectCode string, now time.Time, projectHistoryId int, userId int) (int, error) {
 	var id int
 	err := tx.QueryRowContext(
 		ctx,
 		addProjectSQL,
 		projectCode,
 		now,
+		projectHistoryId,
 		userId,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
-	log.Println("===AddProjectRow id:", id)
 	return id, nil
 }
 

@@ -6,25 +6,25 @@ CREATE TABLE province(
 CREATE TABLE district(
     id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
-    province_id INT, CONSTRAINT fk_district_province FOREIGN KEY (province_id) REFERENCES province (id)
+    province_id INT REFERENCES province (id)
 );
 CREATE TABLE subdistrict(
     id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
-    district_id INT, CONSTRAINT fk_subdistrict_district FOREIGN KEY (district_id) REFERENCES district (id)
+    district_id INT REFERENCES district (id)
 );
 
 CREATE TABLE postcode(
     id SERIAL PRIMARY KEY NOT NULL,
     code INT NOT NULL,
-    subdistrict_id INT, CONSTRAINT fk_postcode_subdistrict FOREIGN KEY (subdistrict_id) REFERENCES subdistrict (id)
+    subdistrict_id INT REFERENCES subdistrict (id)
 );
 CREATE INDEX postcode_subdistrict_id ON postcode (subdistrict_id);
 
 CREATE TABLE address(
     id SERIAL PRIMARY KEY NOT NULL,
     address TEXT NOT NULL,
-    postcode_id INT, CONSTRAINT fk_address_postcode FOREIGN KEY (postcode_id) REFERENCES postcode (id)
+    postcode_id INT REFERENCES postcode (id)
 );
 
 -- PROVINCE
