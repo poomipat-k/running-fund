@@ -83,6 +83,10 @@ INSERT INTO project
 VALUES ($1, $2, $3) RETURNING id;
 `
 
+const addManyDistanceSQL = `
+INSERT INTO distance (type, fee, is_dynamic, project_history_id) VALUES 
+`
+
 const addProjectHistorySQL = `
 INSERT INTO project_history 
 (
@@ -107,6 +111,7 @@ INSERT INTO project_history
 	project_head_contact_id,
 	project_manager_contact_id,
 	project_coordinator_contact_id,
+	project_race_director_contact_id,
 	organization_type,
 	organization_name,
 	background,
@@ -194,6 +199,6 @@ INSERT INTO project_history
 	$39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, 
 	$57, $58, $59, $60, $61, $62, $63, $64, $65, $66, $67, $68, $69, $70, $71, $72, $73, $74, 
 	$75, $76, $77, $78, $79, $80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $90, $91, $92, 
-	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102
+	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102, $103
 ) RETURNING id;
 `
