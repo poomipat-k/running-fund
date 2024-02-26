@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"strings"
 	"time"
 )
 
 func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []DetailsFiles) (int, error) {
 	projectCode, err := s.generateProjectCode()
+	log.Println("====projectCode", projectCode)
 	if err != nil {
 		return 0, err
 	}
@@ -31,13 +33,11 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []
 	// Add address rows
 
 	addressId, err := addGeneralAddress(ctx, tx, payload)
-	// _, err = addGeneralAddress(ctx, tx, payload)
 	if err != nil {
 		return failAdd(err)
 	}
 	log.Println("===addressId", addressId)
 
-	// var projectCoordinatorAddressId int
 	projectCoordinatorAddressId, err := addProjectCoordinatorAddress(ctx, tx, payload)
 	if err != nil {
 		return failAdd(err)
@@ -90,11 +90,19 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []
 		projectHeadContactId,
 		projectManagerContactId,
 		projectCoordinatorContactId,
+		projectRaceDirectorContactId,
 	)
 	if err != nil {
 		return failAdd(err)
 	}
 	log.Println("==projectHistoryId", projectHistoryId)
+
+	// Add distance
+	rowsAffected, err := addDistances(ctx, tx, payload, projectHistoryId)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==rowsAffected", rowsAffected)
 
 	// // upload files
 	// for _, files := range attachments {
@@ -105,7 +113,6 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []
 	// 	}
 	// }
 
-	// update project_history.project_race_director_contact_id if needed
 	// update project_history_id on project.project_history_id
 
 	err = tx.Commit()
@@ -126,6 +133,7 @@ func addProjectHistory(
 	projectHeadContactId int,
 	projectManagerContactId int,
 	projectCoordinatorContactId int,
+	rawProjectRaceDirectorContactId int,
 
 ) (int, error) {
 	fromDate, toDate, thisSeriesLatestCompletedDate, err := buildTimeFromPayload(payload)
@@ -136,6 +144,16 @@ func addProjectHistory(
 	log.Println("===fromDate", fromDate)
 	log.Println("===toDate", toDate)
 	log.Println("===thisSeriesLatestCompletedDate", thisSeriesLatestCompletedDate)
+	projectRaceDirectorContactId := rawProjectRaceDirectorContactId
+	if rawProjectRaceDirectorContactId == 0 {
+		if payload.Contact.RaceDirector.Who == "projectHead" {
+			projectRaceDirectorContactId = projectHeadContactId
+		} else if payload.Contact.RaceDirector.Who == "projectManager" {
+			projectRaceDirectorContactId = projectManagerContactId
+		} else if payload.Contact.RaceDirector.Who == "projectCoordinator" {
+			projectRaceDirectorContactId = projectCoordinatorContactId
+		}
+	}
 
 	var id int
 	err = tx.QueryRowContext(
@@ -162,6 +180,7 @@ func addProjectHistory(
 		projectHeadContactId,
 		projectManagerContactId,
 		projectCoordinatorContactId,
+		projectRaceDirectorContactId,
 		payload.Contact.Organization.Type,
 		payload.Contact.Organization.Name,
 		payload.Details.Background,
@@ -221,7 +240,7 @@ func addProjectHistory(
 		payload.Experience.ThisSeries.History.Completed3.Year,
 		payload.Experience.ThisSeries.History.Completed3.Name,
 		payload.Experience.ThisSeries.History.Completed3.Participant,
-		*payload.Experience.OtherSeries.DoneBefore,
+		payload.Experience.OtherSeries.DoneBefore,
 		payload.Experience.OtherSeries.History.Completed1.Year,
 		payload.Experience.OtherSeries.History.Completed1.Name,
 		payload.Experience.OtherSeries.History.Completed1.Participant,
@@ -255,9 +274,38 @@ func getTimeLocation() (*time.Location, error) {
 	if err != nil {
 		return &time.Location{}, err
 	}
-	// set timezone,
-	// x := time.Now().In(loc)
 	return loc, nil
+}
+
+func addDistances(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectHistoryId int) (int64, error) {
+	dis := payload.General.EventDetails.DistanceAndFee
+	checkedDistances := []DistanceAndFee{}
+	for i := 0; i < len(dis); i++ {
+		if dis[i].Checked {
+			checkedDistances = append(checkedDistances, dis[i])
+		}
+	}
+
+	valuesStrStatement := []string{}
+	values := []any{}
+
+	for i := 0; i < len(checkedDistances); i++ {
+		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
+		values = append(values, checkedDistances[i].Type, checkedDistances[i].Fee, checkedDistances[i].Dynamic, projectHistoryId)
+	}
+	customSQL := addManyDistanceSQL + strings.Join(valuesStrStatement, ",") + ";"
+	stmt, err := tx.Prepare(customSQL)
+	if err != nil {
+		return 0, err
+	}
+	result, err := stmt.ExecContext(ctx, values...)
+	if err != nil {
+		return 0, err
+	}
+	log.Println("====result")
+	log.Println(result)
+
+	return result.RowsAffected()
 }
 
 func addGeneralAddress(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
