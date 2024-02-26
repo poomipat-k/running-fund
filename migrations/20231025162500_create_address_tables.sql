@@ -6,35 +6,26 @@ CREATE TABLE province(
 CREATE TABLE district(
     id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
-    province_id INT
+    province_id INT, CONSTRAINT fk_district_province FOREIGN KEY (province_id) REFERENCES province (id)
 );
-ALTER TABLE district
-ADD CONSTRAINT fk_province_district FOREIGN KEY (province_id) REFERENCES province (id);
 CREATE TABLE subdistrict(
     id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(255) NOT NULL,
-    district_id INT
+    district_id INT, CONSTRAINT fk_subdistrict_district FOREIGN KEY (district_id) REFERENCES district (id)
 );
-ALTER TABLE subdistrict
-ADD CONSTRAINT fk_district_subdistrict FOREIGN KEY (district_id) REFERENCES district (id);
 
 CREATE TABLE postcode(
     id SERIAL PRIMARY KEY NOT NULL,
     code INT NOT NULL,
-    subdistrict_id INT
+    subdistrict_id INT, CONSTRAINT fk_postcode_subdistrict FOREIGN KEY (subdistrict_id) REFERENCES subdistrict (id)
 );
-ALTER TABLE postcode
-ADD CONSTRAINT fk_subdistrict_postcode FOREIGN KEY (subdistrict_id) REFERENCES subdistrict (id);
 CREATE INDEX postcode_subdistrict_id ON postcode (subdistrict_id);
-
 
 CREATE TABLE address(
     id SERIAL PRIMARY KEY NOT NULL,
     address TEXT NOT NULL,
-    postcode_id INT
+    postcode_id INT, CONSTRAINT fk_address_postcode FOREIGN KEY (postcode_id) REFERENCES postcode (id)
 );
-ALTER TABLE address
-ADD CONSTRAINT fk_postcode_address FOREIGN KEY (postcode_id) REFERENCES postcode (id);
 
 -- PROVINCE
 INSERT INTO province (name) VALUES ('กระบี่');
