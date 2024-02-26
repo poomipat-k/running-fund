@@ -49,7 +49,7 @@ type MockProjectStore struct {
 	GetReviewPeriodFunc           func() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetailsFunc func(userId int, projectCode string) (projects.ProjectReviewDetails, error)
 	GetProjectCriteriaFunc        func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	AddProjectFunc                func(addProject projects.AddProjectRequest, userId int, attachments []projects.DetailsFiles) (int, error)
+	AddProjectFunc                func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error)
 	GetApplicantCriteriaFunc      func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 }
 
@@ -73,6 +73,6 @@ func (m *MockProjectStore) GetApplicantCriteria(version int) ([]projects.Applica
 	return m.GetApplicantCriteriaFunc(version)
 }
 
-func (m *MockProjectStore) AddProject(addProject projects.AddProjectRequest, userId int, attachments []projects.DetailsFiles) (int, error) {
-	return m.AddProjectFunc(addProject, userId, attachments)
+func (m *MockProjectStore) AddProject(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error) {
+	return m.AddProjectFunc(addProject, userId, criteria, attachments)
 }

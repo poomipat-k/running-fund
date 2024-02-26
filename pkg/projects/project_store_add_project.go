@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []DetailsFiles) (int, error) {
+func (s *store) AddProject(payload AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []DetailsFiles) (int, error) {
 	projectCode, err := s.generateProjectCode()
 	log.Println("====projectCode", projectCode)
 	if err != nil {
@@ -98,11 +98,17 @@ func (s *store) AddProject(payload AddProjectRequest, userId int, attachments []
 	log.Println("==projectHistoryId", projectHistoryId)
 
 	// Add distance
-	rowsAffected, err := addDistances(ctx, tx, payload, projectHistoryId)
+	distanceRowsAffected, err := addDistances(ctx, tx, payload, projectHistoryId)
 	if err != nil {
 		return failAdd(err)
 	}
-	log.Println("==rowsAffected", rowsAffected)
+	log.Println("==distanceRowsAffected", distanceRowsAffected)
+	// Add applicant scores
+	applicantScoreRowsAffected, err := addApplicantScores(ctx, tx, payload, projectHistoryId, criteria)
+	if err != nil {
+		return failAdd(err)
+	}
+	log.Println("==applicantScoreRowsAffected", applicantScoreRowsAffected)
 
 	// // upload files
 	// for _, files := range attachments {
@@ -278,6 +284,43 @@ func getTimeLocation() (*time.Location, error) {
 }
 
 func addDistances(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectHistoryId int) (int64, error) {
+	dis := payload.General.EventDetails.DistanceAndFee
+	checkedDistances := []DistanceAndFee{}
+	for i := 0; i < len(dis); i++ {
+		if dis[i].Checked {
+			checkedDistances = append(checkedDistances, dis[i])
+		}
+	}
+
+	valuesStrStatement := []string{}
+	values := []any{}
+
+	for i := 0; i < len(checkedDistances); i++ {
+		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
+		values = append(values, checkedDistances[i].Type, checkedDistances[i].Fee, checkedDistances[i].Dynamic, projectHistoryId)
+	}
+	customSQL := addManyDistanceSQL + strings.Join(valuesStrStatement, ",") + ";"
+	stmt, err := tx.Prepare(customSQL)
+	if err != nil {
+		return 0, err
+	}
+	result, err := stmt.ExecContext(ctx, values...)
+	if err != nil {
+		return 0, err
+	}
+	log.Println("====result")
+	log.Println(result)
+
+	return result.RowsAffected()
+}
+
+func addApplicantScores(
+	ctx context.Context,
+	tx *sql.Tx,
+	payload AddProjectRequest,
+	projectHistoryId int,
+	criteria []ApplicantSelfScoreCriteria,
+) (int64, error) {
 	dis := payload.General.EventDetails.DistanceAndFee
 	checkedDistances := []DistanceAndFee{}
 	for i := 0; i < len(dis); i++ {
