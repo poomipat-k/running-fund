@@ -103,15 +103,14 @@ func (s *store) AddProject(
 	}
 	// upload files
 	for _, files := range attachments {
-		err = s.awsS3Service.UploadToS3(files.Files, fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName))
+		folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
+		err = s.awsS3Service.UploadToS3(files.Files, folder)
 		if err != nil {
-			slog.Error("Failed to upload files to s3", "dirName", files.DirName, "error", err.Error())
+			slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
 			return 0, err
 		}
 	}
 
-	time.Sleep(3 * time.Second)
-	err = tx.Commit()
 	if err != nil {
 		return failAdd("tx.Commit()", err)
 	}
