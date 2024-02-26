@@ -77,18 +77,14 @@ INSERT INTO contact
 VALUES ($1, $2, $3) RETURNING id;
 `
 
+const updateProjectProjectHistoryIdSQL = `
+UPDATE project SET project_history_id = $1 WHERE id = $2;
+`
+
 const addProjectSQL = `
 INSERT INTO project
 (project_code, created_at, user_id)
 VALUES ($1, $2, $3) RETURNING id;
-`
-
-const addManyDistanceSQL = `
-INSERT INTO distance (type, fee, is_dynamic, project_history_id) VALUES 
-`
-
-const addManyApplicantScoreSQL = `
-INSERT INTO applicant_score (project_history_id, applicant_criteria_id, score) VALUES 
 `
 
 const addProjectHistorySQL = `
@@ -205,4 +201,12 @@ INSERT INTO project_history
 	$75, $76, $77, $78, $79, $80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $90, $91, $92, 
 	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102, $103
 ) RETURNING id;
+`
+
+const addManyDistanceSQL = `
+INSERT INTO distance (type, fee, is_dynamic, project_history_id) VALUES 
+`
+
+const addManyApplicantScoreSQL = `
+INSERT INTO applicant_score (project_history_id, applicant_criteria_id, score) VALUES 
 `

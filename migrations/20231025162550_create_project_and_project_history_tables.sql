@@ -1,14 +1,5 @@
 -- +goose Up
 -- TABLES
-CREATE TABLE project (
-  id SERIAL PRIMARY KEY NOT NULL,
-  project_code VARCHAR(255) UNIQUE NOT NULL,
-  created_at  TIMESTAMP WITH TIME ZONE NOT NULL  DEFAULT now(),
-  project_history_id INT,
-  user_id INT
-  
-);
-
 CREATE TABLE project_history(
   id SERIAL PRIMARY KEY NOT NULL,
   project_code VARCHAR(255)  NOT NULL,
@@ -16,14 +7,13 @@ CREATE TABLE project_history(
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   download_link VARCHAR(512),
   admin_comment VARCHAR(512),
-  project_id INT,
   -- STEP 0
   collaborated BOOLEAN NOT NULL,
   -- STEP 1
   project_name VARCHAR(512) NOT NULL,
   from_date TIMESTAMP WITH TIME ZONE NOT NULL,
   to_date TIMESTAMP WITH TIME ZONE NOT NULL,
-  address_id INT,
+  address_id INT, CONSTRAINT fk_project_history_address FOREIGN KEY (address_id) REFERENCES address (id),
   start_point VARCHAR(255) NOT NULL,
   finish_point VARCHAR(255) NOT NULL,
   cat_road_race BOOLEAN NOT NULL,
@@ -35,10 +25,10 @@ CREATE TABLE project_history(
   has_organizer BOOLEAN NOT NULL,
   organizer_name VARCHAR(255) NOT NULL,
   -- STEP 2
-  project_head_contact_id INT,
-  project_manager_contact_id INT,
-  project_coordinator_contact_id INT,
-  project_race_director_contact_id INT,
+  project_head_contact_id INT, CONSTRAINT fk_project_history_contact_project_head FOREIGN KEY (project_head_contact_id) REFERENCES contact(id),
+  project_manager_contact_id INT, CONSTRAINT fk_project_history_contact_project_manager FOREIGN KEY (project_manager_contact_id) REFERENCES contact(id),
+  project_coordinator_contact_id INT, CONSTRAINT fk_project_history_contact_project_coordinator FOREIGN KEY (project_coordinator_contact_id) REFERENCES contact(id),
+  project_race_director_contact_id INT, CONSTRAINT fk_project_history_contact_project_race_director FOREIGN KEY (project_race_director_contact_id) REFERENCES contact(id),
   organization_type VARCHAR(255) NOT NULL,
   organization_name VARCHAR(255) NOT NULL,
   -- STEP 3
@@ -125,27 +115,24 @@ CREATE TABLE project_history(
   files_prefix VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE project (
+  id SERIAL PRIMARY KEY NOT NULL,
+  project_code VARCHAR(255) UNIQUE NOT NULL,
+  created_at  TIMESTAMP WITH TIME ZONE NOT NULL  DEFAULT now(),
+  project_history_id INT ,CONSTRAINT fk_project_project_history FOREIGN KEY(project_history_id) REFERENCES project_history (id),
+  user_id INT ,CONSTRAINT fk_project_users FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
 CREATE TABLE distance(
   id SERIAL PRIMARY KEY NOT NULL,
   type VARCHAR(255) NOT NULL,
   fee FLOAT NOT NULL,
   is_dynamic BOOLEAN NOT NULL,
-  project_history_id INT
+  project_history_id INT,
+  CONSTRAINT fk_distance_project_history FOREIGN KEY (project_history_id) REFERENCES project_history (id)
 );
 
--- CONSTRAINTS
-ALTER TABLE project ADD CONSTRAINT fk_project_history_project FOREIGN KEY (project_history_id) REFERENCES project_history (id);
-ALTER TABLE project ADD CONSTRAINT fk_users_project FOREIGN KEY (user_id) REFERENCES users (id);
-
-ALTER TABLE project_history ADD CONSTRAINT fk_project_project_history FOREIGN KEY (project_id) REFERENCES project(id);
-ALTER TABLE project_history ADD CONSTRAINT fk_address_project_history FOREIGN KEY (address_id) REFERENCES address (id);
-ALTER TABLE project_history ADD CONSTRAINT fk_contact_project_history_project_head FOREIGN KEY (project_head_contact_id) REFERENCES contact(id);
-ALTER TABLE project_history ADD CONSTRAINT fk_contact_project_history_project_manager FOREIGN KEY (project_manager_contact_id) REFERENCES contact(id);
-ALTER TABLE project_history ADD CONSTRAINT fk_contact_project_history_project_coordinator FOREIGN KEY (project_coordinator_contact_id) REFERENCES contact(id);
-ALTER TABLE project_history ADD CONSTRAINT fk_contact_project_history_project_race_director FOREIGN KEY (project_race_director_contact_id) REFERENCES contact(id);
-
-ALTER TABLE distance ADD CONSTRAINT fk_project_history_distance FOREIGN KEY (project_history_id) REFERENCES project_history (id);
-
+-- INDEX
 CREATE INDEX project_created_at ON project (created_at);
 
 -- +goose Down
@@ -153,7 +140,6 @@ ALTER TABLE project DROP COLUMN project_history_id;
 ALTER TABLE project DROP COLUMN user_id;
 
 ALTER TABLE project_history DROP COLUMN address_id;
-ALTER TABLE project_history DROP COLUMN project_id;
 ALTER TABLE project_history DROP COLUMN project_head_contact_id;
 ALTER TABLE project_history DROP COLUMN project_manager_contact_id;
 ALTER TABLE project_history DROP COLUMN project_coordinator_contact_id;
