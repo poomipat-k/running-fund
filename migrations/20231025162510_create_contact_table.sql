@@ -6,7 +6,7 @@ CREATE TABLE contact (
   last_name VARCHAR(255) NOT NULL,
   organization_position VARCHAR(255),
   event_position VARCHAR(255),
-  address_id INT, CONSTRAINT fk_contact_address FOREIGN KEY (address_id) REFERENCES address (id),
+  address_id INT REFERENCES address (id),
   email VARCHAR(255),
   line_id VARCHAR(255),
   phone_number VARCHAR(64)

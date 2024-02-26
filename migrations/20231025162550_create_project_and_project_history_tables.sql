@@ -25,10 +25,10 @@ CREATE TABLE project_history(
   has_organizer BOOLEAN NOT NULL,
   organizer_name VARCHAR(255) NOT NULL,
   -- STEP 2
-  project_head_contact_id INT, CONSTRAINT fk_project_history_contact_project_head FOREIGN KEY (project_head_contact_id) REFERENCES contact(id),
-  project_manager_contact_id INT, CONSTRAINT fk_project_history_contact_project_manager FOREIGN KEY (project_manager_contact_id) REFERENCES contact(id),
-  project_coordinator_contact_id INT, CONSTRAINT fk_project_history_contact_project_coordinator FOREIGN KEY (project_coordinator_contact_id) REFERENCES contact(id),
-  project_race_director_contact_id INT, CONSTRAINT fk_project_history_contact_project_race_director FOREIGN KEY (project_race_director_contact_id) REFERENCES contact(id),
+  project_head_contact_id INT REFERENCES contact(id),
+  project_manager_contact_id INT REFERENCES contact(id),
+  project_coordinator_contact_id INT REFERENCES contact(id),
+  project_race_director_contact_id INT REFERENCES contact(id),
   organization_type VARCHAR(255) NOT NULL,
   organization_name VARCHAR(255) NOT NULL,
   -- STEP 3

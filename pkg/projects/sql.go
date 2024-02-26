@@ -77,14 +77,10 @@ INSERT INTO contact
 VALUES ($1, $2, $3) RETURNING id;
 `
 
-const updateProjectProjectHistoryIdSQL = `
-UPDATE project SET project_history_id = $1 WHERE id = $2;
-`
-
 const addProjectSQL = `
 INSERT INTO project
-(project_code, created_at, user_id)
-VALUES ($1, $2, $3) RETURNING id;
+(project_code, created_at, project_history_id, user_id)
+VALUES ($1, $2, $3, $4) RETURNING id;
 `
 
 const addProjectHistorySQL = `
