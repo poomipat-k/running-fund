@@ -7,6 +7,7 @@ CREATE TABLE project_history(
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   status VARCHAR(255) NOT NULL,
+  fund_approved_amount BIGINT,
   download_link VARCHAR(512),
   admin_comment VARCHAR(512),
   -- STEP 0
@@ -135,6 +136,7 @@ CREATE TABLE distance(
 
 -- INDEX
 CREATE INDEX project_created_at ON project (created_at);
+CREATE INDEX project_user_id ON project (user_id);
 
 -- +goose Down
 ALTER TABLE project DROP COLUMN project_history_id;

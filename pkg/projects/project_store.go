@@ -13,6 +13,7 @@ import (
 )
 
 const applicantCriteriaCachePrefix = "applicant_criteria"
+const reviewerCriteriaCachePrefix = "reviewer_criteria"
 
 type store struct {
 	db           *sql.DB
@@ -274,10 +275,20 @@ func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreC
 }
 
 func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error) {
-	// TODO: cache criteria
 	if criteriaVersion == 0 {
 		criteriaVersion = 1
 	}
+	// check cache
+	cacheKey := fmt.Sprintf("%s_%d", reviewerCriteriaCachePrefix, criteriaVersion)
+	raw, found := s.c.Get(cacheKey)
+	if found {
+		cachedData, ok := raw.([]ProjectReviewCriteria)
+		if ok {
+			return cachedData, nil
+		}
+	}
+
+	// Check db
 	rows, err := s.db.Query(getProjectCriteriaSQL, criteriaVersion)
 	if err != nil {
 		return nil, err
@@ -306,7 +317,6 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 		if displayText.Valid {
 			row.DisplayText = displayText.String
 		}
-
 		data = append(data, row)
 	}
 	// get any error occur during iteration
@@ -316,6 +326,49 @@ func (s *store) GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria
 	}
 	if len(data) == 0 {
 		return nil, errors.New("criteria version not found")
+	}
+	if len(data) > 0 {
+		s.c.Set(cacheKey, data, cache.NoExpiration)
+	}
+	return data, nil
+}
+
+func (s *store) GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error) {
+	// getAllProjectDashboardByApplicantIdSQL
+	rows, err := s.db.Query(getAllProjectDashboardByApplicantIdSQL, applicantId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ApplicantDashboardItem
+	for rows.Next() {
+		var row ApplicantDashboardItem
+		// // Nullable columns
+		// var reviewId sql.NullInt64
+		// var reviewedAt sql.NullTime
+		// var download sql.NullString
+		err = rows.Scan(&row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &row.ProjectStatus, &row.ProjectUpdatedAt, &row.AdminComment, &row.ReviewerComment)
+		if err != nil {
+			return nil, err
+		}
+		// // Check Nullable columns
+		// if reviewId.Valid {
+		// 	row.ReviewId = int(reviewId.Int64)
+		// }
+		// if reviewedAt.Valid {
+		// 	row.ReviewedAt = &reviewedAt.Time
+		// }
+		// if download.Valid {
+		// 	row.DownloadLink = download.String
+		// }
+
+		data = append(data, row)
+	}
+	// get any error encountered during iteration
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 	return data, nil
 }
