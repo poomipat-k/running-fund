@@ -208,3 +208,18 @@ INSERT INTO distance (type, fee, is_dynamic, project_history_id) VALUES
 const addManyApplicantScoreSQL = `
 INSERT INTO applicant_score (project_history_id, applicant_criteria_id, score) VALUES 
 `
+const getAllProjectDashboardByApplicantIdSQL = `
+SELECT
+project.project_code as project_code,
+project.created_at as project_created_at,
+project_history.project_name as project_name,
+project_history.status as project_status,
+project_history.updated_at as latest_status_date,
+project_history.admin_comment as admin_comment,
+review.comment as reviewer_comment
+FROM project
+INNER JOIN project_history ON project.project_history_id = project_history.id LEFT JOIN review ON project.project_history_id = review.project_history_id
+WHERE project.user_id = $1
+ORDER BY project.created_at DESC
+;
+`
