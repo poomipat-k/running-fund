@@ -25,6 +25,7 @@ type projectStore interface {
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []DetailsFiles) (int, error)
+	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
 }
 
 type ProjectHandler struct {
@@ -134,6 +135,22 @@ func (h *ProjectHandler) GetApplicantCriteria(w http.ResponseWriter, r *http.Req
 	}
 
 	utils.WriteJSON(w, http.StatusOK, criteria)
+}
+
+func (h *ProjectHandler) GetAllProjectDashboardByApplicantId(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
+		return
+	}
+	data, err := h.store.GetAllProjectDashboardByApplicantId(userId)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, data)
 }
 
 // ADD PROJECT START

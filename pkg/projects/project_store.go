@@ -345,23 +345,19 @@ func (s *store) GetAllProjectDashboardByApplicantId(applicantId int) ([]Applican
 	for rows.Next() {
 		var row ApplicantDashboardItem
 		// // Nullable columns
-		// var reviewId sql.NullInt64
-		// var reviewedAt sql.NullTime
-		// var download sql.NullString
-		err = rows.Scan(&row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &row.ProjectStatus, &row.ProjectUpdatedAt, &row.AdminComment, &row.ReviewerComment)
+		var adminComment sql.NullString
+		var reviewerComment sql.NullString
+		err = rows.Scan(&row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &row.ProjectStatus, &row.ProjectUpdatedAt, &adminComment, &reviewerComment)
 		if err != nil {
 			return nil, err
 		}
-		// // Check Nullable columns
-		// if reviewId.Valid {
-		// 	row.ReviewId = int(reviewId.Int64)
-		// }
-		// if reviewedAt.Valid {
-		// 	row.ReviewedAt = &reviewedAt.Time
-		// }
-		// if download.Valid {
-		// 	row.DownloadLink = download.String
-		// }
+		// Check Nullable columns
+		if adminComment.Valid {
+			row.AdminComment = adminComment.String
+		}
+		if reviewerComment.Valid {
+			row.ReviewerComment = reviewerComment.String
+		}
 
 		data = append(data, row)
 	}
