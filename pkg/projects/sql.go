@@ -11,7 +11,7 @@ FROM project
 INNER JOIN project_history
 ON project.project_history_id = project_history.id
 LEFT JOIN review
-ON project.project_history_id = review.project_history_id AND user_id = $1
+ON project.project_history_id = review.project_history_id AND review.user_id = $1
 WHERE project.created_at >= $2
 AND project.created_at < $3
 ORDER BY project_name;
@@ -24,7 +24,7 @@ improvement.fund_and_output, improvement.project_quality, improvement.project_st
 improvement.vision_and_image
 FROM project
 INNER JOIN project_history ON project.project_history_id = project_history.id
-LEFT JOIN review ON project.project_history_id = review.project_history_id AND user_id = $1
+LEFT JOIN review ON project.project_history_id = review.project_history_id AND review.user_id = $1
 LEFT JOIN improvement ON review.improvement_id = improvement.id
 WHERE project.project_code = $2
 LIMIT 1;
@@ -89,6 +89,8 @@ INSERT INTO project_history
 	project_code,
 	project_version,
 	created_at,
+	updated_at,
+	status,
 	collaborated,
 	project_name,
 	from_date,
@@ -195,7 +197,7 @@ INSERT INTO project_history
 	$39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, 
 	$57, $58, $59, $60, $61, $62, $63, $64, $65, $66, $67, $68, $69, $70, $71, $72, $73, $74, 
 	$75, $76, $77, $78, $79, $80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $90, $91, $92, 
-	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102, $103
+	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102, $103, $104, $105
 ) RETURNING id;
 `
 

@@ -111,10 +111,12 @@ func (s *store) AddProject(
 	// 	}
 	// }
 
+	err = tx.Commit()
 	if err != nil {
 		return failAdd("tx.Commit()", err)
 	}
 	// commit
+	slog.Info("success adding a new project", "projectCode", projectCode)
 	return projectId, nil
 }
 
@@ -154,7 +156,9 @@ func addProjectHistory(
 		addProjectHistorySQL,
 		projectCode,
 		1,
-		now,
+		now,         // created_at
+		now,         // updated_at
+		"reviewing", // status
 		payload.Collaborated,
 		payload.General.ProjectName,
 		fromDate,

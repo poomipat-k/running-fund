@@ -62,8 +62,8 @@ func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
 }
 
 // Get project [fromDate, toDate)
-func (s *store) GetReviewerDashboard(userId int, fromDate, toDate time.Time) ([]ReviewDashboardRow, error) {
-	rows, err := s.db.Query(getReviewerDashboardSQL, userId, fromDate, toDate)
+func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time) ([]ReviewDashboardRow, error) {
+	rows, err := s.db.Query(getReviewerDashboardSQL, reviewerId, fromDate, toDate)
 	if err != nil {
 		return nil, err
 	}
