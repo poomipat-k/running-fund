@@ -21,7 +21,7 @@ const MAX_UPLOAD_SIZE = 25 * 1024 * 1024 // 25MB
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
 	GetReviewPeriod() (ReviewPeriod, error)
-	GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error)
+	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetails, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []DetailsFiles) (int, error)
@@ -68,7 +68,7 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 }
 
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
-	userId, err := utils.GetUserIdFromRequestHeader(r)
+	reviewerId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId")
@@ -86,7 +86,7 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		utils.ErrorJSON(w, err, "projectCode")
 		return
 	}
-	projectDetails, err := h.store.GetReviewerProjectDetails(userId, projectCode)
+	projectDetails, err := h.store.GetReviewerProjectDetails(reviewerId, projectCode)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "")

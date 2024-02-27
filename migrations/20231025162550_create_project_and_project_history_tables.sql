@@ -2,9 +2,11 @@
 -- TABLES
 CREATE TABLE project_history(
   id SERIAL PRIMARY KEY NOT NULL,
-  project_code VARCHAR(255)  NOT NULL,
+  project_code VARCHAR(255) NOT NULL,
   project_version  SMALLINT DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  status VARCHAR(255) NOT NULL,
   download_link VARCHAR(512),
   admin_comment VARCHAR(512),
   -- STEP 0
