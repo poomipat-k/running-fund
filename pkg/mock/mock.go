@@ -45,12 +45,13 @@ func (m *MockUserStore) ResetPassword(resetPasswordCode string, newPassword stri
 
 // projects
 type MockProjectStore struct {
-	GetReviewerDashboardFunc      func(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
-	GetReviewPeriodFunc           func() (projects.ReviewPeriod, error)
-	GetReviewerProjectDetailsFunc func(userId int, projectCode string) (projects.ProjectReviewDetails, error)
-	GetProjectCriteriaFunc        func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	AddProjectFunc                func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error)
-	GetApplicantCriteriaFunc      func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
+	GetReviewerDashboardFunc                func(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
+	GetReviewPeriodFunc                     func() (projects.ReviewPeriod, error)
+	GetReviewerProjectDetailsFunc           func(userId int, projectCode string) (projects.ProjectReviewDetails, error)
+	GetProjectCriteriaFunc                  func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
+	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error)
+	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
+	GetAllProjectDashboardByApplicantIdFunc func(applicantId int) ([]projects.ApplicantDashboardItem, error)
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -75,4 +76,8 @@ func (m *MockProjectStore) GetApplicantCriteria(version int) ([]projects.Applica
 
 func (m *MockProjectStore) AddProject(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error) {
 	return m.AddProjectFunc(addProject, userId, criteria, attachments)
+}
+
+func (m *MockProjectStore) GetAllProjectDashboardByApplicantId(applicantId int) ([]projects.ApplicantDashboardItem, error) {
+	return m.GetAllProjectDashboardByApplicantIdFunc(applicantId)
 }
