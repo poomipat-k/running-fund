@@ -3,11 +3,11 @@ package projects
 import "time"
 
 type ApplicantDashboardItem struct {
-	ProjectCode      string    `json:"project_code,omitempty"`
-	ProjectCreatedAt time.Time `json:"project_created_at,omitempty"`
-	ProjectName      string    `json:"project_name,omitempty"`
-	ProjectStatus    string    `json:"project_status,omitempty"`
-	ProjectUpdatedAt time.Time `json:"project_updated_at,omitempty"`
-	AdminComment     string    `json:"admin_comment,omitempty"`
-	ReviewerComment  string    `json:"reviewer_comment,omitempty"`
+	ProjectId        int       `json:"projectId,omitempty"`
+	ProjectCode      string    `json:"projectCode,omitempty"`
+	ProjectCreatedAt time.Time `json:"projectCreatedAt,omitempty"`
+	ProjectName      string    `json:"projectName,omitempty"`
+	ProjectStatus    string    `json:"projectStatus,omitempty"`
+	ProjectUpdatedAt time.Time `json:"projectUpdatedAt,omitempty"`
+	AdminComment     string    `json:"adminComment,omitempty"`
 }
