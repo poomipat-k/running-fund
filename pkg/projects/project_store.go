@@ -346,17 +346,13 @@ func (s *store) GetAllProjectDashboardByApplicantId(applicantId int) ([]Applican
 		var row ApplicantDashboardItem
 		// // Nullable columns
 		var adminComment sql.NullString
-		var reviewerComment sql.NullString
-		err = rows.Scan(&row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &row.ProjectStatus, &row.ProjectUpdatedAt, &adminComment, &reviewerComment)
+		err = rows.Scan(&row.ProjectId, &row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &row.ProjectStatus, &row.ProjectUpdatedAt, &adminComment)
 		if err != nil {
 			return nil, err
 		}
 		// Check Nullable columns
 		if adminComment.Valid {
 			row.AdminComment = adminComment.String
-		}
-		if reviewerComment.Valid {
-			row.ReviewerComment = reviewerComment.String
 		}
 
 		data = append(data, row)
