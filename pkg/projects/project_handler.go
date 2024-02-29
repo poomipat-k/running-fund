@@ -240,12 +240,11 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
-		BucketName string `json:"bucketName"`
-		Prefix     string `json:"prefix"`
+		Prefix string `json:"prefix"`
 	}
 
 	utils.ReadJSON(w, r, &payload)
-	objects, err := h.awsS3Service.ListObjects(payload.BucketName, payload.Prefix)
+	objects, err := h.awsS3Service.ListObjects(os.Getenv("AWS_S3_BUCKET_NAME"), payload.Prefix)
 	if err != nil {
 		utils.ErrorJSON(w, err, "")
 		return
