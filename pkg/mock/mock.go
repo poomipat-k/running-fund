@@ -47,7 +47,7 @@ func (m *MockUserStore) ResetPassword(resetPasswordCode string, newPassword stri
 type MockProjectStore struct {
 	GetReviewerDashboardFunc                func(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
 	GetReviewPeriodFunc                     func() (projects.ReviewPeriod, error)
-	GetReviewerProjectDetailsFunc           func(userId int, projectCode string) (projects.ProjectReviewDetails, error)
+	GetReviewerProjectDetailsFunc           func(userId int, projectCode string) (projects.ProjectReviewDetailsResponse, error)
 	GetProjectCriteriaFunc                  func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
 	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error)
 	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
@@ -62,7 +62,7 @@ func (m *MockProjectStore) GetReviewPeriod() (projects.ReviewPeriod, error) {
 	return m.GetReviewPeriodFunc()
 }
 
-func (m *MockProjectStore) GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetails, error) {
+func (m *MockProjectStore) GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetailsResponse, error) {
 	return m.GetReviewerProjectDetailsFunc(userId, projectCode)
 }
 

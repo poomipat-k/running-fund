@@ -102,108 +102,166 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 	return data, nil
 }
 
-func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetails, error) {
-	var details ProjectReviewDetails
-	row := s.db.QueryRow(getReviewerProjectDetailsSQL, userId, projectCode)
-	// Nullable
-	var reviewId sql.NullInt64
-	var reviewedAt sql.NullTime
-	var isInterestedPerson sql.NullBool
-	var interestedPersonType sql.NullString
-	var reviewSummary sql.NullString
-	var reviewerComment sql.NullString
-	var benefit sql.NullBool
-	var exp sql.NullBool
-	var fund sql.NullBool
-	var projectQuality sql.NullBool
-	var projectStandard sql.NullBool
-	var vision sql.NullBool
-	err := row.Scan(
-		&details.ProjectId,
-		&details.ProjectHistoryId,
-		&details.ProjectCode,
-		&details.ProjectCreatedAt,
-		&details.ProjectName,
-		&reviewId,
-		&reviewedAt,
-		&isInterestedPerson,
-		&interestedPersonType,
-		&reviewSummary,
-		&reviewerComment,
-		&benefit,
-		&exp,
-		&fund,
-		&projectQuality,
-		&projectStandard,
-		&vision,
-	)
-	if reviewId.Valid {
-		details.ReviewId = int(reviewId.Int64)
+func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetailsResponse, error) {
+	rows, err := s.db.Query(getReviewerProjectDetailsSQL, userId, projectCode)
+	if err != nil {
+		return ProjectReviewDetailsResponse{}, err
 	}
-	if reviewedAt.Valid {
-		details.ReviewedAt = &reviewedAt.Time
-	}
-	if isInterestedPerson.Valid {
-		details.IsInterestedPerson = &isInterestedPerson.Bool
-	}
-	if interestedPersonType.Valid {
-		details.InterestedPersonType = interestedPersonType.String
-	}
-	if reviewerComment.Valid {
-		details.ReviewerComment = reviewerComment.String
-	}
+	defer rows.Close()
 
-	if details.ReviewId > 0 {
-		rd, err := s.GetReviewDetailsByReviewId(details.ReviewId)
+	var data []ProjectReviewDetailsRow
+	var distances []DistanceAndFee
+	for rows.Next() {
+		var row ProjectReviewDetailsRow
+		// Nullable columns
+		var reviewId sql.NullInt64
+		var reviewedAt sql.NullTime
+		var isInterestedPerson sql.NullBool
+		var interestedPersonType sql.NullString
+		var reviewSummary sql.NullString
+		var reviewerComment sql.NullString
+		var benefit sql.NullBool
+		var exp sql.NullBool
+		var fund sql.NullBool
+		var projectQuality sql.NullBool
+		var projectStandard sql.NullBool
+		var vision sql.NullBool
+		err = rows.Scan(
+			&row.ProjectId,
+			&row.ProjectHistoryId,
+			&row.ProjectCode,
+			&row.ProjectCreatedAt,
+			&row.ProjectName,
+			&row.ProjectHeadPrefix,
+			&row.ProjectHeadFirstName,
+			&row.ProjectHeadLastName,
+			&row.FromDate,
+			&row.ToDate,
+			&row.Address,
+			&row.ProvinceName,
+			&row.DistrictName,
+			&row.SubdistrictName,
+			&row.DistanceType,
+			&row.DistanceDynamic,
+			&row.ExpectedParticipants,
+			&row.Collaborated,
+			&reviewId,
+			&reviewedAt,
+			&isInterestedPerson,
+			&interestedPersonType,
+			&reviewSummary,
+			&reviewerComment,
+			&benefit,
+			&exp,
+			&fund,
+			&projectQuality,
+			&projectStandard,
+			&vision,
+		)
 		if err != nil {
 			slog.Error(err.Error())
-			return ProjectReviewDetails{}, err
+			return ProjectReviewDetailsResponse{}, err
 		}
-		details.ReviewDetails = rd
+
+		if reviewId.Valid {
+			row.ReviewId = int(reviewId.Int64)
+		}
+		if reviewedAt.Valid {
+			row.ReviewedAt = &reviewedAt.Time
+		}
+		if isInterestedPerson.Valid {
+			row.IsInterestedPerson = &isInterestedPerson.Bool
+		}
+		if interestedPersonType.Valid {
+			row.InterestedPersonType = interestedPersonType.String
+		}
+		if reviewerComment.Valid {
+			row.ReviewerComment = reviewerComment.String
+		}
+
+		if row.ReviewId > 0 {
+			rd, err := s.GetReviewDetailsByReviewId(row.ReviewId)
+			if err != nil {
+				slog.Error(err.Error())
+				return ProjectReviewDetailsResponse{}, err
+			}
+			row.ReviewDetails = rd
+		}
+		if reviewSummary.Valid {
+			row.ReviewSummary = reviewSummary.String
+		}
+		imp := &ReviewImprovement{}
+		hasImprovement := false
+		if benefit.Valid {
+			hasImprovement = true
+			imp.Benefit = &benefit.Bool
+		}
+		if exp.Valid {
+			hasImprovement = true
+			imp.ExperienceAndReliability = &exp.Bool
+		}
+		if fund.Valid {
+			hasImprovement = true
+			imp.FundAndOutput = &fund.Bool
+		}
+		if projectQuality.Valid {
+			hasImprovement = true
+			imp.ProjectQuality = &projectQuality.Bool
+		}
+		if projectStandard.Valid {
+			hasImprovement = true
+			imp.ProjectStandard = &projectStandard.Bool
+		}
+		if vision.Valid {
+			hasImprovement = true
+			imp.VisionAndImage = &vision.Bool
+		}
+		if hasImprovement {
+			row.ReviewImprovement = imp
+		}
+
+		distance := DistanceAndFee{
+			Type:    row.DistanceType,
+			Dynamic: &row.DistanceDynamic,
+		}
+		distances = append(distances, distance)
+		data = append(data, row)
 	}
-	if reviewSummary.Valid {
-		details.ReviewSummary = reviewSummary.String
+	err = rows.Err()
+	if err != nil {
+		return ProjectReviewDetailsResponse{}, err
 	}
-	imp := &ReviewImprovement{}
-	hasImprovement := false
-	if benefit.Valid {
-		hasImprovement = true
-		imp.Benefit = &benefit.Bool
-	}
-	if exp.Valid {
-		hasImprovement = true
-		imp.ExperienceAndReliability = &exp.Bool
-	}
-	if fund.Valid {
-		hasImprovement = true
-		imp.FundAndOutput = &fund.Bool
-	}
-	if projectQuality.Valid {
-		hasImprovement = true
-		imp.ProjectQuality = &projectQuality.Bool
-	}
-	if projectStandard.Valid {
-		hasImprovement = true
-		imp.ProjectStandard = &projectStandard.Bool
-	}
-	if vision.Valid {
-		hasImprovement = true
-		imp.VisionAndImage = &vision.Bool
-	}
-	if hasImprovement {
-		details.ReviewImprovement = imp
+	var body ProjectReviewDetailsResponse
+	if len(data) > 0 {
+		f := data[0]
+		body.ProjectId = f.ProjectId
+		body.ProjectHistoryId = f.ProjectHistoryId
+		body.ProjectCode = f.ProjectCode
+		body.ProjectCreatedAt = f.ProjectCreatedAt
+		body.ProjectName = f.ProjectName
+		body.ProjectHeadPrefix = f.ProjectHeadPrefix
+		body.ProjectHeadFirstName = f.ProjectHeadFirstName
+		body.ProjectHeadLastName = f.ProjectHeadLastName
+		body.FromDate = f.FromDate
+		body.ToDate = f.ToDate
+		body.Address = f.Address
+		body.ProvinceName = f.ProvinceName
+		body.DistrictName = f.DistrictName
+		body.SubdistrictName = f.SubdistrictName
+		body.Distances = distances
+		body.ExpectedParticipants = f.ExpectedParticipants
+		body.Collaborated = f.Collaborated
+		body.ReviewId = f.ReviewId
+		body.ReviewedAt = f.ReviewedAt
+		body.IsInterestedPerson = f.IsInterestedPerson
+		body.InterestedPersonType = f.InterestedPersonType
+		body.ReviewDetails = f.ReviewDetails
+		body.ReviewSummary = f.ReviewSummary
+		body.ReviewerComment = f.ReviewerComment
+		body.ReviewImprovement = f.ReviewImprovement
 	}
 
-	switch err {
-	case sql.ErrNoRows:
-		slog.Error("GetReviewerProjectDetails() no row were returned!")
-		return ProjectReviewDetails{}, err
-	case nil:
-		return details, nil
-	default:
-		slog.Error(err.Error())
-		return ProjectReviewDetails{}, err
-	}
+	return body, nil
 }
 
 func (s *store) GetReviewDetailsByReviewId(reviewId int) ([]ReviewDetails, error) {

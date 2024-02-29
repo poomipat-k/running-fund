@@ -86,7 +86,7 @@ func (s *store) AddProject(
 	}
 
 	// Add project
-	projectId, err := addProjectRow(ctx, tx, payload, projectCode, now, projectHistoryId, userId)
+	projectId, err := addProjectRow(ctx, tx, projectCode, now, projectHistoryId, userId)
 	if err != nil {
 		return failAdd("projectId", err)
 	}
@@ -101,15 +101,15 @@ func (s *store) AddProject(
 	if err != nil {
 		return failAdd("applicantScoreRowsAffected", err)
 	}
-	// // upload files
-	// for _, files := range attachments {
-	// 	folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
-	// 	err = s.awsS3Service.UploadToS3(files.Files, folder)
-	// 	if err != nil {
-	// 		slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
-	// 		return 0, err
-	// 	}
-	// }
+	// upload files
+	for _, files := range attachments {
+		folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
+		err = s.awsS3Service.UploadToS3(files.Files, folder)
+		if err != nil {
+			slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
+			return 0, err
+		}
+	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -158,7 +158,7 @@ func addProjectHistory(
 		1,
 		now,         // created_at
 		now,         // updated_at
-		"reviewing", // status
+		"Reviewing", // valid status: Reviewing, RevisedRequired, Approved, NotApproved
 		payload.Collaborated,
 		payload.General.ProjectName,
 		fromDate,
@@ -430,7 +430,7 @@ func addProjectRaceDirectorContactId(ctx context.Context, tx *sql.Tx, payload Ad
 	return id, nil
 }
 
-func addProjectRow(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectCode string, now time.Time, projectHistoryId int, userId int) (int, error) {
+func addProjectRow(ctx context.Context, tx *sql.Tx, projectCode string, now time.Time, projectHistoryId int, userId int) (int, error) {
 	var id int
 	err := tx.QueryRowContext(
 		ctx,
