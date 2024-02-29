@@ -21,7 +21,7 @@ const MAX_UPLOAD_SIZE = 25 * 1024 * 1024 // 25MB
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
 	GetReviewPeriod() (ReviewPeriod, error)
-	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetails, error)
+	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetailsResponse, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []DetailsFiles) (int, error)
@@ -73,11 +73,6 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId")
-		return
-	}
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "")
 		return
 	}
 

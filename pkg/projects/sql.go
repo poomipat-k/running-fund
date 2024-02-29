@@ -17,17 +17,50 @@ AND project.created_at < $3
 ORDER BY project_name;
 `
 const getReviewerProjectDetailsSQL = `
-SELECT project.id as project_id, project_history.id as project_history_id, project.project_code, project.created_at as project_created_at, project_history.project_name, 
-review.id as review_id, review.created_at as reviewed_at, review.is_interested_person, review.interested_person_type,
-review.summary as review_summary, review.comment as reviewer_comment, improvement.benefit, improvement.experience_and_reliability,
+SELECT 
+project.id as project_id, 
+project_history.id as project_history_id, 
+project.project_code, 
+project.created_at as project_created_at, 
+project_history.project_name,
+
+contact.prefix as project_head_prefix,
+contact.first_name as project_head_first_name,
+contact.last_name as project_head_last_name,
+project_history.from_date as from_date,
+project_history.to_date as to_date,
+address.address as address_details,
+province.name as province_name,
+district.name as district_name,
+subdistrict.name as subdistrict_name,
+distance.type as distance_type,
+distance.is_dynamic as distance_is_dynamic,
+project_history.expected_participants as expected_participants,
+project_history.collaborated as collaborated,
+
+review.id as review_id, 
+review.created_at as reviewed_at, 
+review.is_interested_person, 
+review.interested_person_type,
+review.summary as review_summary, 
+review.comment as reviewer_comment, 
+improvement.benefit, 
+improvement.experience_and_reliability,
 improvement.fund_and_output, improvement.project_quality, improvement.project_standard,
 improvement.vision_and_image
 FROM project
 INNER JOIN project_history ON project.project_history_id = project_history.id
+INNER JOIN contact ON project_history.project_head_contact_id = contact.id
+INNER JOIN address ON project_history.address_id = address.id
+INNER JOIN postcode ON address.postcode_id = postcode.id
+INNER JOIN subdistrict ON postcode.subdistrict_id = subdistrict.id
+INNER JOIN district ON subdistrict.district_id = district.id
+INNER JOIN province ON district.province_id = province.id
+INNER JOIN distance ON project_history.id = distance.project_history_id
+
 LEFT JOIN review ON project.project_history_id = review.project_history_id AND review.user_id = $1
 LEFT JOIN improvement ON review.improvement_id = improvement.id
-WHERE project.project_code = $2
-LIMIT 1;
+WHERE project.project_code = $2;
 `
 
 const getProjectCriteriaSQL = `
