@@ -88,7 +88,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
-		r.Post("/project/object", mw.IsApplicant(projectHandler.ListObjectsV2))
+		// TODO: remove this endpoint
+		r.Post("/project/object", mw.IsLoggedIn(projectHandler.ListObjectsV2))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)
 		r.Post("/user/password/forgot", mw.ValidateCaptcha(userHandler.ForgotPassword, captchaStore))
