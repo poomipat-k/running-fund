@@ -1,15 +1,21 @@
 package projects
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-chi/chi"
 	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
 	"github.com/poomipat-k/running-fund/pkg/users"
@@ -251,4 +257,53 @@ func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println(objects)
 	utils.WriteJSON(w, 200, objects)
+}
+
+func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
+	client := h.awsS3Service.S3Client
+	manager := manager.NewDownloader(client)
+
+	Prefix := "applicant/user_3/FEB67_2801/"
+	Bucket := os.Getenv("AWS_S3_BUCKET_NAME")
+
+	paginator := s3.NewListObjectsV2Paginator(client, &s3.ListObjectsV2Input{
+		Bucket: &Bucket,
+		Prefix: &Prefix,
+	})
+	LocalDirectory := "home/download"
+
+	for paginator.HasMorePages() {
+		page, err := paginator.NextPage(context.TODO())
+		if err != nil {
+			log.Println("===err 1")
+			utils.ErrorJSON(w, err, "")
+		}
+		for _, obj := range page.Contents {
+			if err := downloadToFile(manager, LocalDirectory, Bucket, aws.ToString(obj.Key)); err != nil {
+				log.Println("===err 2")
+				utils.ErrorJSON(w, err, "")
+			}
+		}
+	}
+}
+
+func downloadToFile(downloader *manager.Downloader, targetDirectory, bucket, key string) error {
+	// Create the directories in the path
+	file := filepath.Join(targetDirectory, key)
+	if err := os.MkdirAll(filepath.Dir(file), 0775); err != nil {
+		return err
+	}
+
+	// Set up the local file
+	fd, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	// Download the file using the AWS SDK for Go
+	fmt.Printf("Downloading s3://%s/%s to %s...\n", bucket, key, file)
+	_, err = downloader.Download(context.TODO(), fd, &s3.GetObjectInput{Bucket: &bucket, Key: &key})
+
+	return err
 }
