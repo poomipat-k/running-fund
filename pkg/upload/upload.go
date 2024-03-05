@@ -29,10 +29,19 @@ func NewS3Service(s3Client *s3.Client) *S3Service {
 	}
 }
 
+func (client *S3Service) UploadAttachments(files []*multipart.FileHeader, zipName string, objectPrefix string) error {
+	for _, fileHeader := range files {
+		if fileHeader.Size > MAX_UPLOAD_SIZE {
+			return fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+		}
+	}
+	return nil
+}
+
 func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix string) error {
 	for _, fileHeader := range files {
 		if fileHeader.Size > MAX_UPLOAD_SIZE {
-			return fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 32MB in size", fileHeader.Filename)
+			return fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
 		}
 
 		file, err := fileHeader.Open()

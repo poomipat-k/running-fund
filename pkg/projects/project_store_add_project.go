@@ -13,7 +13,7 @@ func (s *store) AddProject(
 	payload AddProjectRequest,
 	userId int,
 	criteria []ApplicantSelfScoreCriteria,
-	attachments []DetailsFiles,
+	attachments []Attachments,
 ) (int, error) {
 	projectCode, err := s.generateProjectCode()
 	if err != nil {
@@ -33,7 +33,6 @@ func (s *store) AddProject(
 
 	now := time.Now()
 	// Add address rows
-
 	addressId, err := addGeneralAddress(ctx, tx, payload)
 	if err != nil {
 		return failAdd("addressId", err)
@@ -101,15 +100,17 @@ func (s *store) AddProject(
 	if err != nil {
 		return failAdd("applicantScoreRowsAffected", err)
 	}
-	// upload files
-	for _, files := range attachments {
-		folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
-		err = s.awsS3Service.UploadToS3(files.Files, folder)
-		if err != nil {
-			slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
-			return 0, err
-		}
-	}
+	// // upload files
+	// for _, files := range attachments {
+	// 	folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
+	// 	err = s.awsS3Service.UploadToS3(files.Files, folder)
+	// 	if err != nil {
+	// 		slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
+	// 		return 0, err
+	// 	}
+	// }
+
+	// err := s.awsS3Service.UploadAttachments(zipName, objectPrefix)
 
 	err = tx.Commit()
 	if err != nil {

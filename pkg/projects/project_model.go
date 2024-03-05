@@ -110,8 +110,9 @@ type ApplicantSelfScoreCriteria struct {
 	Display         string `json:"display,omitempty"`
 }
 
-type DetailsFiles struct {
+type Attachments struct {
 	DirName string
+	ZipName string
 	Files   []*multipart.FileHeader
 }
 
