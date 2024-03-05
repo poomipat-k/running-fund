@@ -17,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-chi/chi"
+
 	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
@@ -30,7 +31,7 @@ type projectStore interface {
 	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetailsResponse, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
-	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []DetailsFiles) (int, error)
+	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []Attachments) (int, error)
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
 }
 
@@ -187,29 +188,35 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
 	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
-	attachments := []DetailsFiles{
+	attachments := []Attachments{
 		{
 			DirName: "collaboration",
+			ZipName: "collaboration",
 			Files:   collaborateFiles,
 		},
 		{
-			DirName: "attachment/marketing",
+			DirName: "attachments/marketing",
+			ZipName: "attachments",
 			Files:   marketingFiles,
 		},
 		{
-			DirName: "attachment/route",
+			DirName: "attachments/route",
+			ZipName: "attachments",
 			Files:   routeFiles,
 		},
 		{
-			DirName: "attachment/eventMap",
+			DirName: "attachments/eventMap",
+			ZipName: "attachments",
 			Files:   eventMapFiles,
 		},
 		{
-			DirName: "attachment/eventDetails",
+			DirName: "attachments/eventDetails",
+			ZipName: "attachments",
 			Files:   eventDetailsFiles,
 		},
 		{
-			DirName: "attachment/form",
+			DirName: "attachments/form",
+			ZipName: "attachments",
 			Files:   screenshotFiles,
 		},
 	}

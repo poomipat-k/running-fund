@@ -49,7 +49,7 @@ type MockProjectStore struct {
 	GetReviewPeriodFunc                     func() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetailsFunc           func(userId int, projectCode string) (projects.ProjectReviewDetailsResponse, error)
 	GetProjectCriteriaFunc                  func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
-	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error)
+	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.Attachments) (int, error)
 	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 	GetAllProjectDashboardByApplicantIdFunc func(applicantId int) ([]projects.ApplicantDashboardItem, error)
 }
@@ -74,7 +74,7 @@ func (m *MockProjectStore) GetApplicantCriteria(version int) ([]projects.Applica
 	return m.GetApplicantCriteriaFunc(version)
 }
 
-func (m *MockProjectStore) AddProject(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.DetailsFiles) (int, error) {
+func (m *MockProjectStore) AddProject(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.Attachments) (int, error) {
 	return m.AddProjectFunc(addProject, userId, criteria, attachments)
 }
 
