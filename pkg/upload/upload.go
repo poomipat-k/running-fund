@@ -1,6 +1,7 @@
 package s3Service
 
 import (
+	"archive/zip"
 	"context"
 	"fmt"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 const MAX_UPLOAD_SIZE = 25 << 20 // 25 mb
@@ -29,16 +31,46 @@ func NewS3Service(s3Client *s3.Client) *S3Service {
 	}
 }
 
-func (client *S3Service) UploadAttachments(files []*multipart.FileHeader, zipName string, objectPrefix string) error {
+func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zipWriters []*zip.Writer, zipFilePrefix string, s3ObjectPrefix string) error {
 	for _, fileHeader := range files {
-		if fileHeader.Size > MAX_UPLOAD_SIZE {
-			return fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+		file, err := openFileFromFileHeader(fileHeader)
+		if err != nil {
+			return err
 		}
+		defer file.Close()
+
+		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
+
+		zipFilePath := fmt.Sprintf("%s/%s", zipFilePrefix, fileName)
+		for _, zipWriter := range zipWriters {
+			err = utils.WriteToZip(zipWriter, file, zipFilePath)
+			if err != nil {
+				return err
+			}
+		}
+
+		s3ObjectKey := fmt.Sprintf("%s/%s", s3ObjectPrefix, fileName)
+
+		err = client.DoUploadFileToS3(file, s3ObjectKey)
+		if err != nil {
+			return err
+		}
+
+		// _, err = client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
+		// 	Bucket: aws.String(bucketName),
+		// 	Key:    aws.String(s3ObjectKey),
+		// 	Body:   file,
+		// })
+		// if err != nil {
+		// 	log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
+		// 		s3ObjectKey, bucketName, s3ObjectKey, err)
+		// 	return err
+		// }
 	}
 	return nil
 }
 
-func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix string) error {
+func (client *S3Service) DetectTypeThenUploadFilesToS3(files []*multipart.FileHeader, objectPrefix string) error {
 	for _, fileHeader := range files {
 		if fileHeader.Size > MAX_UPLOAD_SIZE {
 			return fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
@@ -68,7 +100,7 @@ func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix 
 			return err
 		}
 
-		bucketName := os.Getenv("AWS_S3_BUCKET_NAME")
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
 		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
 		objectKey := fmt.Sprintf("%s/%s", objectPrefix, fileName)
 
@@ -83,6 +115,23 @@ func (client *S3Service) UploadToS3(files []*multipart.FileHeader, objectPrefix 
 			return err
 		}
 	}
+	return nil
+}
+
+func (client *S3Service) DoUploadFileToS3(file io.Reader, objectKey string) error {
+	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+
+	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectKey),
+		Body:   file,
+	})
+	if err != nil {
+		log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
+			objectKey, bucketName, objectKey, err)
+		return err
+	}
+
 	return nil
 }
 
@@ -146,4 +195,34 @@ func isAllowedContentType(mimetype string) bool {
 		return false
 	}
 	return true
+}
+
+func openFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
+	if fileHeader.Size > MAX_UPLOAD_SIZE {
+		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+
+	buff := make([]byte, 512)
+	_, err = file.Read(buff)
+	if err != nil {
+		return nil, err
+	}
+
+	filetype := http.DetectContentType(buff)
+	headerContentType := fileHeader.Header["Content-Type"][0]
+
+	if !isAllowedContentType(filetype) && !isDocType(filetype, headerContentType) {
+		return nil, fmt.Errorf("the provided file format is not allowed. got %s", filetype)
+	}
+
+	_, err = file.Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }

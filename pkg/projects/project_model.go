@@ -111,9 +111,10 @@ type ApplicantSelfScoreCriteria struct {
 }
 
 type Attachments struct {
-	DirName string
-	ZipName string
-	Files   []*multipart.FileHeader
+	DirName         string
+	ZipName         string
+	InZipFilePrefix string
+	Files           []*multipart.FileHeader
 }
 
 type ApplicantDashboardItem struct {
