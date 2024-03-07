@@ -3,7 +3,6 @@ package utils
 import (
 	"archive/zip"
 	"io"
-	"log"
 	"mime/multipart"
 )
 
@@ -21,7 +20,6 @@ func WriteToZip(zipWriter *zip.Writer, file multipart.File, filePath string) err
 	// Seek start
 	_, err = file.Seek(0, io.SeekStart)
 	if err != nil {
-		log.Println("Err seek 0")
 		return err
 	}
 

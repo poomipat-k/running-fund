@@ -19,6 +19,7 @@ services:
       - .env
     volumes:
       - ./download:/home/download
+      - ./tmp:/home/tmp
 
   postgres:
     image: 'postgres:16.0'

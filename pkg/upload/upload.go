@@ -55,72 +55,12 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 		if err != nil {
 			return err
 		}
-
-		// _, err = client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-		// 	Bucket: aws.String(bucketName),
-		// 	Key:    aws.String(s3ObjectKey),
-		// 	Body:   file,
-		// })
-		// if err != nil {
-		// 	log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
-		// 		s3ObjectKey, bucketName, s3ObjectKey, err)
-		// 	return err
-		// }
-	}
-	return nil
-}
-
-func (client *S3Service) DetectTypeThenUploadFilesToS3(files []*multipart.FileHeader, objectPrefix string) error {
-	for _, fileHeader := range files {
-		if fileHeader.Size > MAX_UPLOAD_SIZE {
-			return fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
-		}
-
-		file, err := fileHeader.Open()
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		buff := make([]byte, 512)
-		_, err = file.Read(buff)
-		if err != nil {
-			return err
-		}
-
-		filetype := http.DetectContentType(buff)
-		headerContentType := fileHeader.Header["Content-Type"][0]
-
-		if !isAllowedContentType(filetype) && !isDocType(filetype, headerContentType) {
-			return fmt.Errorf("the provided file format is not allowed. got %s", filetype)
-		}
-
-		_, err = file.Seek(0, io.SeekStart)
-		if err != nil {
-			return err
-		}
-
-		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
-		objectKey := fmt.Sprintf("%s/%s", objectPrefix, fileName)
-
-		_, err = client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
-			Bucket: aws.String(bucketName),
-			Key:    aws.String(objectKey),
-			Body:   file,
-		})
-		if err != nil {
-			log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
-				objectKey, bucketName, objectKey, err)
-			return err
-		}
 	}
 	return nil
 }
 
 func (client *S3Service) DoUploadFileToS3(file io.Reader, objectKey string) error {
 	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-
 	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
