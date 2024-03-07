@@ -21,7 +21,7 @@ import (
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
-	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
 
 	"github.com/poomipat-k/running-fund/pkg/users"
 )

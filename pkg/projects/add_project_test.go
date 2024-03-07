@@ -11,8 +11,7 @@ import (
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/projects"
-
-	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
 )
 
 type ErrorBody struct {

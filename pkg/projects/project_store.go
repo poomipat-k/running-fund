@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
 )
 
 const applicantCriteriaCachePrefix = "applicant_criteria"
