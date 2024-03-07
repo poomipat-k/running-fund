@@ -54,7 +54,14 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		log.Fatal()
 	}
 	s3Client := s3.NewFromConfig(sdkConfig)
-	s3Service := s3Service.S3Service{S3Client: s3Client}
+	serverS3Service := s3Service.S3Service{S3Client: s3Client}
+
+	presignClient := s3.NewPresignClient(s3Client)
+	presigner := s3Service.Presigner{
+		PresignClient: presignClient,
+	}
+	s3Handler := s3Service.NewS3Handler(presigner)
+
 	emailService := appEmail.NewEmailService()
 
 	userStore := users.NewStore(db, emailService)
@@ -64,8 +71,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	reviewHandler := review.NewProjectHandler(reviewStore, userStore)
 
 	c := cache.New(3*time.Minute, 5*time.Minute)
-	projectStore := projects.NewStore(db, c, s3Service)
-	projectHandler := projects.NewProjectHandler(projectStore, userStore, s3Service)
+	projectStore := projects.NewStore(db, c, serverS3Service)
+	projectHandler := projects.NewProjectHandler(projectStore, userStore, serverS3Service)
 
 	captchaStore := captcha.NewStore(c)
 	captchaHandler := captcha.NewCaptchaHandler(captchaStore)
@@ -108,6 +115,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/address/districts/{provinceId}", mw.IsLoggedIn(addressHandler.GetDistrictsByProvince))
 		r.Get("/address/subdistricts/{districtId}", mw.IsLoggedIn(addressHandler.GetSubdistrictsByProvince))
 		r.Get("/address/postcodes/{subdistrictId}", mw.IsLoggedIn(addressHandler.GetPostcodeBySubdistrict))
+
+		r.Post("/s3/presigned", mw.IsLoggedIn(s3Handler.GeneratePresignedUrl))
 	})
 
 	return mux
