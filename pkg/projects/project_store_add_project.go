@@ -6,9 +6,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -104,32 +104,29 @@ func (s *store) AddProject(
 	if err != nil {
 		return failAdd("applicantScoreRowsAffected", err)
 	}
-	// upload files
-	// for _, files := range attachments {
-	// 	folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
-	// 	// err = s.awsS3Service.DetectTypeThenUploadFilesToS3(files.Files, folder, baseFilePrefix)
-	// 	err = s.awsS3Service.UploadAndZipToS3(files.Files, folder, baseFilePrefix)
-	// 	if err != nil {
-	// 		slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
-	// 		return 0, err
-	// 	}
-	// }
 
-	log.Println("==basePrefix", baseFilePrefix)
+	zipTmpPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
+	err = os.MkdirAll(zipTmpPath, os.ModePerm)
+	if err != nil {
+		return 0, err
+	}
 
 	attachmentsZipName := "attachments.zip"
-	attachmentsZip, err := os.Create(fmt.Sprintf("tmp/%s/%s", baseFilePrefix, attachmentsZipName))
+
+	baseZipPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
+	attachmentsZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, attachmentsZipName))
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 	defer attachmentsZip.Close()
 	attachmentsZipWriter := zip.NewWriter(attachmentsZip)
 	defer attachmentsZipWriter.Close()
 
 	formZipName := "form.zip"
-	formZip, err := os.Create(fmt.Sprintf("tmp/%s/%s", baseFilePrefix, formZipName))
+
+	formZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, formZipName))
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 	defer formZip.Close()
 	formZipWriter := zip.NewWriter(formZip)
@@ -140,9 +137,9 @@ func (s *store) AddProject(
 	var collaborationZipWriter *zip.Writer
 	if *payload.Collaborated {
 		collaborationZipName := "collaboration.zip"
-		collaborationZip, err = os.Create(fmt.Sprintf("tmp/%s/%s", baseFilePrefix, collaborationZipName))
+		collaborationZip, err = os.Create(fmt.Sprintf("%s/%s", baseZipPath, collaborationZipName))
 		if err != nil {
-			panic(err)
+			return 0, err
 		}
 		defer collaborationZip.Close()
 		collaborationZipWriter = zip.NewWriter(collaborationZip)
@@ -156,7 +153,8 @@ func (s *store) AddProject(
 
 	for _, attachment := range attachments {
 		zipWriters := zipWriterMap[attachment.ZipName]
-		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, attachment.InZipFilePrefix, baseFilePrefix)
+		s3FilePrefix := fmt.Sprintf("%s/%s", baseFilePrefix, attachment.DirName)
+		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, attachment.InZipFilePrefix, s3FilePrefix)
 		if err != nil {
 			return failAdd("upload file and zip:", err)
 		}
@@ -165,13 +163,15 @@ func (s *store) AddProject(
 	// close zip writer before upload to s3
 	attachmentsZipWriter.Close()
 	formZipWriter.Close()
+
+	s3ZipPrefix := fmt.Sprintf("%s/zip", baseFilePrefix)
 	if *payload.Collaborated {
 		collaborationZipWriter.Close()
 		_, err = collaborationZip.Seek(0, io.SeekStart)
 		if err != nil {
 			return 0, err
 		}
-		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/collaboration", baseFilePrefix))
+		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/collaboration.zip", s3ZipPrefix))
 		if err != nil {
 			return 0, err
 		}
@@ -181,7 +181,7 @@ func (s *store) AddProject(
 	if err != nil {
 		return 0, err
 	}
-	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/attachments", baseFilePrefix))
+	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/attachments.zip", s3ZipPrefix))
 	if err != nil {
 		return 0, err
 	}
@@ -190,9 +190,15 @@ func (s *store) AddProject(
 	if err != nil {
 		return 0, err
 	}
-	err = s.awsS3Service.DoUploadFileToS3(formZip, fmt.Sprintf("%s/form", baseFilePrefix))
+	err = s.awsS3Service.DoUploadFileToS3(formZip, fmt.Sprintf("%s/form.zip", s3ZipPrefix))
 	if err != nil {
 		return 0, err
+	}
+
+	// Clean up temp files
+	err = os.RemoveAll(filepath.Join(zipTmpPath, ".."))
+	if err != nil {
+		return 0, nil
 	}
 
 	err = tx.Commit()

@@ -39,3 +39,4 @@ docker-compose-staging.yaml
 
 
 /download
+/tmp

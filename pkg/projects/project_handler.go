@@ -171,7 +171,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
-	log.Println("AddProject payload: ", r.Form)
+	slog.Info("AddProject payload", "userId", userId, "payload", r.Form)
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
@@ -198,25 +198,25 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		{
 			DirName:         "attachments/marketing",
 			ZipName:         "attachments",
-			InZipFilePrefix: "attachments",
+			InZipFilePrefix: "marketing",
 			Files:           marketingFiles,
 		},
 		{
 			DirName:         "attachments/route",
 			ZipName:         "attachments",
-			InZipFilePrefix: "attachments",
+			InZipFilePrefix: "route",
 			Files:           routeFiles,
 		},
 		{
 			DirName:         "attachments/eventMap",
 			ZipName:         "attachments",
-			InZipFilePrefix: "attachments",
+			InZipFilePrefix: "eventMap",
 			Files:           eventMapFiles,
 		},
 		{
 			DirName:         "attachments/eventDetails",
 			ZipName:         "attachments",
-			InZipFilePrefix: "attachments",
+			InZipFilePrefix: "eventDetails",
 			Files:           eventDetailsFiles,
 		},
 		{
@@ -288,12 +288,10 @@ func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
 	for paginator.HasMorePages() {
 		page, err := paginator.NextPage(context.TODO())
 		if err != nil {
-			log.Println("===err 1")
 			utils.ErrorJSON(w, err, "")
 		}
 		for _, obj := range page.Contents {
 			if err := downloadToFile(manager, LocalDirectory, Bucket, aws.ToString(obj.Key)); err != nil {
-				log.Println("===err 2")
 				utils.ErrorJSON(w, err, "")
 			}
 		}
