@@ -190,34 +190,40 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
 	attachments := []Attachments{
 		{
-			DirName: "collaboration",
-			ZipName: "collaboration",
-			Files:   collaborateFiles,
+			DirName:         "collaboration",
+			ZipName:         "collaboration",
+			InZipFilePrefix: "collaboration",
+			Files:           collaborateFiles,
 		},
 		{
-			DirName: "attachments/marketing",
-			ZipName: "attachments",
-			Files:   marketingFiles,
+			DirName:         "attachments/marketing",
+			ZipName:         "attachments",
+			InZipFilePrefix: "attachments",
+			Files:           marketingFiles,
 		},
 		{
-			DirName: "attachments/route",
-			ZipName: "attachments",
-			Files:   routeFiles,
+			DirName:         "attachments/route",
+			ZipName:         "attachments",
+			InZipFilePrefix: "attachments",
+			Files:           routeFiles,
 		},
 		{
-			DirName: "attachments/eventMap",
-			ZipName: "attachments",
-			Files:   eventMapFiles,
+			DirName:         "attachments/eventMap",
+			ZipName:         "attachments",
+			InZipFilePrefix: "attachments",
+			Files:           eventMapFiles,
 		},
 		{
-			DirName: "attachments/eventDetails",
-			ZipName: "attachments",
-			Files:   eventDetailsFiles,
+			DirName:         "attachments/eventDetails",
+			ZipName:         "attachments",
+			InZipFilePrefix: "attachments",
+			Files:           eventDetailsFiles,
 		},
 		{
-			DirName: "attachments/form",
-			ZipName: "attachments",
-			Files:   screenshotFiles,
+			DirName:         "form",
+			ZipName:         "form",
+			InZipFilePrefix: "form",
+			Files:           screenshotFiles,
 		},
 	}
 
@@ -257,7 +263,7 @@ func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ReadJSON(w, r, &payload)
-	objects, err := h.awsS3Service.ListObjects(os.Getenv("AWS_S3_BUCKET_NAME"), payload.Prefix)
+	objects, err := h.awsS3Service.ListObjects(os.Getenv("AWS_S3_STORE_BUCKET_NAME"), payload.Prefix)
 	if err != nil {
 		utils.ErrorJSON(w, err, "")
 		return
@@ -271,7 +277,7 @@ func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
 	manager := manager.NewDownloader(client)
 
 	Prefix := "applicant/user_3/FEB67_2801/"
-	Bucket := os.Getenv("AWS_S3_BUCKET_NAME")
+	Bucket := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
 
 	paginator := s3.NewListObjectsV2Paginator(client, &s3.ListObjectsV2Input{
 		Bucket: &Bucket,

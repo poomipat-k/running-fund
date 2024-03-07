@@ -1,10 +1,14 @@
 package projects
 
 import (
+	"archive/zip"
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
+	"log"
 	"log/slog"
+	"os"
 	"strings"
 	"time"
 )
@@ -19,7 +23,6 @@ func (s *store) AddProject(
 	if err != nil {
 		return 0, err
 	}
-	baseFilePrefix := getBasePrefix(userId, projectCode)
 	// start transaction
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -66,6 +69,7 @@ func (s *store) AddProject(
 			return failAdd("projectRaceDirectorContactId", err)
 		}
 	}
+	baseFilePrefix := getBasePrefix(userId, projectCode)
 	// Add project_history
 	projectHistoryId, err := addProjectHistory(
 		ctx,
@@ -100,17 +104,96 @@ func (s *store) AddProject(
 	if err != nil {
 		return failAdd("applicantScoreRowsAffected", err)
 	}
-	// // upload files
+	// upload files
 	// for _, files := range attachments {
 	// 	folder := fmt.Sprintf("%s/%s", baseFilePrefix, files.DirName)
-	// 	err = s.awsS3Service.UploadToS3(files.Files, folder)
+	// 	// err = s.awsS3Service.DetectTypeThenUploadFilesToS3(files.Files, folder, baseFilePrefix)
+	// 	err = s.awsS3Service.UploadAndZipToS3(files.Files, folder, baseFilePrefix)
 	// 	if err != nil {
 	// 		slog.Error("Failed to upload files to s3", "folder", folder, "error", err.Error())
 	// 		return 0, err
 	// 	}
 	// }
 
-	// err := s.awsS3Service.UploadAttachments(zipName, objectPrefix)
+	log.Println("==basePrefix", baseFilePrefix)
+
+	attachmentsZipName := "attachments.zip"
+	attachmentsZip, err := os.Create(fmt.Sprintf("tmp/%s/%s", baseFilePrefix, attachmentsZipName))
+	if err != nil {
+		panic(err)
+	}
+	defer attachmentsZip.Close()
+	attachmentsZipWriter := zip.NewWriter(attachmentsZip)
+	defer attachmentsZipWriter.Close()
+
+	formZipName := "form.zip"
+	formZip, err := os.Create(fmt.Sprintf("tmp/%s/%s", baseFilePrefix, formZipName))
+	if err != nil {
+		panic(err)
+	}
+	defer formZip.Close()
+	formZipWriter := zip.NewWriter(formZip)
+	defer formZipWriter.Close()
+
+	zipWriterMap := map[string][]*zip.Writer{}
+	var collaborationZip *os.File
+	var collaborationZipWriter *zip.Writer
+	if *payload.Collaborated {
+		collaborationZipName := "collaboration.zip"
+		collaborationZip, err = os.Create(fmt.Sprintf("tmp/%s/%s", baseFilePrefix, collaborationZipName))
+		if err != nil {
+			panic(err)
+		}
+		defer collaborationZip.Close()
+		collaborationZipWriter = zip.NewWriter(collaborationZip)
+		defer collaborationZipWriter.Close()
+
+		zipWriterMap["collaboration"] = []*zip.Writer{collaborationZipWriter}
+	}
+
+	zipWriterMap["attachments"] = []*zip.Writer{attachmentsZipWriter}
+	zipWriterMap["form"] = []*zip.Writer{attachmentsZipWriter, formZipWriter}
+
+	for _, attachment := range attachments {
+		zipWriters := zipWriterMap[attachment.ZipName]
+		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, attachment.InZipFilePrefix, baseFilePrefix)
+		if err != nil {
+			return failAdd("upload file and zip:", err)
+		}
+	}
+
+	// close zip writer before upload to s3
+	attachmentsZipWriter.Close()
+	formZipWriter.Close()
+	if *payload.Collaborated {
+		collaborationZipWriter.Close()
+		_, err = collaborationZip.Seek(0, io.SeekStart)
+		if err != nil {
+			return 0, err
+		}
+		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/collaboration", baseFilePrefix))
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	_, err = attachmentsZip.Seek(0, io.SeekStart)
+	if err != nil {
+		return 0, err
+	}
+	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/attachments", baseFilePrefix))
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = formZip.Seek(0, io.SeekStart)
+	if err != nil {
+		return 0, err
+	}
+	err = s.awsS3Service.DoUploadFileToS3(formZip, fmt.Sprintf("%s/form", baseFilePrefix))
+	if err != nil {
+		return 0, err
+	}
 
 	err = tx.Commit()
 	if err != nil {
