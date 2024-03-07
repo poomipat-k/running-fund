@@ -18,7 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-chi/chi"
 
-	s3Service "github.com/poomipat-k/running-fund/pkg/upload"
+	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
 	"github.com/poomipat-k/running-fund/pkg/users"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
