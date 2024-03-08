@@ -3,10 +3,11 @@ package projects
 const getReviewPeriodSQL = "SELECT id, from_date, to_date FROM review_period ORDER BY id DESC LIMIT 1;"
 
 const getReviewerDashboardSQL = `
-SELECT project.id as project_id, project.project_code, 
+SELECT 
+project.user_id as user_id,
+project.id as project_id, project.project_code, 
 project.created_at, project_history.project_name, 
-review.id as review_id, review.created_at as reviewed_at,
-project_history.download_link
+review.id as review_id, review.created_at as reviewed_at
 FROM project
 INNER JOIN project_history
 ON project.project_history_id = project_history.id

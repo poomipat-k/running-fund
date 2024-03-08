@@ -6,13 +6,13 @@ import (
 )
 
 type ReviewDashboardRow struct {
+	UserId           int        `json:"userId,omitempty"`
 	ProjectId        int        `json:"projectId,omitempty"`
 	ProjectCode      string     `json:"projectCode,omitempty"`
 	ProjectCreatedAt *time.Time `json:"projectCreatedAt,omitempty"`
 	ProjectName      string     `json:"projectName,omitempty"`
 	ReviewId         int        `json:"reviewId,omitempty"`
 	ReviewedAt       *time.Time `json:"reviewedAt,omitempty"`
-	DownloadLink     string     `json:"downloadLink,omitempty"`
 }
 
 type ReviewPeriod struct {
