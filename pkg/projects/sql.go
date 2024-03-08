@@ -19,6 +19,7 @@ ORDER BY project_name;
 `
 const getReviewerProjectDetailsSQL = `
 SELECT 
+project.user_id as user_id,
 project.id as project_id, 
 project_history.id as project_history_id, 
 project.project_code, 

@@ -123,6 +123,7 @@ func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (Proje
 		var projectStandard sql.NullBool
 		var vision sql.NullBool
 		err = rows.Scan(
+			&row.UserId,
 			&row.ProjectId,
 			&row.ProjectHistoryId,
 			&row.ProjectCode,
@@ -230,6 +231,7 @@ func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (Proje
 	var body ProjectReviewDetailsResponse
 	if len(data) > 0 {
 		f := data[0]
+		body.UserId = f.UserId
 		body.ProjectId = f.ProjectId
 		body.ProjectHistoryId = f.ProjectHistoryId
 		body.ProjectCode = f.ProjectCode
