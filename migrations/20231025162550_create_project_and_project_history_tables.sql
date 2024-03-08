@@ -82,7 +82,7 @@ CREATE TABLE project_history(
   -- STEP 4
   exp_this_first_time BOOLEAN NOT NULL,
   exp_this_ordinal_number INT NOT NULL,
-  exp_this_latest_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  exp_this_latest_date TIMESTAMP WITH TIME ZONE,
   exp_this_completed1_year SMALLINT NOT NULL,
   exp_this_completed1_name VARCHAR(255) NOT NULL,
   exp_this_completed1_participant INT NOT NULL,

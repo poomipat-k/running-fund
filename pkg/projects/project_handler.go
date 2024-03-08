@@ -298,6 +298,12 @@ func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *ProjectHandler) GetApplicantProjectDetails(w http.ResponseWriter, r *http.Request) {
+	projectCode := chi.URLParam(r, "projectCode")
+	log.Println("===projectCode", projectCode)
+
+}
+
 func downloadToFile(downloader *manager.Downloader, targetDirectory, bucket, key string) error {
 	// Create the directories in the path
 	file := filepath.Join(targetDirectory, key)
