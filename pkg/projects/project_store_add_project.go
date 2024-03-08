@@ -13,6 +13,12 @@ import (
 	"time"
 )
 
+const (
+	collaborationStr = "หนังสือนำส่ง"
+	attachmentsStr   = "เอกสารแนบ"
+	formStr          = "แบบฟอร์ม"
+)
+
 func (s *store) AddProject(
 	payload AddProjectRequest,
 	userId int,
@@ -111,7 +117,7 @@ func (s *store) AddProject(
 		return 0, err
 	}
 
-	attachmentsZipName := fmt.Sprintf("%s_attachments.zip", projectCode)
+	attachmentsZipName := fmt.Sprintf("%s_%s.zip", projectCode, attachmentsStr)
 
 	baseZipPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
 	attachmentsZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, attachmentsZipName))
@@ -122,7 +128,7 @@ func (s *store) AddProject(
 	attachmentsZipWriter := zip.NewWriter(attachmentsZip)
 	defer attachmentsZipWriter.Close()
 
-	formZipName := fmt.Sprintf("%s_form.zip", projectCode)
+	formZipName := fmt.Sprintf("%s_%s.zip", projectCode, formStr)
 
 	formZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, formZipName))
 	if err != nil {
@@ -137,7 +143,7 @@ func (s *store) AddProject(
 	var collaborationZipWriter *zip.Writer
 	var collaborationZipName string
 	if *payload.Collaborated {
-		collaborationZipName = fmt.Sprintf("%s_collaboration.zip", projectCode)
+		collaborationZipName = fmt.Sprintf("%s_%s.zip", projectCode, collaborationStr)
 		collaborationZip, err = os.Create(fmt.Sprintf("%s/%s", baseZipPath, collaborationZipName))
 		if err != nil {
 			return 0, err
@@ -146,11 +152,11 @@ func (s *store) AddProject(
 		collaborationZipWriter = zip.NewWriter(collaborationZip)
 		defer collaborationZipWriter.Close()
 
-		zipWriterMap["collaboration"] = []*zip.Writer{collaborationZipWriter}
+		zipWriterMap[collaborationStr] = []*zip.Writer{collaborationZipWriter}
 	}
 
-	zipWriterMap["attachments"] = []*zip.Writer{attachmentsZipWriter}
-	zipWriterMap["form"] = []*zip.Writer{attachmentsZipWriter, formZipWriter}
+	zipWriterMap[attachmentsStr] = []*zip.Writer{attachmentsZipWriter}
+	zipWriterMap[formStr] = []*zip.Writer{attachmentsZipWriter, formZipWriter}
 
 	for _, attachment := range attachments {
 		zipWriters := zipWriterMap[attachment.ZipName]
