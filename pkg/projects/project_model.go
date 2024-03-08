@@ -22,6 +22,7 @@ type ReviewPeriod struct {
 }
 
 type ProjectReviewDetailsResponse struct {
+	UserId               int                `json:"userId,omitempty"`
 	ProjectId            int                `json:"projectId,omitempty"`
 	ProjectHistoryId     int                `json:"projectHistoryId,omitempty"`
 	ProjectCode          string             `json:"projectCode,omitempty"`
@@ -50,6 +51,7 @@ type ProjectReviewDetailsResponse struct {
 }
 
 type ProjectReviewDetailsRow struct {
+	UserId               int                `json:"userId,omitempty"`
 	ProjectId            int                `json:"projectId,omitempty"`
 	ProjectHistoryId     int                `json:"projectHistoryId,omitempty"`
 	ProjectCode          string             `json:"projectCode,omitempty"`

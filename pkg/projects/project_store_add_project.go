@@ -111,7 +111,7 @@ func (s *store) AddProject(
 		return 0, err
 	}
 
-	attachmentsZipName := "attachments.zip"
+	attachmentsZipName := fmt.Sprintf("%s_attachments.zip", projectCode)
 
 	baseZipPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
 	attachmentsZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, attachmentsZipName))
@@ -122,7 +122,7 @@ func (s *store) AddProject(
 	attachmentsZipWriter := zip.NewWriter(attachmentsZip)
 	defer attachmentsZipWriter.Close()
 
-	formZipName := "form.zip"
+	formZipName := fmt.Sprintf("%s_form.zip", projectCode)
 
 	formZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, formZipName))
 	if err != nil {
@@ -135,8 +135,9 @@ func (s *store) AddProject(
 	zipWriterMap := map[string][]*zip.Writer{}
 	var collaborationZip *os.File
 	var collaborationZipWriter *zip.Writer
+	var collaborationZipName string
 	if *payload.Collaborated {
-		collaborationZipName := "collaboration.zip"
+		collaborationZipName = fmt.Sprintf("%s_collaboration.zip", projectCode)
 		collaborationZip, err = os.Create(fmt.Sprintf("%s/%s", baseZipPath, collaborationZipName))
 		if err != nil {
 			return 0, err
@@ -171,7 +172,7 @@ func (s *store) AddProject(
 		if err != nil {
 			return 0, err
 		}
-		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/collaboration.zip", s3ZipPrefix))
+		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/%s", s3ZipPrefix, collaborationZipName))
 		if err != nil {
 			return 0, err
 		}
@@ -181,7 +182,7 @@ func (s *store) AddProject(
 	if err != nil {
 		return 0, err
 	}
-	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/attachments.zip", s3ZipPrefix))
+	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/%s", s3ZipPrefix, attachmentsZipName))
 	if err != nil {
 		return 0, err
 	}
@@ -190,7 +191,7 @@ func (s *store) AddProject(
 	if err != nil {
 		return 0, err
 	}
-	err = s.awsS3Service.DoUploadFileToS3(formZip, fmt.Sprintf("%s/form.zip", s3ZipPrefix))
+	err = s.awsS3Service.DoUploadFileToS3(formZip, fmt.Sprintf("%s/%s", s3ZipPrefix, formZipName))
 	if err != nil {
 		return 0, err
 	}
