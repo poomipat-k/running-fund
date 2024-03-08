@@ -155,7 +155,7 @@ func (s *store) AddProject(
 	for _, attachment := range attachments {
 		zipWriters := zipWriterMap[attachment.ZipName]
 		s3FilePrefix := fmt.Sprintf("%s/%s", baseFilePrefix, attachment.DirName)
-		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, attachment.InZipFilePrefix, s3FilePrefix)
+		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, fmt.Sprintf("%s_%s", projectCode, attachment.InZipFilePrefix), s3FilePrefix)
 		if err != nil {
 			return failAdd("upload file and zip:", err)
 		}
