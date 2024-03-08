@@ -76,8 +76,7 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 		// Nullable columns
 		var reviewId sql.NullInt64
 		var reviewedAt sql.NullTime
-		var download sql.NullString
-		err = rows.Scan(&row.ProjectId, &row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &reviewId, &reviewedAt, &download)
+		err = rows.Scan(&row.UserId, &row.ProjectId, &row.ProjectCode, &row.ProjectCreatedAt, &row.ProjectName, &reviewId, &reviewedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -87,9 +86,6 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 		}
 		if reviewedAt.Valid {
 			row.ReviewedAt = &reviewedAt.Time
-		}
-		if download.Valid {
-			row.DownloadLink = download.String
 		}
 
 		data = append(data, row)

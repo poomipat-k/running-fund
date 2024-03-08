@@ -3,12 +3,11 @@
 CREATE TABLE project_history(
   id SERIAL PRIMARY KEY NOT NULL,
   project_code VARCHAR(255) NOT NULL,
-  project_version  SMALLINT DEFAULT 1,
+  project_version SMALLINT DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   status VARCHAR(255) NOT NULL,
   fund_approved_amount BIGINT,
-  download_link VARCHAR(512),
   admin_comment VARCHAR(512),
   -- STEP 0
   collaborated BOOLEAN NOT NULL,
@@ -117,15 +116,13 @@ CREATE TABLE project_history(
   fund_req_other_type VARCHAR(255),
   files_prefix VARCHAR(255) NOT NULL
 );
-
 CREATE TABLE project (
   id SERIAL PRIMARY KEY NOT NULL,
   project_code VARCHAR(255) UNIQUE NOT NULL,
-  created_at  TIMESTAMP WITH TIME ZONE NOT NULL  DEFAULT now(),
-  project_history_id INT REFERENCES project_history (id), 
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  project_history_id INT REFERENCES project_history (id),
   user_id INT REFERENCES users (id)
 );
-
 CREATE TABLE distance(
   id SERIAL PRIMARY KEY NOT NULL,
   type VARCHAR(255) NOT NULL,
@@ -133,23 +130,18 @@ CREATE TABLE distance(
   is_dynamic BOOLEAN NOT NULL,
   project_history_id INT REFERENCES project_history (id)
 );
-
 -- INDEX
 CREATE INDEX project_created_at ON project (created_at);
 CREATE INDEX project_user_id ON project (user_id);
-
 -- +goose Down
 ALTER TABLE project DROP COLUMN project_history_id;
 ALTER TABLE project DROP COLUMN user_id;
-
 ALTER TABLE project_history DROP COLUMN address_id;
 ALTER TABLE project_history DROP COLUMN project_head_contact_id;
 ALTER TABLE project_history DROP COLUMN project_manager_contact_id;
 ALTER TABLE project_history DROP COLUMN project_coordinator_contact_id;
 ALTER TABLE project_history DROP COLUMN project_race_director_contact_id;
-
 ALTER TABLE distance DROP COLUMN project_history_id;
-
 DROP TABLE project;
 DROP TABLE project_history;
 DROP TABLE distance;

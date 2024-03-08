@@ -206,7 +206,7 @@ func (s *store) AddProject(
 		return failAdd("tx.Commit()", err)
 	}
 	// commit
-	slog.Info("success adding a new project", "projectCode", projectCode)
+	slog.Info("success adding a new project", "projectCode", projectCode, "userId", userId)
 	return projectId, nil
 }
 
