@@ -98,6 +98,30 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 	return data, nil
 }
 
+func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error) {
+	rows, err := s.db.Query(getApplicantProjectDetailsSQL, projectCode)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ApplicantDetailsData
+	for rows.Next() {
+		var row ApplicantDetailsData
+		err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.ReviewId, &row.ReviewedAt, &row.SumScore)
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func (s *store) GetReviewerProjectDetails(userId int, projectCode string) (ProjectReviewDetailsResponse, error) {
 	rows, err := s.db.Query(getReviewerProjectDetailsSQL, userId, projectCode)
 	if err != nil {

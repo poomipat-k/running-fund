@@ -128,3 +128,13 @@ type ApplicantDashboardItem struct {
 	ProjectUpdatedAt time.Time `json:"projectUpdatedAt,omitempty"`
 	AdminComment     string    `json:"adminComment,omitempty"`
 }
+
+type ApplicantDetailsData struct {
+	ProjectCode   string    `json:"projectCode,omitempty"`
+	UserId        int       `json:"userId,omitempty"`
+	ProjectName   string    `json:"projectName,omitempty"`
+	ProjectStatus string    `json:"projectStatus,omitempty"`
+	ReviewId      string    `json:"reviewId,omitempty"`
+	ReviewedAt    time.Time `json:"reviewedAt,omitempty"`
+	SumScore      int       `json:"sumScore,omitempty"`
+}

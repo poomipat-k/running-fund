@@ -52,6 +52,7 @@ type MockProjectStore struct {
 	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.Attachments) (int, error)
 	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 	GetAllProjectDashboardByApplicantIdFunc func(applicantId int) ([]projects.ApplicantDashboardItem, error)
+	GetApplicantProjectDetailsFunc          func(userId int, projectCode string) ([]projects.ApplicantDetailsData, error)
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -80,4 +81,8 @@ func (m *MockProjectStore) AddProject(addProject projects.AddProjectRequest, use
 
 func (m *MockProjectStore) GetAllProjectDashboardByApplicantId(applicantId int) ([]projects.ApplicantDashboardItem, error) {
 	return m.GetAllProjectDashboardByApplicantIdFunc(applicantId)
+}
+
+func (m *MockProjectStore) GetApplicantProjectDetails(userId int, projectCode string) ([]projects.ApplicantDetailsData, error) {
+	return m.GetApplicantProjectDetailsFunc(userId, projectCode)
 }

@@ -33,6 +33,7 @@ type projectStore interface {
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []Attachments) (int, error)
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
+	GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error)
 }
 
 type ProjectHandler struct {
