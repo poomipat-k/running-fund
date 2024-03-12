@@ -96,8 +96,6 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
-		// TODO: remove this endpoint
-		r.Post("/project/object", mw.IsLoggedIn(projectHandler.ListObjectsV2))
 		r.Post("/project/download", mw.IsApplicant(projectHandler.Download))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)
@@ -118,6 +116,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/address/postcodes/{subdistrictId}", mw.IsLoggedIn(addressHandler.GetPostcodeBySubdistrict))
 
 		r.Post("/s3/presigned", mw.IsLoggedIn(s3Handler.GeneratePresignedUrl))
+		r.Post("/s3/objects", mw.IsLoggedIn(projectHandler.ListApplicantFiles))
 	})
 
 	return mux

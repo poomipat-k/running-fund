@@ -314,3 +314,8 @@ type FundRequestDetails struct {
 }
 
 // End sub-types for AddProjectRequest
+
+type ListFilesRequest struct {
+	Prefix    string `json:"prefix,omitempty"`
+	CreatedBy int    `json:"createdBy,omitempty"`
+}

@@ -130,11 +130,16 @@ type ApplicantDashboardItem struct {
 }
 
 type ApplicantDetailsData struct {
-	ProjectCode   string    `json:"projectCode,omitempty"`
-	UserId        int       `json:"userId,omitempty"`
-	ProjectName   string    `json:"projectName,omitempty"`
-	ProjectStatus string    `json:"projectStatus,omitempty"`
-	ReviewId      string    `json:"reviewId,omitempty"`
-	ReviewedAt    time.Time `json:"reviewedAt,omitempty"`
-	SumScore      int       `json:"sumScore,omitempty"`
+	ProjectCode   string     `json:"projectCode,omitempty"`
+	UserId        int        `json:"userId,omitempty"`
+	ProjectName   string     `json:"projectName,omitempty"`
+	ProjectStatus string     `json:"projectStatus,omitempty"`
+	ReviewId      *int       `json:"reviewId,omitempty"`
+	ReviewedAt    *time.Time `json:"reviewedAt,omitempty"`
+	SumScore      *int       `json:"sumScore,omitempty"`
+}
+
+type S3ObjectDetails struct {
+	Key          string    `json:"key,omitempty"`
+	LastModified time.Time `json:"lastModified,omitempty"`
 }

@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -250,12 +249,10 @@ func addProjectHistory(
 
 	var nilAbleThisSeriesLatestCompletedDate *time.Time
 	if thisSeriesLatestCompletedDate.IsZero() {
-		log.Println("===ZERO")
 		nilAbleThisSeriesLatestCompletedDate = nil
 	} else {
 		nilAbleThisSeriesLatestCompletedDate = &thisSeriesLatestCompletedDate
 	}
-	log.Println("==nilAbleThisSeriesLatestCompletedDate", nilAbleThisSeriesLatestCompletedDate)
 
 	var id int
 	err = tx.QueryRowContext(
@@ -597,7 +594,5 @@ func buildTimeFromPayload(payload AddProjectRequest) (time.Time, time.Time, time
 			loc,
 		)
 	}
-	log.Println("==thisSeriesLatestDate", thisSeriesLatestDate)
-	log.Println("===&thisSeriesLatestDate", &thisSeriesLatestDate)
 	return fromDate, toDate, thisSeriesLatestDate, nil
 }
