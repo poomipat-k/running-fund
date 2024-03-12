@@ -3,8 +3,8 @@ package projects
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -258,21 +258,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, projectId)
 }
 
-func (h *ProjectHandler) ListObjectsV2(w http.ResponseWriter, r *http.Request) {
-	var payload struct {
-		Prefix string `json:"prefix"`
-	}
-
-	utils.ReadJSON(w, r, &payload)
-	objects, err := h.awsS3Service.ListObjects(os.Getenv("AWS_S3_STORE_BUCKET_NAME"), payload.Prefix)
-	if err != nil {
-		utils.ErrorJSON(w, err, "")
-		return
-	}
-	log.Println(objects)
-	utils.WriteJSON(w, 200, objects)
-}
-
 func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
 	client := h.awsS3Service.S3Client
 	manager := manager.NewDownloader(client)
@@ -301,7 +286,21 @@ func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) GetApplicantProjectDetails(w http.ResponseWriter, r *http.Request) {
 	projectCode := chi.URLParam(r, "projectCode")
-	log.Println("===projectCode", projectCode)
+
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
+		return
+	}
+	projectDetails, err := h.store.GetApplicantProjectDetails(userId, projectCode)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId + projectCode", http.StatusNotFound)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, projectDetails)
 
 }
 
@@ -324,4 +323,44 @@ func downloadToFile(downloader *manager.Downloader, targetDirectory, bucket, key
 	_, err = downloader.Download(context.TODO(), fd, &s3.GetObjectInput{Bucket: &bucket, Key: &key})
 
 	return err
+}
+
+func (h *ProjectHandler) ListApplicantFiles(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
+		return
+	}
+	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole == "" {
+		msg := "userRole is empty"
+		err = errors.New(msg)
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userRole", http.StatusForbidden)
+		return
+	}
+
+	var payload ListFilesRequest
+	utils.ReadJSON(w, r, &payload)
+	var objectKey string
+	if userRole == "applicant" {
+		objectKey = fmt.Sprintf("applicant/user_%d/%s", userId, payload.Prefix)
+	} else {
+		objectKey = fmt.Sprintf("applicant/user_%d/%s", payload.CreatedBy, payload.Prefix)
+	}
+	objects, err := h.awsS3Service.ListObjects(os.Getenv("AWS_S3_STORE_BUCKET_NAME"), objectKey)
+	if err != nil {
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+
+	var data []S3ObjectDetails
+	for _, obj := range objects {
+		data = append(data, S3ObjectDetails{
+			Key:          *obj.Key,
+			LastModified: *obj.LastModified,
+		})
+	}
+	utils.WriteJSON(w, http.StatusOK, data)
 }

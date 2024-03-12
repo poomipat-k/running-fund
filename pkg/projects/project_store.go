@@ -99,7 +99,7 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 }
 
 func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error) {
-	rows, err := s.db.Query(getApplicantProjectDetailsSQL, projectCode)
+	rows, err := s.db.Query(getApplicantProjectDetailsSQL, userId, projectCode)
 	if err != nil {
 		return nil, err
 	}

@@ -28,14 +28,6 @@ func (h *S3Handler) GeneratePresignedUrl(w http.ResponseWriter, r *http.Request)
 		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
 		return
 	}
-
-	// payload.path start with project_code without prefix /
-	var payload GetPresignedPayload
-	err = utils.ReadJSON(w, r, &payload)
-	if err != nil {
-		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
-	}
-
 	userRole := utils.GetUserRoleFromRequestHeader(r)
 	if userRole == "" {
 		msg := "userRole is empty"
@@ -43,6 +35,13 @@ func (h *S3Handler) GeneratePresignedUrl(w http.ResponseWriter, r *http.Request)
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userRole", http.StatusForbidden)
 		return
+	}
+
+	// payload.path start with project_code without prefix /
+	var payload GetPresignedPayload
+	err = utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
 	}
 
 	var objectKey string
