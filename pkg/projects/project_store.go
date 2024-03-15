@@ -72,7 +72,7 @@ func (s *store) HasPermissionToAddAdditionalFiles(userId int, projectCode string
 		slog.Error("GetReviewPeriod(): no row were returned!")
 		return false
 	case nil:
-		return projectStatus == "RevisedRequired"
+		return projectStatus == "Revise"
 	default:
 		slog.Error(err.Error())
 		return false
