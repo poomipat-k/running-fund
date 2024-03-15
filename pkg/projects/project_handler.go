@@ -1,7 +1,6 @@
 package projects
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,13 +8,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-chi/chi"
 
 	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
@@ -34,6 +29,7 @@ type projectStore interface {
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []Attachments) (int, error)
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
 	GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error)
+	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
 }
 
 type ProjectHandler struct {
@@ -258,32 +254,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, projectId)
 }
 
-func (h *ProjectHandler) Download(w http.ResponseWriter, r *http.Request) {
-	client := h.awsS3Service.S3Client
-	manager := manager.NewDownloader(client)
-
-	Prefix := "applicant/user_3/FEB67_2801/"
-	Bucket := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-
-	paginator := s3.NewListObjectsV2Paginator(client, &s3.ListObjectsV2Input{
-		Bucket: &Bucket,
-		Prefix: &Prefix,
-	})
-	LocalDirectory := "home/download"
-
-	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(context.TODO())
-		if err != nil {
-			utils.ErrorJSON(w, err, "")
-		}
-		for _, obj := range page.Contents {
-			if err := downloadToFile(manager, LocalDirectory, Bucket, aws.ToString(obj.Key)); err != nil {
-				utils.ErrorJSON(w, err, "")
-			}
-		}
-	}
-}
-
 func (h *ProjectHandler) GetApplicantProjectDetails(w http.ResponseWriter, r *http.Request) {
 	projectCode := chi.URLParam(r, "projectCode")
 
@@ -302,27 +272,6 @@ func (h *ProjectHandler) GetApplicantProjectDetails(w http.ResponseWriter, r *ht
 
 	utils.WriteJSON(w, http.StatusOK, projectDetails)
 
-}
-
-func downloadToFile(downloader *manager.Downloader, targetDirectory, bucket, key string) error {
-	// Create the directories in the path
-	file := filepath.Join(targetDirectory, key)
-	if err := os.MkdirAll(filepath.Dir(file), 0775); err != nil {
-		return err
-	}
-
-	// Set up the local file
-	fd, err := os.Create(file)
-	if err != nil {
-		return err
-	}
-	defer fd.Close()
-
-	// Download the file using the AWS SDK for Go
-	fmt.Printf("Downloading s3://%s/%s to %s...\n", bucket, key, file)
-	_, err = downloader.Download(context.TODO(), fd, &s3.GetObjectInput{Bucket: &bucket, Key: &key})
-
-	return err
 }
 
 func (h *ProjectHandler) ListApplicantFiles(w http.ResponseWriter, r *http.Request) {
@@ -363,4 +312,58 @@ func (h *ProjectHandler) ListApplicantFiles(w http.ResponseWriter, r *http.Reque
 		})
 	}
 	utils.WriteJSON(w, http.StatusOK, data)
+}
+
+// ADD project addition files
+func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.Request) {
+	userId, err := utils.GetUserIdFromRequestHeader(r)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
+		return
+	}
+
+	if err := r.ParseMultipartForm(25 << 20); err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
+		return
+	}
+
+	formJsonString := r.FormValue("form")
+	payload := AddProjectFilesRequest{}
+	err = json.Unmarshal([]byte(formJsonString), &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+	if payload.ProjectCode == "" {
+		utils.ErrorJSON(w, &ProjectCodeRequiredError{}, "projectCode")
+		return
+	}
+
+	// validation
+	additionFiles := r.MultipartForm.File["additionFiles"]
+	if len(additionFiles) == 0 {
+		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusBadRequest)
+		return
+	}
+	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole == "admin" {
+		userId = payload.UserId
+	}
+
+	canAddFiles := h.store.HasPermissionToAddAdditionalFiles(userId, payload.ProjectCode)
+	if !canAddFiles {
+		utils.ErrorJSON(w, &ProjectNotFoundError{}, "userId,ProjectCode", http.StatusNotFound)
+		return
+	}
+
+	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
+	err = h.awsS3Service.UploadFilesToS3(additionFiles, objectPrefix)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})
 }

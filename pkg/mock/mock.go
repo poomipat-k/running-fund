@@ -53,6 +53,7 @@ type MockProjectStore struct {
 	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 	GetAllProjectDashboardByApplicantIdFunc func(applicantId int) ([]projects.ApplicantDashboardItem, error)
 	GetApplicantProjectDetailsFunc          func(userId int, projectCode string) ([]projects.ApplicantDetailsData, error)
+	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -85,4 +86,8 @@ func (m *MockProjectStore) GetAllProjectDashboardByApplicantId(applicantId int) 
 
 func (m *MockProjectStore) GetApplicantProjectDetails(userId int, projectCode string) ([]projects.ApplicantDetailsData, error) {
 	return m.GetApplicantProjectDetailsFunc(userId, projectCode)
+}
+
+func (m *MockProjectStore) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {
+	return m.HasPermissionToAddAdditionalFilesFunc(userId, projectCode)
 }

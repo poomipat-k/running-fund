@@ -93,10 +93,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/review-period", mw.IsReviewer(projectHandler.GetReviewPeriod))
 		r.Get("/project/review/{projectCode}", mw.IsReviewer(projectHandler.GetReviewerProjectDetails))
 		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
+		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
-		r.Post("/project/download", mw.IsApplicant(projectHandler.Download))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)
 		r.Post("/user/password/forgot", mw.ValidateCaptcha(userHandler.ForgotPassword, captchaStore))

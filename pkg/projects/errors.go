@@ -710,3 +710,21 @@ type ScreenshotFilesRequiredError struct{}
 func (e *ScreenshotFilesRequiredError) Error() string {
 	return "screenshotFiles are required"
 }
+
+type AdditionFilesRequiredError struct{}
+
+func (e *AdditionFilesRequiredError) Error() string {
+	return "additionFiles are required"
+}
+
+type ProjectNotFoundError struct{}
+
+func (e *ProjectNotFoundError) Error() string {
+	return "project is not found"
+}
+
+type ProjectCodeRequiredError struct{}
+
+func (e *ProjectCodeRequiredError) Error() string {
+	return "projectCode is required"
+}

@@ -34,6 +34,11 @@ type AddProjectRequest struct {
 	Fund         Fund                     `json:"fund,omitempty"`
 }
 
+type AddProjectFilesRequest struct {
+	ProjectCode string `json:"projectCode,omitempty"`
+	UserId      int    `json:"userId,omitempty"`
+}
+
 // Sub-types for AddProjectRequest
 type AddProjectGeneralDetails struct {
 	ProjectName          string       `json:"projectName,omitempty"`

@@ -59,6 +59,25 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 	return nil
 }
 
+func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3ObjectPrefix string) error {
+	for _, fileHeader := range files {
+		file, err := openFileFromFileHeader(fileHeader)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
+		s3ObjectKey := fmt.Sprintf("%s/%s", s3ObjectPrefix, fileName)
+
+		err = client.DoUploadFileToS3(file, s3ObjectKey)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (client *S3Service) DoUploadFileToS3(file io.Reader, objectKey string) error {
 	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
 	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
@@ -137,6 +156,7 @@ func isAllowedContentType(mimetype string) bool {
 	return true
 }
 
+// openFile and validate file type
 func openFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
 	if fileHeader.Size > MAX_UPLOAD_SIZE {
 		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
