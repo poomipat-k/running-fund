@@ -262,7 +262,7 @@ func addProjectHistory(
 		1,
 		now,         // created_at
 		now,         // updated_at
-		"Reviewing", // valid status: Reviewing, RevisedRequired, Approved, NotApproved
+		"Reviewing", // valid status: Reviewing, Revise, Approved, NotApproved
 		payload.Collaborated,
 		payload.General.ProjectName,
 		fromDate,
