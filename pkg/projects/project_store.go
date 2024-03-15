@@ -64,14 +64,15 @@ func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
 
 func (s *store) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {
 	var projectId int
+	var projectStatus string
 	row := s.db.QueryRow(hasRightToAddAdditionalFilesSQL, userId, projectCode)
-	err := row.Scan(&projectId)
+	err := row.Scan(&projectId, &projectStatus)
 	switch err {
 	case sql.ErrNoRows:
 		slog.Error("GetReviewPeriod(): no row were returned!")
 		return false
 	case nil:
-		return true
+		return projectStatus == "RevisedRequired"
 	default:
 		slog.Error(err.Error())
 		return false
