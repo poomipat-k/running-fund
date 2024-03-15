@@ -104,7 +104,6 @@ func (client *S3Service) ListObjects(bucketName string, prefix string) ([]types.
 	if err != nil {
 		log.Printf("Couldn't list objects in bucket %v. Here's why: %v\n", bucketName, err)
 	} else {
-		// log.Println(result.Contents)
 		contents = result.Contents
 	}
 	return contents, err

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -102,11 +101,7 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		utils.ErrorJSON(w, err, "projectCode")
 		return
 	}
-	log.Println("===userRole", userRole)
-	log.Println("===loggedInUserId", loggedInUserId)
-	log.Println("==reviewerId", reviewerId)
 	projectDetails, err := h.store.GetReviewerProjectDetails(reviewerId, projectCode)
-	log.Println("===project userId", projectDetails.UserId)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "")
