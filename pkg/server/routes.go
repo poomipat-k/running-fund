@@ -85,13 +85,13 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 			w.Write([]byte("API landing page"))
 		})
 
-		r.Get("/review/criteria/{criteriaVersion}", mw.IsReviewer(projectHandler.GetProjectCriteria))
+		r.Get("/review/criteria/{criteriaVersion}", mw.IsLoggedIn(projectHandler.GetProjectCriteria))
 		r.Get("/applicant/criteria/{applicantCriteriaVersion}", mw.IsApplicant(projectHandler.GetApplicantCriteria))
 		r.Get("/applicant/project/details/{projectCode}", mw.IsApplicant(projectHandler.GetApplicantProjectDetails))
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Get("/project/review-period", mw.IsReviewer(projectHandler.GetReviewPeriod))
-		r.Get("/project/review/{projectCode}", mw.IsReviewer(projectHandler.GetReviewerProjectDetails))
+		r.Post("/project/review/{projectCode}", mw.IsLoggedIn(projectHandler.GetReviewerProjectDetails))
 		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))

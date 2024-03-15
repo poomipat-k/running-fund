@@ -125,7 +125,7 @@ func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]Ap
 	for rows.Next() {
 		var row ApplicantDetailsData
 		err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
-			&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewedAt, &row.SumScore)
+			&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt, &row.SumScore)
 		if err != nil {
 			return nil, err
 		}
