@@ -324,3 +324,7 @@ type ListFilesRequest struct {
 	Prefix    string `json:"prefix,omitempty"`
 	CreatedBy int    `json:"createdBy,omitempty"`
 }
+
+type ProjectReviewer struct {
+	ReviewerId int `json:"reviewerId,omitempty"`
+}

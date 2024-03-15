@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -72,24 +73,48 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	utils.WriteJSON(w, http.StatusOK, projects)
 }
 
+// Here
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
-	reviewerId, err := utils.GetUserIdFromRequestHeader(r)
+	var reviewerId int
+	loggedInUserId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId")
 		return
 	}
+	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole == "applicant" {
+		var payload ProjectReviewer
+		utils.ReadJSON(w, r, &payload)
+		if payload.ReviewerId == 0 {
+			utils.ErrorJSON(w, &ReviewerIdRequiredError{}, "reviewerId")
+			return
+		}
+		reviewerId = payload.ReviewerId
+
+	} else if userRole == "reviewer" {
+		reviewerId = loggedInUserId
+	}
 
 	projectCode := chi.URLParam(r, "projectCode")
-	if len(projectCode) == 0 {
+	if projectCode == "" {
 		slog.Error("Please provide a project code.")
 		utils.ErrorJSON(w, err, "projectCode")
 		return
 	}
+	log.Println("===userRole", userRole)
+	log.Println("===loggedInUserId", loggedInUserId)
+	log.Println("==reviewerId", reviewerId)
 	projectDetails, err := h.store.GetReviewerProjectDetails(reviewerId, projectCode)
+	log.Println("===project userId", projectDetails.UserId)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "")
+		return
+	}
+	if userRole == "applicant" && projectDetails.UserId != loggedInUserId {
+		slog.Error("applicant cannot get other applicant review details")
+		utils.ErrorJSON(w, &ProjectNotFoundError{}, "", http.StatusNotFound)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, projectDetails)

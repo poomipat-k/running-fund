@@ -138,6 +138,7 @@ type ApplicantDetailsData struct {
 	FundApprovedAmount *int       `json:"fundApprovedAmount,omitempty"`
 	AdminComment       *string    `json:"adminComment,omitempty"`
 	ReviewId           *int       `json:"reviewId,omitempty"`
+	ReviewerId         *int       `json:"reviewerId,omitempty"`
 	ReviewedAt         *time.Time `json:"reviewedAt,omitempty"`
 	SumScore           *int       `json:"sumScore,omitempty"`
 }

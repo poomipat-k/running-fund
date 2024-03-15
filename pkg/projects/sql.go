@@ -269,6 +269,7 @@ project_history.admin_score as admin_score,
 project_history.fund_approved_amount as fund_approved_amount,
 project_history.admin_comment as admin_comment,
 review.id as review_id,
+review.user_id as reviewer_id,
 review.created_at as reviewed_at,
 SUM(review_details.score)
 FROM project
