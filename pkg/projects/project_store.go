@@ -62,6 +62,22 @@ func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
 	}
 }
 
+func (s *store) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {
+	var projectId int
+	row := s.db.QueryRow(hasRightToAddAdditionalFilesSQL, userId, projectCode)
+	err := row.Scan(&projectId)
+	switch err {
+	case sql.ErrNoRows:
+		slog.Error("GetReviewPeriod(): no row were returned!")
+		return false
+	case nil:
+		return true
+	default:
+		slog.Error(err.Error())
+		return false
+	}
+}
+
 // Get project [fromDate, toDate)
 func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time) ([]ReviewDashboardRow, error) {
 	rows, err := s.db.Query(getReviewerDashboardSQL, reviewerId, fromDate, toDate)
@@ -108,7 +124,8 @@ func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]Ap
 	var data []ApplicantDetailsData
 	for rows.Next() {
 		var row ApplicantDetailsData
-		err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.ReviewId, &row.ReviewedAt, &row.SumScore)
+		err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
+			&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewedAt, &row.SumScore)
 		if err != nil {
 			return nil, err
 		}

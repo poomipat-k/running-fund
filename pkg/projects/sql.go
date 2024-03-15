@@ -265,15 +265,23 @@ project.project_code as project_code,
 project.user_id as user_id,
 project_history.project_name  as project_name,
 project_history.status as project_status,
+project_history.admin_score as admin_score,
+project_history.fund_approved_amount as fund_approved_amount,
+project_history.admin_comment as admin_comment,
 review.id as review_id,
 review.created_at as reviewed_at,
 SUM(review_details.score)
-
 FROM project
 INNER JOIN project_history ON project.project_code = project_history.project_code
 LEFT JOIN review ON review.project_history_id = project_history.id
 LEFT JOIN review_details ON review.id = review_details.review_id
 WHERE project.user_id = $1 AND project.project_code = $2 
-GROUP BY project.project_code, project.user_id, project_history.project_name, project_history.status, review.id
+GROUP BY project.project_code, project.user_id, project_history.project_name, 
+project_history.status, project_history.admin_score, project_history.fund_approved_amount,
+project_history.admin_comment, review.id
 ;
+`
+
+const hasRightToAddAdditionalFilesSQL = `
+SELECT id FROM project WHERE project.user_id = $1 AND project.project_code = $2;
 `

@@ -9,6 +9,7 @@ CREATE TABLE project_history(
   status VARCHAR(255) NOT NULL,
   fund_approved_amount BIGINT,
   admin_comment VARCHAR(512),
+  admin_score SMALLINT,
   -- STEP 0
   collaborated BOOLEAN NOT NULL,
   -- STEP 1
