@@ -103,6 +103,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/user/password/reset", userHandler.ResetPassword)
 
 		r.Get("/auth/current", mw.IsLoggedIn(userHandler.GetCurrentUser))
+		r.Get("/user/full-name/{userId}", mw.IsLoggedIn(userHandler.GetUserFullNameById))
 		r.Post("/auth/register", userHandler.SignUp)
 		r.Post("/auth/login", userHandler.SignIn)
 		r.Post("/auth/logout", userHandler.SignOut)
