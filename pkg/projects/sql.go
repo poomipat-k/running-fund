@@ -284,5 +284,7 @@ project_history.admin_comment, review.id
 `
 
 const hasRightToAddAdditionalFilesSQL = `
-SELECT id FROM project WHERE project.user_id = $1 AND project.project_code = $2;
+SELECT project.id as project_id, project_history.status as project_status
+FROM project INNER JOIN project_history ON project.project_history_id = project_history.id 
+WHERE project.user_id = $1 AND project.project_code = $2;
 `
