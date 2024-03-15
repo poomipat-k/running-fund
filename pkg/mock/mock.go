@@ -17,6 +17,7 @@ type MockUserStore struct {
 	ActivateUserFunc         func(activateCode string) (int64, error)
 	ForgotPasswordActionFunc func(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
 	ResetPasswordFunc        func(resetPasswordCode string, newPassword string) (int64, error)
+	GetUserFullNameByIdFunc  func(userId int) (users.UserFullName, error)
 }
 
 func (m *MockUserStore) GetUserById(id int) (users.User, error) {
@@ -41,6 +42,10 @@ func (m *MockUserStore) ForgotPasswordAction(resetPasswordCode string, email str
 
 func (m *MockUserStore) ResetPassword(resetPasswordCode string, newPassword string) (int64, error) {
 	return m.ResetPasswordFunc(resetPasswordCode, newPassword)
+}
+
+func (m *MockUserStore) GetUserFullNameById(userId int) (users.UserFullName, error) {
+	return m.GetUserFullNameByIdFunc(userId)
 }
 
 // projects
