@@ -15,6 +15,16 @@ type User struct {
 	CreatedAt       time.Time `json:"createdAt,omitempty"`
 }
 
+type UserFullName struct {
+	Id        int    `json:"id,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
+	LastName  string `json:"lastName,omitempty"`
+}
+
+type UserIdRequest struct {
+	UserId int `json:"userId,omitempty"`
+}
+
 type SignUpRequest struct {
 	Email             string `json:"email"`
 	Password          string `json:"password"`

@@ -13,3 +13,7 @@ func GetUserIdFromRequestHeader(r *http.Request) (int, error) {
 	}
 	return userId, nil
 }
+
+func GetUserRoleFromRequestHeader(r *http.Request) string {
+	return r.Header.Get("userRole")
+}

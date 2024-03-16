@@ -29,7 +29,6 @@ func NewProjectHandler(s reviewStore, uStore users.UserStore) *ReviewHandler {
 }
 
 func (h *ReviewHandler) AddReview(w http.ResponseWriter, r *http.Request) {
-	// To check if the user exists in the db
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())

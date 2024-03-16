@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -17,7 +18,7 @@ func TestSignIn(t *testing.T) {
 	tests := []struct {
 		name                 string
 		payload              users.SignInRequest
-		store                *MockUserStore
+		store                *mock.MockUserStore
 		expectedStatus       int
 		expectedError        error
 		expectedLoginSuccess bool
@@ -29,7 +30,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "",
 				Password: "password",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailRequiredError{},
 		},
@@ -42,7 +43,7 @@ func TestSignIn(t *testing.T) {
 				abcde12345123451234512345123451234512345123451234512@test.com`,
 				Password: "password",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailTooLongError{},
 		},
@@ -52,7 +53,7 @@ func TestSignIn(t *testing.T) {
 				Email:    `abc@`,
 				Password: "password",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.InvalidEmailError{},
 		},
@@ -63,7 +64,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "a@a.com",
 				Password: "",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordRequiredError{},
 		},
@@ -73,7 +74,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "a@a.com",
 				Password: "x",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooShortError{},
 		},
@@ -83,7 +84,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "a@a.com",
 				Password: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxw",
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.PasswordTooLongError{},
 		},
@@ -94,7 +95,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "not-exist@test.com",
 				Password: "password",
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -108,7 +109,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "not-activated@test.com",
 				Password: "password",
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{
 						Email:     "a@a.com",
@@ -126,7 +127,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "a@a.com",
 				Password: "password2", // "password" is the correct password
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{
 						Email:     "a@a.com",
@@ -144,7 +145,7 @@ func TestSignIn(t *testing.T) {
 				Email:    "a@a.com",
 				Password: "password",
 			},
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{
 						Email:     "a@a.com",

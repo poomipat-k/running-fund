@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/golang-jwt/jwt"
 	"github.com/jordan-wright/email"
 	"github.com/poomipat-k/running-fund/pkg/utils"
@@ -20,6 +21,7 @@ const refreshExpireDurationHour = 4320 // 180 days
 type UserStore interface {
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
+	GetUserFullNameById(id int) (UserFullName, error)
 	AddUser(user User, toBeDeletedUserId int) (int, string, error)
 	ActivateUser(activateCode string) (int64, error)
 	ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
@@ -63,6 +65,22 @@ func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	utils.WriteJSON(w, http.StatusOK, user)
+}
+
+func (h *UserHandler) GetUserFullNameById(w http.ResponseWriter, r *http.Request) {
+	userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId")
+		return
+	}
+	user, err := h.store.GetUserFullNameById(userId)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "")
+		return
+	}
 	utils.WriteJSON(w, http.StatusOK, user)
 }
 
