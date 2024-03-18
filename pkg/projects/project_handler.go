@@ -82,7 +82,7 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		return
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
-	if userRole == "applicant" {
+	if userRole == "applicant" || userRole == "admin" {
 		var payload ProjectReviewer
 		utils.ReadJSON(w, r, &payload)
 		if payload.ReviewerId == 0 {
