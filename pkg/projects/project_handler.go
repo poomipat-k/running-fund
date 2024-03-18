@@ -28,7 +28,7 @@ type projectStore interface {
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []Attachments) (int, error)
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
-	GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error)
+	GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
 }
 
@@ -276,14 +276,22 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) GetApplicantProjectDetails(w http.ResponseWriter, r *http.Request) {
 	projectCode := chi.URLParam(r, "projectCode")
+	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole != "admin" && userRole != "applicant" {
+		utils.ErrorJSON(w, errors.New("access denied. No permission"), "userRole", http.StatusForbidden)
+		return
+	}
 
+	var userId int
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
 		return
 	}
-	projectDetails, err := h.store.GetApplicantProjectDetails(userId, projectCode)
+	isAdmin := userRole == "admin"
+	projectDetails, err := h.store.GetApplicantProjectDetails(isAdmin, projectCode, userId)
+
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId + projectCode", http.StatusNotFound)
@@ -331,6 +339,7 @@ func (h *ProjectHandler) ListApplicantFiles(w http.ResponseWriter, r *http.Reque
 			LastModified: *obj.LastModified,
 		})
 	}
+
 	utils.WriteJSON(w, http.StatusOK, data)
 }
 

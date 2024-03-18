@@ -57,7 +57,7 @@ type MockProjectStore struct {
 	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.Attachments) (int, error)
 	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 	GetAllProjectDashboardByApplicantIdFunc func(applicantId int) ([]projects.ApplicantDashboardItem, error)
-	GetApplicantProjectDetailsFunc          func(userId int, projectCode string) ([]projects.ApplicantDetailsData, error)
+	GetApplicantProjectDetailsFunc          func(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
 }
 
@@ -89,8 +89,8 @@ func (m *MockProjectStore) GetAllProjectDashboardByApplicantId(applicantId int) 
 	return m.GetAllProjectDashboardByApplicantIdFunc(applicantId)
 }
 
-func (m *MockProjectStore) GetApplicantProjectDetails(userId int, projectCode string) ([]projects.ApplicantDetailsData, error) {
-	return m.GetApplicantProjectDetailsFunc(userId, projectCode)
+func (m *MockProjectStore) GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error) {
+	return m.GetApplicantProjectDetailsFunc(isAdmin, projectCode, userId)
 }
 
 func (m *MockProjectStore) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {

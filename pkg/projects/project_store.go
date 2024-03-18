@@ -115,8 +115,14 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 	return data, nil
 }
 
-func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error) {
-	rows, err := s.db.Query(getApplicantProjectDetailsSQL, userId, projectCode)
+func (s *store) GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error) {
+	var rows *sql.Rows
+	var err error
+	if isAdmin {
+		rows, err = s.db.Query(getApplicantProjectDetailsByAdminSQL, projectCode)
+	} else {
+		rows, err = s.db.Query(getApplicantProjectDetailsSQL, projectCode, userId)
+	}
 	if err != nil {
 		return nil, err
 	}
