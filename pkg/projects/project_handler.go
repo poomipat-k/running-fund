@@ -204,7 +204,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
-	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
 	attachments := []Attachments{
 		{
 			DirName:         collaborationStr,
@@ -236,12 +235,12 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			InZipFilePrefix: "กำหนดการการจัดกิจกรรม",
 			Files:           eventDetailsFiles,
 		},
-		{
-			DirName:         formStr,
-			ZipName:         formStr,
-			InZipFilePrefix: formStr,
-			Files:           screenshotFiles,
-		},
+		// {
+		// 	DirName:         formStr,
+		// 	ZipName:         formStr,
+		// 	InZipFilePrefix: formStr,
+		// 	Files:           screenshotFiles,
+		// },
 	}
 
 	v := os.Getenv("APPLICANT_CRITERIA_VERSION")
@@ -258,7 +257,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles)
+	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)

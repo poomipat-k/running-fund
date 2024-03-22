@@ -30,7 +30,6 @@ type TestCase struct {
 	routeFilesPath         string
 	eventMapFilesPath      string
 	eventDetailsFilesPath  string
-	screenshotFilesPath    string
 }
 
 func TestAddProject(t *testing.T) {
@@ -134,17 +133,6 @@ func TestAddProject(t *testing.T) {
 							t.Error(err)
 						}
 					}
-
-					if tt.screenshotFilesPath != "" {
-						mk, err := multipartWriter.CreateFormFile("screenshotFiles", filePath)
-						if err != nil {
-							t.Error(err)
-						}
-						if _, err := io.Copy(mk, file); err != nil {
-							t.Error(err)
-						}
-					}
-
 				}()
 
 				// End multipart/form-data setup

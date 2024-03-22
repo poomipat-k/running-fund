@@ -705,12 +705,6 @@ func (e *EventDetailsFilesRequiredError) Error() string {
 	return "eventDetailsFiles are required"
 }
 
-type ScreenshotFilesRequiredError struct{}
-
-func (e *ScreenshotFilesRequiredError) Error() string {
-	return "screenshotFiles are required"
-}
-
 type AdditionFilesRequiredError struct{}
 
 func (e *AdditionFilesRequiredError) Error() string {

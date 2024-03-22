@@ -15,7 +15,7 @@ func validateAddProjectPayload(
 	payload AddProjectRequest,
 	collaborateFiles []*multipart.FileHeader,
 	criteria []ApplicantSelfScoreCriteria,
-	marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles []*multipart.FileHeader) error {
+	marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles []*multipart.FileHeader) error {
 	if payload.Collaborated == nil {
 		return &CollaboratedRequiredError{}
 	}
@@ -38,7 +38,7 @@ func validateAddProjectPayload(
 	if err := validateFund(payload); err != nil {
 		return err
 	}
-	if err := validateAttachment(marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles); err != nil {
+	if err := validateAttachment(marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles); err != nil {
 		return err
 	}
 
