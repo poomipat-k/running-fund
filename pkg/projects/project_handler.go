@@ -236,12 +236,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			InZipFilePrefix: "กำหนดการการจัดกิจกรรม",
 			Files:           eventDetailsFiles,
 		},
-		// {
-		// 	DirName:         formStr,
-		// 	ZipName:         formStr,
-		// 	InZipFilePrefix: formStr,
-		// 	Files:           screenshotFiles,
-		// },
 	}
 
 	v := os.Getenv("APPLICANT_CRITERIA_VERSION")

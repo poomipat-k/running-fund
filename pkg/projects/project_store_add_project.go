@@ -19,7 +19,6 @@ import (
 const (
 	collaborationStr = "หนังสือนำส่ง"
 	attachmentsStr   = "เอกสารแนบ"
-	formStr          = "แบบฟอร์ม"
 )
 
 func (s *store) AddProject(
@@ -116,7 +115,6 @@ func (s *store) AddProject(
 
 	// Write users uploaded file to zip files
 	zipTmpPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
-	log.Println("===zipTmpPath", zipTmpPath)
 	err = os.MkdirAll(zipTmpPath, os.ModePerm)
 	if err != nil {
 		return 0, err
@@ -132,16 +130,6 @@ func (s *store) AddProject(
 	defer attachmentsZip.Close()
 	attachmentsZipWriter := zip.NewWriter(attachmentsZip)
 	defer attachmentsZipWriter.Close()
-
-	formZipName := fmt.Sprintf("%s_%s.zip", projectCode, formStr)
-
-	formZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, formZipName))
-	if err != nil {
-		return 0, err
-	}
-	defer formZip.Close()
-	formZipWriter := zip.NewWriter(formZip)
-	defer formZipWriter.Close()
 
 	zipWriterMap := map[string][]*zip.Writer{}
 	var collaborationZip *os.File
@@ -161,7 +149,6 @@ func (s *store) AddProject(
 	}
 
 	zipWriterMap[attachmentsStr] = []*zip.Writer{attachmentsZipWriter}
-	zipWriterMap[formStr] = []*zip.Writer{attachmentsZipWriter, formZipWriter}
 
 	for _, attachment := range attachments {
 		zipWriters := zipWriterMap[attachment.ZipName]
@@ -192,32 +179,26 @@ func (s *store) AddProject(
 	}
 	log.Println("====PDF generated: pdfPath", pdfPath)
 	// write pdf file to attachments zip and form zip
-	f, err := os.Open(pdfPath)
+	formPdfFile, err := os.Open(pdfPath)
 	if err != nil {
 		return 0, err
 	}
-	err = utils.WriteToZip(attachmentsZipWriter, f, "เอกสารแนบ/แบบฟอร์ม.pdf")
+	err = utils.WriteToZip(attachmentsZipWriter, formPdfFile, "เอกสารแนบ/แบบฟอร์ม.pdf")
 	if err != nil {
 		return 0, err
 	}
-	_, err = f.Seek(0, io.SeekStart)
-	if err != nil {
-		return 0, err
-	}
-	err = utils.WriteToZip(formZipWriter, f, "แบบฟอร์ม.pdf")
-	if err != nil {
-		return 0, err
-	}
-	_, err = f.Seek(0, io.SeekStart)
+	_, err = formPdfFile.Seek(0, io.SeekStart)
 	if err != nil {
 		return 0, err
 	}
 
-	// panic("====test====")
+	err = s.awsS3Service.DoUploadFileToS3(formPdfFile, baseFilePrefix)
+	if err != nil {
+		return 0, err
+	}
 
 	// close zip writer before upload to s3
 	attachmentsZipWriter.Close()
-	formZipWriter.Close()
 
 	s3ZipPrefix := fmt.Sprintf("%s/zip", baseFilePrefix)
 	if *payload.Collaborated {
@@ -237,15 +218,6 @@ func (s *store) AddProject(
 		return 0, err
 	}
 	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/%s", s3ZipPrefix, attachmentsZipName))
-	if err != nil {
-		return 0, err
-	}
-
-	_, err = formZip.Seek(0, io.SeekStart)
-	if err != nil {
-		return 0, err
-	}
-	err = s.awsS3Service.DoUploadFileToS3(formZip, fmt.Sprintf("%s/%s", s3ZipPrefix, formZipName))
 	if err != nil {
 		return 0, err
 	}
@@ -643,4 +615,122 @@ func buildTimeFromPayload(payload AddProjectRequest) (time.Time, time.Time, time
 		)
 	}
 	return fromDate, toDate, thisSeriesLatestDate, nil
+}
+
+func (s *store) handleFiles(baseFilePrefix string, userId int, projectCode string, payload AddProjectRequest, attachments []Attachments) error {
+	// Write users uploaded file to zip files
+	zipTmpPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
+	err := os.MkdirAll(zipTmpPath, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	attachmentsZipName := fmt.Sprintf("%s_%s.zip", projectCode, attachmentsStr)
+
+	baseZipPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
+	attachmentsZip, err := os.Create(fmt.Sprintf("%s/%s", baseZipPath, attachmentsZipName))
+	if err != nil {
+		return err
+	}
+	defer attachmentsZip.Close()
+	attachmentsZipWriter := zip.NewWriter(attachmentsZip)
+	defer attachmentsZipWriter.Close()
+
+	zipWriterMap := map[string][]*zip.Writer{}
+	var collaborationZip *os.File
+	var collaborationZipWriter *zip.Writer
+	var collaborationZipName string
+	if *payload.Collaborated {
+		collaborationZipName = fmt.Sprintf("%s_%s.zip", projectCode, collaborationStr)
+		collaborationZip, err = os.Create(fmt.Sprintf("%s/%s", baseZipPath, collaborationZipName))
+		if err != nil {
+			return err
+		}
+		defer collaborationZip.Close()
+		collaborationZipWriter = zip.NewWriter(collaborationZip)
+		defer collaborationZipWriter.Close()
+
+		zipWriterMap[collaborationStr] = []*zip.Writer{collaborationZipWriter}
+	}
+
+	zipWriterMap[attachmentsStr] = []*zip.Writer{attachmentsZipWriter}
+
+	for _, attachment := range attachments {
+		zipWriters := zipWriterMap[attachment.ZipName]
+		s3FilePrefix := fmt.Sprintf("%s/%s", baseFilePrefix, attachment.DirName)
+		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, fmt.Sprintf("%s_%s", projectCode, attachment.InZipFilePrefix), s3FilePrefix)
+		if err != nil {
+			return err
+		}
+	}
+	// Write pdf to attachmentZip writer and form formZip writer
+	// Then upload non-zipped pdf file to s3
+
+	// generate pdf files
+	log.Println("===generating a pdf")
+	pdfPath, err := generateApplicantFormPdf(
+		userId,
+		projectCode,
+		payload.General.ProjectName,
+		"18/11/2024",
+		payload.General.Address.Address,
+		"ปากกาง",
+		"ลอง",
+		"แพร่",
+	)
+	if err != nil {
+		slog.Error("error generating a pdf for", "projectCode", projectCode)
+		return err
+	}
+	log.Println("====PDF generated: pdfPath", pdfPath)
+	// write pdf file to attachments zip and form zip
+	formPdfFile, err := os.Open(pdfPath)
+	if err != nil {
+		return err
+	}
+	err = utils.WriteToZip(attachmentsZipWriter, formPdfFile, "เอกสารแนบ/แบบฟอร์ม.pdf")
+	if err != nil {
+		return err
+	}
+	_, err = formPdfFile.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
+
+	err = s.awsS3Service.DoUploadFileToS3(formPdfFile, baseFilePrefix)
+	if err != nil {
+		return err
+	}
+
+	// close zip writer before upload to s3
+	attachmentsZipWriter.Close()
+
+	s3ZipPrefix := fmt.Sprintf("%s/zip", baseFilePrefix)
+	if *payload.Collaborated {
+		collaborationZipWriter.Close()
+		_, err = collaborationZip.Seek(0, io.SeekStart)
+		if err != nil {
+			return err
+		}
+		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/%s", s3ZipPrefix, collaborationZipName))
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = attachmentsZip.Seek(0, io.SeekStart)
+	if err != nil {
+		return err
+	}
+	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/%s", s3ZipPrefix, attachmentsZipName))
+	if err != nil {
+		return err
+	}
+
+	// Clean up temp files
+	err = os.RemoveAll(filepath.Join(zipTmpPath, ".."))
+	if err != nil {
+		return err
+	}
+	return nil
 }
