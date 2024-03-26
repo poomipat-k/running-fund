@@ -541,7 +541,7 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		collaborationZipWriter = zip.NewWriter(collaborationZip)
 		defer collaborationZipWriter.Close()
 
-		zipWriterMap[collaborationStr] = []*zip.Writer{collaborationZipWriter}
+		zipWriterMap[collaborationStr] = []*zip.Writer{collaborationZipWriter, attachmentsZipWriter}
 	}
 
 	zipWriterMap[attachmentsStr] = []*zip.Writer{attachmentsZipWriter}
@@ -558,7 +558,6 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 	// Then upload non-zipped pdf file to s3
 
 	// generate pdf files
-	log.Println("===generating a pdf")
 	pdfPath, err := generateApplicantFormPdf(
 		userId,
 		projectCode,
@@ -573,13 +572,12 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		slog.Error("error generating a pdf for", "projectCode", projectCode)
 		return err
 	}
-	log.Println("====PDF generated: pdfPath", pdfPath)
 	// write pdf file to attachments zip and form zip
 	formPdfFile, err := os.Open(pdfPath)
 	if err != nil {
 		return err
 	}
-	err = utils.WriteToZip(attachmentsZipWriter, formPdfFile, "เอกสารแนบ/แบบฟอร์ม.pdf")
+	err = utils.WriteToZip(attachmentsZipWriter, formPdfFile, "แบบฟอร์ม.pdf")
 	if err != nil {
 		return err
 	}
@@ -623,5 +621,10 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 	if err != nil {
 		return err
 	}
+	err = os.RemoveAll(pdfPath)
+	if err != nil {
+		return err
+	}
+	log.Println("==DONE")
 	return nil
 }
