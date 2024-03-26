@@ -109,31 +109,6 @@ func (client *S3Service) ListObjects(bucketName string, prefix string) ([]types.
 	return contents, err
 }
 
-// DownloadFile gets an object from a bucket and stores it in a local file.
-func (client *S3Service) DownloadFile(bucketName string, objectKey string, fileName string) error {
-	result, err := client.S3Client.GetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-	})
-	if err != nil {
-		log.Printf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, objectKey, err)
-		return err
-	}
-	defer result.Body.Close()
-	file, err := os.Create(fileName)
-	if err != nil {
-		log.Printf("Couldn't create file %v. Here's why: %v\n", fileName, err)
-		return err
-	}
-	defer file.Close()
-	body, err := io.ReadAll(result.Body)
-	if err != nil {
-		log.Printf("Couldn't read object body from %v. Here's why: %v\n", objectKey, err)
-	}
-	_, err = file.Write(body)
-	return err
-}
-
 func isDocType(detectedType string, contentType string) bool {
 	if detectedType == "application/octet-stream" && contentType == "application/msword" {
 		return true

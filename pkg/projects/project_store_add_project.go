@@ -6,11 +6,14 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
+	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 const (
@@ -111,7 +114,9 @@ func (s *store) AddProject(
 		return failAdd("applicantScoreRowsAffected", err)
 	}
 
+	// Write users uploaded file to zip files
 	zipTmpPath := filepath.Join("../home", fmt.Sprintf("tmp/%s", baseFilePrefix))
+	log.Println("===zipTmpPath", zipTmpPath)
 	err = os.MkdirAll(zipTmpPath, os.ModePerm)
 	if err != nil {
 		return 0, err
@@ -166,6 +171,49 @@ func (s *store) AddProject(
 			return failAdd("upload file and zip:", err)
 		}
 	}
+	// Write pdf to attachmentZip writer and form formZip writer
+	// Then upload non-zipped pdf file to s3
+
+	// generate pdf files
+	log.Println("===generating a pdf")
+	pdfPath, err := generateApplicantFormPdf(
+		userId,
+		projectCode,
+		payload.General.ProjectName,
+		"18/11/2024",
+		payload.General.Address.Address,
+		"ปากกาง",
+		"ลอง",
+		"แพร่",
+	)
+	if err != nil {
+		slog.Error("error generating a pdf for", "projectCode", projectCode)
+		return 0, err
+	}
+	log.Println("====PDF generated: pdfPath", pdfPath)
+	// write pdf file to attachments zip and form zip
+	f, err := os.Open(pdfPath)
+	if err != nil {
+		return 0, err
+	}
+	err = utils.WriteToZip(attachmentsZipWriter, f, "เอกสารแนบ/แบบฟอร์ม.pdf")
+	if err != nil {
+		return 0, err
+	}
+	_, err = f.Seek(0, io.SeekStart)
+	if err != nil {
+		return 0, err
+	}
+	err = utils.WriteToZip(formZipWriter, f, "แบบฟอร์ม.pdf")
+	if err != nil {
+		return 0, err
+	}
+	_, err = f.Seek(0, io.SeekStart)
+	if err != nil {
+		return 0, err
+	}
+
+	// panic("====test====")
 
 	// close zip writer before upload to s3
 	attachmentsZipWriter.Close()
