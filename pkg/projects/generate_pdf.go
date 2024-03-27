@@ -57,7 +57,10 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		return "", err
 	}
 
-	s.generateContactSection(pdf, payload)
+	err = s.generateContactSection(pdf, payload)
+	if err != nil {
+		return "", err
+	}
 
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
@@ -262,7 +265,7 @@ func (s *store) generateGeneralDetailsSection(pdf *gofpdf.Fpdf, payload AddProje
 	return nil
 }
 
-func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) {
+func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) error {
 	pdf.Ln(12)
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "ส่วนที่ 2 ข้อมูลการติดต่อ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
@@ -270,14 +273,15 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 
 	pdf.MultiCell(0, 16, "2.1 หัวหน้าโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
+	projectHeadStr := indent(fmt.Sprintf("%s %s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
+		payload.Contact.ProjectHead.Prefix,
+		payload.Contact.ProjectHead.FirstName,
+		payload.Contact.ProjectHead.LastName,
+		payload.Contact.ProjectHead.OrganizationPosition,
+		payload.Contact.ProjectHead.EventPosition,
+	), 6)
 	pdf.MultiCell(0, 16,
-		indent(fmt.Sprintf("%s%s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
-			payload.Contact.ProjectHead.Prefix,
-			payload.Contact.ProjectHead.FirstName,
-			payload.Contact.ProjectHead.LastName,
-			payload.Contact.ProjectHead.OrganizationPosition,
-			payload.Contact.ProjectHead.EventPosition,
-		), 6),
+		projectHeadStr,
 		gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
 	pdf.Ln(4)
@@ -285,28 +289,84 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "2.2 ผู้รับผิดชอบโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
+	projectManagerStr := indent(fmt.Sprintf("%s %s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
+		payload.Contact.ProjectManager.Prefix,
+		payload.Contact.ProjectManager.FirstName,
+		payload.Contact.ProjectManager.LastName,
+		payload.Contact.ProjectManager.OrganizationPosition,
+		payload.Contact.ProjectManager.EventPosition,
+	), 6)
 	pdf.MultiCell(0, 16,
-		indent(fmt.Sprintf("%s%s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
-			payload.Contact.ProjectManager.Prefix,
-			payload.Contact.ProjectManager.FirstName,
-			payload.Contact.ProjectManager.LastName,
-			payload.Contact.ProjectManager.OrganizationPosition,
-			payload.Contact.ProjectManager.EventPosition,
-		), 6),
+		projectManagerStr,
 		gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.Ln(4)
 
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "2.3 ผู้ประสานงานโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
+	projectCoordinatorStr := indent(fmt.Sprintf("%s %s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
+		payload.Contact.ProjectCoordinator.Prefix,
+		payload.Contact.ProjectCoordinator.FirstName,
+		payload.Contact.ProjectCoordinator.LastName,
+		payload.Contact.ProjectCoordinator.OrganizationPosition,
+		payload.Contact.ProjectCoordinator.EventPosition,
+	), 6)
 	pdf.MultiCell(0, 16,
-		indent(fmt.Sprintf("%s%s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
-			payload.Contact.ProjectCoordinator.Prefix,
-			payload.Contact.ProjectCoordinator.FirstName,
-			payload.Contact.ProjectCoordinator.LastName,
-			payload.Contact.ProjectCoordinator.OrganizationPosition,
-			payload.Contact.ProjectCoordinator.EventPosition,
-		), 6),
+		projectCoordinatorStr,
 		gofpdf.BorderNone, gofpdf.AlignLeft, false)
+
+	address, err := s.getAddressDetails(payload.General.Address.PostcodeId)
+	if err != nil {
+		return err
+	}
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("ที่อยู่: %s,  %s,  %s,  %s %d", payload.General.Address.Address, address.SubdistrictName, address.DistrictName, address.ProvinceName, address.Postcode), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("อีเมล (E-mail): %s", payload.Contact.ProjectCoordinator.Email), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("ไลน์ไอดี (Line ID): %s", payload.Contact.ProjectCoordinator.LineId), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("หมายเลขโทรศัพท์: %s", payload.Contact.ProjectCoordinator.PhoneNumber), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
 	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "2.4 ผู้ตัดสินชี้ขาด (Race Director)", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	var raceDirectorStr string
+	if payload.Contact.RaceDirector.Who == "projectHead" {
+		raceDirectorStr = projectHeadStr
+	} else if payload.Contact.RaceDirector.Who == "projectManager" {
+		raceDirectorStr = projectManagerStr
+	} else if payload.Contact.RaceDirector.Who == "projectCoordinator" {
+		raceDirectorStr = projectCoordinatorStr
+	} else if payload.Contact.RaceDirector.Who == "other" {
+		raceDirectorStr = indent(fmt.Sprintf("%s %s %s",
+			payload.Contact.RaceDirector.Alternative.Prefix,
+			payload.Contact.RaceDirector.Alternative.FirstName,
+			payload.Contact.RaceDirector.Alternative.LastName,
+		), 6)
+	}
+	pdf.MultiCell(0, 16, raceDirectorStr, gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+	return nil
 }
