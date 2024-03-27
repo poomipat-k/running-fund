@@ -109,15 +109,71 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.MultiCell(0, 16, indent("1.5.1 ประเภทการจัดวิ่ง", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 	if payload.General.EventDetails.Category.Available.RoadRace {
-		pdf.MultiCell(0, 16, indent("- วิ่งถนน (Road Race)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.MultiCell(0, 16, indent("- วิ่งถนน (Road Race)", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
 
 	if payload.General.EventDetails.Category.Available.TrailRunning {
-		pdf.MultiCell(0, 16, indent("- Trail Running (การวิ่งตามภูมิประเทศ)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.MultiCell(0, 16, indent("- Trail Running (การวิ่งตามภูมิประเทศ)", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
 
 	if payload.General.EventDetails.Category.Available.Other && payload.General.EventDetails.Category.OtherType != "" {
-		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ประเภทอื่นๆ: %s", payload.General.EventDetails.Category.OtherType), 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ประเภทอื่นๆ: %s", payload.General.EventDetails.Category.OtherType), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("1.5.2 ระยะทางและอัตราค่าสมัครปกติ", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	for _, daf := range payload.General.EventDetails.DistanceAndFee {
+		if daf.Checked {
+			if daf.Type == "fun" {
+				pdf.MultiCell(
+					0,
+					16,
+					indent(fmt.Sprintf("- Fun run (ระยะทางไม่เกิน 10 km)  ค่าสมัคร %.0f บาท", *daf.Fee), 10),
+					gofpdf.BorderNone,
+					gofpdf.AlignLeft,
+					false,
+				)
+			} else if daf.Type == "mini" {
+				pdf.MultiCell(
+					0,
+					16,
+					indent(fmt.Sprintf("- Mini Marathon (ระยะทาง 10 km)  ค่าสมัคร %.0f บาท", *daf.Fee), 10),
+					gofpdf.BorderNone,
+					gofpdf.AlignLeft,
+					false,
+				)
+			} else if daf.Type == "half" {
+				pdf.MultiCell(
+					0,
+					16,
+					indent(fmt.Sprintf("- Half Marathon (ระยะทาง 21.1 km)  ค่าสมัคร %.0f บาท", *daf.Fee), 10),
+					gofpdf.BorderNone,
+					gofpdf.AlignLeft,
+					false,
+				)
+			} else if daf.Type == "full" {
+				pdf.MultiCell(
+					0,
+					16,
+					indent(fmt.Sprintf("- Marathon (ระยะทาง 42.195 km)  ค่าสมัคร %.0f บาท", *daf.Fee), 10),
+					gofpdf.BorderNone,
+					gofpdf.AlignLeft,
+					false,
+				)
+			} else if *daf.Dynamic {
+				pdf.MultiCell(
+					0,
+					16,
+					indent(fmt.Sprintf("- %s  ค่าสมัคร %.0f บาท", daf.Type, *daf.Fee), 10),
+					gofpdf.BorderNone,
+					gofpdf.AlignLeft,
+					false,
+				)
+			}
+		}
+
 	}
 
 	// save pdf to a file
