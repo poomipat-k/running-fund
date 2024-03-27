@@ -152,3 +152,11 @@ type CommonSuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
 }
+
+type AddressDetails struct {
+	Address         string `json:"address,omitempty"`
+	Postcode        int    `json:"postcode,omitempty"`
+	SubdistrictName string `json:"subdistrictName,omitempty"`
+	DistrictName    string `json:"districtName,omitempty"`
+	ProvinceName    string `json:"provinceName,omitempty"`
+}

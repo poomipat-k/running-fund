@@ -312,3 +312,14 @@ SELECT project.id as project_id, project_history.status as project_status
 FROM project INNER JOIN project_history ON project.project_history_id = project_history.id 
 WHERE project.user_id = $1 AND project.project_code = $2;
 `
+
+const getAddressDetailsSQL = `
+SELECT address, postcode.code as postcode, subdistrict."name" as subdistrict_name,
+district."name" as district_name, province."name" as province_name
+FROM address 
+INNER JOIN postcode ON address.postcode_id = postcode.id
+INNER JOIN subdistrict ON postcode.subdistrict_id = subdistrict.id
+INNER JOIN district ON subdistrict.district_id = district.id
+INNER JOIN province ON district.province_id = province.id
+WHERE address.id = $1;
+`

@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -72,6 +73,7 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		gofpdf.AlignLeft,
 		false)
 
+	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
 	err := pdf.OutputFileAndClose(targetPath)
 	if err != nil {
@@ -89,4 +91,21 @@ func indent(input string, n int) string {
 func getDateString(year, month, day, hour, minute int) string {
 	monthStr := utils.MonthMapThai[month]
 	return fmt.Sprintf("%d %s %d %02d:%02d", day, monthStr, year, hour, minute)
+}
+
+func (s *store) getAddressDetails(addressId int) (AddressDetails, error) {
+	var ad AddressDetails
+	row := s.db.QueryRow(getAddressDetailsSQL, addressId)
+	err := row.Scan(&ad.Address, &ad.Postcode, &ad.SubdistrictName, &ad.DistrictName, &ad.ProvinceName)
+
+	switch err {
+	case sql.ErrNoRows:
+		slog.Error("getAddressDetails(): no row were returned!")
+		return AddressDetails{}, err
+	case nil:
+		return ad, nil
+	default:
+		slog.Error(err.Error())
+		return AddressDetails{}, err
+	}
 }
