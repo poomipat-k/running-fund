@@ -34,6 +34,10 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		ReadDpi: true,
 	}, 0, "")
 
+	pdf.SetFont(srB, "B", 16)
+	pdf.Text(200, 30, fmt.Sprintf("ข้อเสนอโครงการ: %s", payload.General.ProjectName))
+	pdf.Text(200, 50, fmt.Sprintf("รหัสโครงการ: %s", projectCode))
+
 	// Header end
 
 	pdf.SetFont(srB, "B", 18)
