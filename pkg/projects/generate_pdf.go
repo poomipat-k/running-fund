@@ -14,6 +14,16 @@ const padding = 72
 const sr = "sarabunnew"
 const srB = "sarabunnewBold"
 
+var expectedParticipantsMap = map[string]string{
+	"<=500":     "ต่ำกว่า 500 คน",
+	"501-1500":  "501 - 1,500 คน",
+	"1501-2500": "1,501 - 2,500 คน",
+	"2501-3500": "2,501 - 3,500 คน",
+	"3501-4500": "3,501 - 4,500 คน",
+	"4501-5500": "4,501 - 5,500 คน",
+	">=5501":    "5,501 คนขึ้นไป",
+}
+
 func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload AddProjectRequest) (string, error) {
 	pdf := gofpdf.New(gofpdf.OrientationPortrait, gofpdf.UnitPoint, "A4", "")
 	w, h := pdf.GetPageSize()
@@ -173,8 +183,25 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 				)
 			}
 		}
-
 	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	var vipText string
+	if *payload.General.EventDetails.VIP {
+		vipText = "- มี"
+	} else {
+		vipText = "- ไม่มี"
+	}
+	pdf.MultiCell(0, 16, indent("1.5.2 การเปิดรับสมัครประเภท VIP", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(vipText, 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "1.6 จำนวนผู้เข้าร่วมที่ตั้งเป้า", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(expectedParticipantsMap[payload.General.ExpectedParticipants], 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
