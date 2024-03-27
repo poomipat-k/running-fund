@@ -5,9 +5,9 @@ import (
 	"log"
 	"log/slog"
 	"strings"
-	"time"
 
 	"github.com/jung-kurt/gofpdf"
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 const padding = 72
@@ -57,25 +57,18 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.MultiCell(0, 16, "1.2 วันที่จัดงานวิ่ง:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 
-	loc, err := time.LoadLocation(TIMEZONE)
-	if err != nil {
-		return "", err
-	}
-	fromTime := convertEventDateToDateTime(
+	fromTimeStr := getDateString(
 		payload.General.EventDate.Year,
 		payload.General.EventDate.Month,
 		payload.General.EventDate.Day,
 		*payload.General.EventDate.FromHour,
 		*payload.General.EventDate.FromMinute,
-		loc,
 	)
-
-	log.Println("==1", fromTime.String())
-	log.Println("==2", fromTime.Local().String())
-	pdf.MultiCell(0, 16, indent(fromTime.String(), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	log.Println("==fromTimeStr", fromTimeStr)
+	pdf.MultiCell(0, 16, indent(fromTimeStr, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
-	err = pdf.OutputFileAndClose(targetPath)
+	err := pdf.OutputFileAndClose(targetPath)
 	if err != nil {
 		slog.Error("error saving a pdf file to a local file", "error", err.Error())
 		return "", err
@@ -88,16 +81,7 @@ func indent(input string, n int) string {
 	return fmt.Sprintf("%s%s", strings.Repeat(" ", n), input)
 }
 
-func convertEventDateToDateTime(year, month, day, hour, minute int, loc *time.Location) time.Time {
-	fromDate := time.Date(
-		year,
-		time.Month(month),
-		day,
-		hour,
-		minute,
-		0,
-		0,
-		loc,
-	)
-	return fromDate
+func getDateString(year, month, day, hour, minute int) string {
+	monthStr := utils.MonthMapThai[month]
+	return fmt.Sprintf("%d %s %d %02d:%02d", day, monthStr, year, hour, minute)
 }
