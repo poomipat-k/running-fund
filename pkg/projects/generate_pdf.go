@@ -368,5 +368,19 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	}
 	pdf.MultiCell(0, 16, raceDirectorStr, gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "2.5 ประเภทและชื่อของหน่วยงาน/องค์กรที่เสนอโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	var organizationStr string
+	if payload.Contact.Organization.Type == "government" {
+		organizationStr = fmt.Sprintf("ภาครัฐ: %s", payload.Contact.Organization.Name)
+	} else if payload.Contact.Organization.Type == "private_sector" {
+		organizationStr = fmt.Sprintf("ภาคเอกชน: %s", payload.Contact.Organization.Name)
+	} else if payload.Contact.Organization.Type == "civil_society" {
+		organizationStr = fmt.Sprintf("ภาคประชาสังคม: %s", payload.Contact.Organization.Name)
+	}
+
+	pdf.MultiCell(0, 16, indent(organizationStr, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	return nil
 }
