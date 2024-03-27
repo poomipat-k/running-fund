@@ -422,4 +422,27 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	if payload.Details.Marketing.Online.Available.Other {
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ช่องทางออนไลน์อื่นๆ: %s", payload.Details.Marketing.Online.HowTo.Other), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.2.2 สื่อสารผ่านบุคคล และ/หรือช่องทางอื่น ๆ ที่ไม่ใช้อินเทอร์เน็ต (Offline)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Marketing.Offline.Available.PR {
+		pdf.MultiCell(0, 16, indent("- ส่งหนังสือให้กับหน่วยงาน/องค์กรอื่นช่วยประชาสัมพันธ์", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Offline.Available.LocalOfficial {
+		pdf.MultiCell(0, 16, indent("- ประชาสัมพันธ์ผ่านบุคคลในพื้นที่ เช่น กำนัน ผู้ใหญ่บ้าน อสม. ชมรมวิ่ง", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Offline.Available.Booth {
+		pdf.MultiCell(0, 16, indent("- การตั้งบูธประชาสัมพันธ์/ รับสมัคร", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Offline.Available.Billboard {
+		pdf.MultiCell(0, 16, indent("- กระจายสื่อในพื้นที่ เช่น ป้าย ไวนิล รถประชาสัมพันธ์", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Offline.Available.TV {
+		pdf.MultiCell(0, 16, indent("- การลงข่าวหรือโฆษณาทาง TV", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Offline.Available.Other {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ช่องทางออฟไลน์อื่นๆ: %s", payload.Details.Marketing.Offline.Addition), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
 }
