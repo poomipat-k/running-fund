@@ -51,7 +51,52 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.Text(200, 50, fmt.Sprintf("รหัสโครงการ: %s", projectCode))
 
 	// Header end
+	// 1. General details
+	err := s.generateGeneralDetailsSection(pdf, payload)
+	if err != nil {
+		return "", err
+	}
 
+	s.generateContactSection(pdf, payload)
+
+	// save pdf to a file
+	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
+	err = pdf.OutputFileAndClose(targetPath)
+	if err != nil {
+		slog.Error("error saving a pdf file to a local file", "error", err.Error())
+		return "", err
+	}
+	fmt.Println("== Done ==")
+	return targetPath, nil
+}
+
+func indent(input string, n int) string {
+	return fmt.Sprintf("%s%s", strings.Repeat(" ", n), input)
+}
+
+func getDateString(year, month, day, hour, minute int) string {
+	monthStr := utils.MonthMapThai[month]
+	return fmt.Sprintf("%d %s %d %02d:%02d", day, monthStr, year, hour, minute)
+}
+
+func (s *store) getAddressDetails(addressId int) (AddressDetails, error) {
+	var ad AddressDetails
+	row := s.db.QueryRow(getAddressDetailsSQL, addressId)
+	err := row.Scan(&ad.Postcode, &ad.SubdistrictName, &ad.DistrictName, &ad.ProvinceName)
+
+	switch err {
+	case sql.ErrNoRows:
+		slog.Error("getAddressDetails(): no row were returned!")
+		return AddressDetails{}, err
+	case nil:
+		return ad, nil
+	default:
+		slog.Error(err.Error())
+		return AddressDetails{}, err
+	}
+}
+
+func (s *store) generateGeneralDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) error {
 	pdf.SetFont(srB, "B", 18)
 	pdf.MultiCell(0, 18, "ข้อมูลทั่วไปโครงการ", gofpdf.BorderNone, gofpdf.AlignCenter, false)
 	pdf.Ln(12)
@@ -89,7 +134,7 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.SetFont(sr, "", 16)
 	address, err := s.getAddressDetails(payload.General.Address.PostcodeId)
 	if err != nil {
-		return "", err
+		return err
 	}
 	pdf.MultiCell(
 		0,
@@ -202,40 +247,66 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.MultiCell(0, 16, "1.6 จำนวนผู้เข้าร่วมที่ตั้งเป้า", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 	pdf.MultiCell(0, 16, indent(expectedParticipantsMap[payload.General.ExpectedParticipants], 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
 
-	// save pdf to a file
-	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
-	err = pdf.OutputFileAndClose(targetPath)
-	if err != nil {
-		slog.Error("error saving a pdf file to a local file", "error", err.Error())
-		return "", err
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "1.7 การใช้บริษัทจัดงาน (Organizer)", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	var organizerText string
+	if *payload.General.HasOrganizer {
+		organizerText = payload.General.OrganizerName
+	} else {
+		organizerText = "ไม่ใช้"
 	}
-	fmt.Println("== Done ==")
-	return targetPath, nil
+	pdf.MultiCell(0, 16, indent(organizerText, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	return nil
 }
 
-func indent(input string, n int) string {
-	return fmt.Sprintf("%s%s", strings.Repeat(" ", n), input)
-}
+func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) {
+	pdf.Ln(12)
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "ส่วนที่ 2 ข้อมูลการติดต่อ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
 
-func getDateString(year, month, day, hour, minute int) string {
-	monthStr := utils.MonthMapThai[month]
-	return fmt.Sprintf("%d %s %d %02d:%02d", day, monthStr, year, hour, minute)
-}
+	pdf.MultiCell(0, 16, "2.1 หัวหน้าโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16,
+		indent(fmt.Sprintf("%s%s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
+			payload.Contact.ProjectHead.Prefix,
+			payload.Contact.ProjectHead.FirstName,
+			payload.Contact.ProjectHead.LastName,
+			payload.Contact.ProjectHead.OrganizationPosition,
+			payload.Contact.ProjectHead.EventPosition,
+		), 6),
+		gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
-func (s *store) getAddressDetails(addressId int) (AddressDetails, error) {
-	var ad AddressDetails
-	row := s.db.QueryRow(getAddressDetailsSQL, addressId)
-	err := row.Scan(&ad.Postcode, &ad.SubdistrictName, &ad.DistrictName, &ad.ProvinceName)
+	pdf.Ln(4)
 
-	switch err {
-	case sql.ErrNoRows:
-		slog.Error("getAddressDetails(): no row were returned!")
-		return AddressDetails{}, err
-	case nil:
-		return ad, nil
-	default:
-		slog.Error(err.Error())
-		return AddressDetails{}, err
-	}
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "2.2 ผู้รับผิดชอบโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16,
+		indent(fmt.Sprintf("%s%s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
+			payload.Contact.ProjectManager.Prefix,
+			payload.Contact.ProjectManager.FirstName,
+			payload.Contact.ProjectManager.LastName,
+			payload.Contact.ProjectManager.OrganizationPosition,
+			payload.Contact.ProjectManager.EventPosition,
+		), 6),
+		gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "2.3 ผู้ประสานงานโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16,
+		indent(fmt.Sprintf("%s%s %s\n      ตำแหน่งในหน่วยงาน/องค์กร: %s\n      ตำแหน่งในการจัดงานครั้งนี้: %s",
+			payload.Contact.ProjectCoordinator.Prefix,
+			payload.Contact.ProjectCoordinator.FirstName,
+			payload.Contact.ProjectCoordinator.LastName,
+			payload.Contact.ProjectCoordinator.OrganizationPosition,
+			payload.Contact.ProjectCoordinator.EventPosition,
+		), 6),
+		gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
 }
