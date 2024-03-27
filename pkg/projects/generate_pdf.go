@@ -62,6 +62,8 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		return "", err
 	}
 
+	s.generateDetailsSection(pdf, payload)
+
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
 	err = pdf.OutputFileAndClose(targetPath)
@@ -383,4 +385,28 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 
 	pdf.MultiCell(0, 16, indent(organizationStr, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	return nil
+}
+
+func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) {
+	pdf.Ln(12)
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "ส่วนที่ 3 ข้อมูลข้อเสนอโครงการ และแผนบริหารจัดการงานวิ่งเพื่อสุขภาพ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, "3.1 รายละเอียดความเป็นมาและวัตถุประสงค์ของการจัดงาน", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+	pdf.MultiCell(0, 16, indent("3.1.1 ความเป็นมา", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(payload.Details.Background, 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.1.2 วัตถุประสงค์", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(payload.Details.Objective, 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.2 ช่องทางการสื่อสารเพื่อแจ้งรายละเอียดของกิจกรรมให้กับนักวิ่งหรือผู้ที่สนใจเข้าร่วม", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.MultiCell(0, 16, indent("3.2.1 ช่องทางสื่อสังคมออนไลน์ (Social Media)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 }
