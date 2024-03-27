@@ -18,7 +18,6 @@ services:
     env_file:
       - .env
     volumes:
-      - ./download:/home/download
       - ./tmp:/home/tmp
 
   postgres:

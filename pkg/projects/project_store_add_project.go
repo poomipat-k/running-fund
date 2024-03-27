@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -546,32 +547,18 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 
 	zipWriterMap[attachmentsStr] = []*zip.Writer{attachmentsZipWriter}
 
-	for _, attachment := range attachments {
-		zipWriters := zipWriterMap[attachment.ZipName]
-		s3FilePrefix := fmt.Sprintf("%s/%s", baseFilePrefix, attachment.DirName)
-		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, fmt.Sprintf("%s_%s", projectCode, attachment.InZipFilePrefix), s3FilePrefix)
-		if err != nil {
-			return err
-		}
-	}
-	// Write pdf to attachmentZip writer and form formZip writer
-	// Then upload non-zipped pdf file to s3
-
 	// generate pdf files
-	pdfPath, err := generateApplicantFormPdf(
+	pdfPath, err := s.generateApplicantFormPdf(
 		userId,
 		projectCode,
-		payload.General.ProjectName,
-		"18/11/2024",
-		payload.General.Address.Address,
-		"ปากกาง",
-		"ลอง",
-		"แพร่",
+		payload,
 	)
 	if err != nil {
 		slog.Error("error generating a pdf for", "projectCode", projectCode)
 		return err
 	}
+
+	return errors.New("===DEBUGGING ERROR")
 	// write pdf file to attachments zip and form zip
 	formPdfFile, err := os.Open(pdfPath)
 	if err != nil {
@@ -590,6 +577,17 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 	if err != nil {
 		return err
 	}
+
+	for _, attachment := range attachments {
+		zipWriters := zipWriterMap[attachment.ZipName]
+		s3FilePrefix := fmt.Sprintf("%s/%s", baseFilePrefix, attachment.DirName)
+		err = s.awsS3Service.ZipAndUploadFileToS3(attachment.Files, zipWriters, fmt.Sprintf("%s_%s", projectCode, attachment.InZipFilePrefix), s3FilePrefix)
+		if err != nil {
+			return err
+		}
+	}
+	// Write pdf to attachmentZip writer and form formZip writer
+	// Then upload non-zipped pdf file to s3
 
 	// close zip writer before upload to s3
 	attachmentsZipWriter.Close()
