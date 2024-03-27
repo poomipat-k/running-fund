@@ -25,6 +25,17 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.SetAutoPageBreak(true, padding)
 	pdf.AddPage()
 
+	// Header start
+	pdf.ImageOptions("../home/images/sss.png", 52, 16, 52, 0, false, gofpdf.ImageOptions{
+		ReadDpi: true,
+	}, 0, "")
+
+	pdf.ImageOptions("../home/images/run_club.png", 120, 10, 50, 0, false, gofpdf.ImageOptions{
+		ReadDpi: true,
+	}, 0, "")
+
+	// Header end
+
 	pdf.SetFont(srB, "B", 18)
 	pdf.MultiCell(0, 18, "ข้อมูลทั่วไปโครงการ", gofpdf.BorderNone, gofpdf.AlignCenter, false)
 	pdf.Ln(12)
