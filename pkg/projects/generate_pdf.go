@@ -3,6 +3,7 @@ package projects
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/jung-kurt/gofpdf"
 )
@@ -26,6 +27,15 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 
 	pdf.SetFont(srB, "B", 18)
 	pdf.MultiCell(0, 18, "ข้อมูลทั่วไปโครงการ", gofpdf.BorderNone, gofpdf.AlignCenter, false)
+	pdf.Ln(12)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "ส่วนที่ 1 ข้อมูลพื้นฐานโครงการ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, "1.1 ชื่อโครงการ:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(payload.General.ProjectName, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
 	err := pdf.OutputFileAndClose(targetPath)
@@ -35,5 +45,9 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	}
 	fmt.Println("== Done ==")
 	return targetPath, nil
+}
+
+func indent(input string, n int) string {
+	return fmt.Sprintf("%s%s", strings.Repeat(" ", n), input)
 
 }
