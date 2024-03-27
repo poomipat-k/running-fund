@@ -3,7 +3,6 @@ package projects
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"strings"
 
@@ -54,6 +53,7 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.MultiCell(0, 16, "1.1 ชื่อโครงการ:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 	pdf.MultiCell(0, 16, indent(payload.General.ProjectName, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
 
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "1.2 วันที่จัดงานวิ่ง:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
@@ -72,15 +72,15 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		gofpdf.BorderNone,
 		gofpdf.AlignLeft,
 		false)
+	pdf.Ln(4)
 
 	pdf.SetFont(srB, "B", 16)
-	pdf.MultiCell(0, 16, "1.3 สถานที่จัดกิจกรรม:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.MultiCell(0, 16, "1.3 สถานที่จัดกิจกรรม", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 	address, err := s.getAddressDetails(payload.General.Address.PostcodeId)
 	if err != nil {
 		return "", err
 	}
-	log.Println("===address", address)
 	pdf.MultiCell(
 		0,
 		16,
@@ -88,6 +88,37 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		gofpdf.BorderNone,
 		gofpdf.AlignLeft,
 		false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "1.4 เส้นทางที่ใช้สำหรับจัดงานวิ่ง", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("จุด Start: %s\n      จุด Finish: %s", payload.General.StartPoint, payload.General.FinishPoint), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "1.5 ประเภทระยะทางวิ่งและอัตราค่าสมัคร", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, indent("1.5.1 ประเภทการจัดวิ่ง", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.General.EventDetails.Category.Available.RoadRace {
+		pdf.MultiCell(0, 16, indent("- วิ่งถนน (Road Race)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+
+	if payload.General.EventDetails.Category.Available.TrailRunning {
+		pdf.MultiCell(0, 16, indent("- Trail Running (การวิ่งตามภูมิประเทศ)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+
+	if payload.General.EventDetails.Category.Available.Other && payload.General.EventDetails.Category.OtherType != "" {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ประเภทอื่นๆ: %s", payload.General.EventDetails.Category.OtherType), 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
 
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
