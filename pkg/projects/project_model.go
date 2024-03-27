@@ -154,7 +154,6 @@ type CommonSuccessResponse struct {
 }
 
 type AddressDetails struct {
-	Address         string `json:"address,omitempty"`
 	Postcode        int    `json:"postcode,omitempty"`
 	SubdistrictName string `json:"subdistrictName,omitempty"`
 	DistrictName    string `json:"districtName,omitempty"`

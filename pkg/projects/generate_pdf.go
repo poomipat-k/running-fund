@@ -3,6 +3,7 @@ package projects
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"log/slog"
 	"strings"
 
@@ -54,9 +55,9 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	pdf.SetFont(sr, "", 16)
 	pdf.MultiCell(0, 16, indent(payload.General.ProjectName, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
+	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "1.2 วันที่จัดงานวิ่ง:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
-
 	fromTimeStr := getDateString(
 		payload.General.EventDate.Year,
 		payload.General.EventDate.Month,
@@ -64,7 +65,6 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		*payload.General.EventDate.FromHour,
 		*payload.General.EventDate.FromMinute,
 	)
-
 	pdf.MultiCell(
 		0,
 		16,
@@ -73,9 +73,25 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		gofpdf.AlignLeft,
 		false)
 
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, "1.3 สถานที่จัดกิจกรรม:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	address, err := s.getAddressDetails(payload.General.Address.PostcodeId)
+	if err != nil {
+		return "", err
+	}
+	log.Println("===address", address)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("%s,  %s,  %s,  %s", payload.General.Address.Address, address.SubdistrictName, address.DistrictName, address.ProvinceName), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
-	err := pdf.OutputFileAndClose(targetPath)
+	err = pdf.OutputFileAndClose(targetPath)
 	if err != nil {
 		slog.Error("error saving a pdf file to a local file", "error", err.Error())
 		return "", err
@@ -96,7 +112,7 @@ func getDateString(year, month, day, hour, minute int) string {
 func (s *store) getAddressDetails(addressId int) (AddressDetails, error) {
 	var ad AddressDetails
 	row := s.db.QueryRow(getAddressDetailsSQL, addressId)
-	err := row.Scan(&ad.Address, &ad.Postcode, &ad.SubdistrictName, &ad.DistrictName, &ad.ProvinceName)
+	err := row.Scan(&ad.Postcode, &ad.SubdistrictName, &ad.DistrictName, &ad.ProvinceName)
 
 	switch err {
 	case sql.ErrNoRows:
