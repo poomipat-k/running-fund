@@ -2,7 +2,6 @@ package projects
 
 import (
 	"fmt"
-	"log"
 	"log/slog"
 	"strings"
 
@@ -64,8 +63,14 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		*payload.General.EventDate.FromHour,
 		*payload.General.EventDate.FromMinute,
 	)
-	log.Println("==fromTimeStr", fromTimeStr)
-	pdf.MultiCell(0, 16, indent(fromTimeStr, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("%s - %02d:%02d", fromTimeStr, *payload.General.EventDate.ToHour, *payload.General.EventDate.ToMinute), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
 
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
 	err := pdf.OutputFileAndClose(targetPath)
