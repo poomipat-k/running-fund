@@ -409,4 +409,17 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, indent("3.2 ช่องทางการสื่อสารเพื่อแจ้งรายละเอียดของกิจกรรมให้กับนักวิ่งหรือผู้ที่สนใจเข้าร่วม", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.MultiCell(0, 16, indent("3.2.1 ช่องทางสื่อสังคมออนไลน์ (Social Media)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Marketing.Online.Available.Facebook {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- Facebook: %s", payload.Details.Marketing.Online.HowTo.Facebook), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Online.Available.Website {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- เว็บไซต์: %s", payload.Details.Marketing.Online.HowTo.Website), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Online.Available.OnlinePage {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- เพจวิ่งออนไลน์: %s", payload.Details.Marketing.Online.HowTo.OnlinePage), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Marketing.Online.Available.Other {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ช่องทางออนไลน์อื่นๆ: %s", payload.Details.Marketing.Online.HowTo.Other), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
 }
