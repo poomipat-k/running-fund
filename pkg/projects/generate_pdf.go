@@ -463,5 +463,31 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("-  %d คะแนน", score), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 		pdf.Ln(4)
 	}
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.4 แผนการดูแลความปลอดภัยทางสุขภาพของนักวิ่ง", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Safety.Ready.RunnerInformation {
+		pdf.MultiCell(0, 16, indent("- ข้อมูลสุขภาพและหมายเลขโทรศัพท์ติดต่อฉุกเฉินของนักวิ่งในแบบฟอร์มลงทะเบียน/ระบบ/BIB", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Safety.Ready.HealthDecider {
+		pdf.MultiCell(0, 16, indent("- กำหนดผู้รับผิดชอบ/ผู้ตัดสินใจเรื่องความปลอดภัยด้านสุขภาพ", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Safety.Ready.Ambulance {
+		pdf.MultiCell(0, 16, indent("- รถพยาบาลฉุกเฉิน (ambulance) พร้อมแพทย์/พยาบาลเคลื่อนที่", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Safety.Ready.FirstAid {
+		pdf.MultiCell(0, 16, indent("- จุดปฐมพยาบาลพร้อมเวชภัณฑ์ เช่น แอมโมเนีย ที่ติดแผล สเปรย์ฉีดคลายกล้ามเนื้อ", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Safety.Ready.AED {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- เครื่อง AED จำนวน %d เครื่อง", payload.Details.Safety.AEDCount), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Safety.Ready.Insurance {
+		pdf.MultiCell(0, 16, indent("- ประกันชีวิตสำหรับนักวิ่ง", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Safety.Ready.Other {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- อื่นๆ: %s", payload.Details.Safety.Addition), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	pdf.Ln(4)
 	return nil
 }
