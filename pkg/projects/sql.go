@@ -90,6 +90,12 @@ SELECT id, criteria_version, order_number, display
 FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
 ORDER BY order_number ASC;
 `
+const getApplicantCriteriaPdfSQL = `
+SELECT id, criteria_version, order_number, pdf_display
+FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
+ORDER BY order_number ASC;
+`
+
 const addAddressSQL = `
 INSERT INTO address (address, postcode_id) VALUES ($1, $2) RETURNING id;
 `

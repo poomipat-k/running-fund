@@ -387,7 +387,7 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	return nil
 }
 
-func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) {
+func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) error {
 	pdf.Ln(12)
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "ส่วนที่ 3 ข้อมูลข้อเสนอโครงการ และแผนบริหารจัดการงานวิ่งเพื่อสุขภาพ", gofpdf.BorderNone, gofpdf.AlignLeft, false)
@@ -445,4 +445,23 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	if payload.Details.Marketing.Offline.Available.Other {
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ช่องทางออฟไลน์อื่นๆ: %s", payload.Details.Marketing.Offline.Addition), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.3 ความมั่นใจในการวางแผนการจัดเตรียม อุปกรณ์ สถานที่ และสิ่งอำนวยความสะดวกให้นักวิ่ง", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+
+	criteria, err := s.GetApplicantCriteriaForPDF(1)
+	if err != nil {
+		return err
+	}
+	for _, cri := range criteria {
+		pdf.SetFont(srB, "B", 16)
+		key := fmt.Sprintf("q_%d_%d", cri.CriteriaVersion, cri.OrderNumber)
+		score := payload.Details.Score[key]
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("3.3.%d %s", cri.OrderNumber, cri.PdfDisplay), 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.SetFont(sr, "", 16)
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("-  %d คะแนน", score), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.Ln(4)
+	}
+	return nil
 }

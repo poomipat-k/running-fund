@@ -110,6 +110,7 @@ type ApplicantSelfScoreCriteria struct {
 	CriteriaVersion int    `json:"criteriaVersion,omitempty"`
 	OrderNumber     int    `json:"orderNumber,omitempty"`
 	Display         string `json:"display,omitempty"`
+	PdfDisplay      string `json:"pdfDisplay,omitempty"`
 }
 
 type Attachments struct {
