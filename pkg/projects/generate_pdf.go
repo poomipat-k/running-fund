@@ -510,6 +510,7 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	}
 	pdf.Ln(4)
 
+	// checkbox
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, indent("3.5.3 การจัดการจราจร", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
@@ -529,6 +530,48 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 		pdf.MultiCell(0, 16, indent("- มีการจัดแสงไฟในเส้นทางวิ่ง ในช่วงเส้นทางมืด", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
 	pdf.Ln(4)
+
+	// radio
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.6 ระบบตัดสินของผลของการจัดกิจกรรม", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Judge.Type == "manual" {
+		pdf.MultiCell(0, 16, indent("- ระบบ Manual ใช้กรรมการตัดสิน", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	} else if payload.Details.Judge.Type == "auto" {
+		pdf.MultiCell(0, 16, indent("- ระบบ Auto (Chip time) ใช้เครื่องประมวลผลร่วมกับกรรมการตัดสินชี้ขาด", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	} else if payload.Details.Judge.Type == "other" {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- อื่นๆ: %s", payload.Details.Judge.OtherType), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	pdf.Ln(4)
+
+	// checkbox
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.7 หน่วยงานระดับพื้นที่ที่ร่วมสนับสนุน", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Support.Organization.ProvincialAdministration {
+		pdf.MultiCell(0, 16, indent("- หน่วยงานด้านการปกครอง เช่น ผู้ว่าราชการ นายอำเภอ นายกเทศบาล ทต. อบต.", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Support.Organization.Safety {
+		pdf.MultiCell(0, 16, indent("- หน่วยงานด้านความปลอดภัย เช่น ตำรวจ อปพร. วิทยุกู้ชีพ", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Support.Organization.Health {
+		pdf.MultiCell(0, 16, indent("- หน่วยงานด้านการแพทย์ เช่น โรงพยาบาล รพ.สต. อสม.", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Support.Organization.Volunteer {
+		pdf.MultiCell(0, 16, indent("- มูลนิธิ อาสาสมัครชุมชน", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Support.Organization.Community {
+		pdf.MultiCell(0, 16, indent("- องค์กรระดับชุมชน เช่น โรงเรียน วัด ชุมชน อสม.", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Support.Organization.Other {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- อื่นๆ: %s", payload.Details.Support.Addition), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.8 วิธีการประเมินผลความสำเร็จ/รับฟังประเด็นท้าทายจากการจัดกิจกรรม", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(payload.Details.Feedback, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
 	return nil
 }
