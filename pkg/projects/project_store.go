@@ -132,8 +132,14 @@ func (s *store) GetApplicantProjectDetails(isAdmin bool, projectCode string, use
 	var data []ApplicantDetailsData
 	for rows.Next() {
 		var row ApplicantDetailsData
-		err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
-			&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt, &row.SumScore)
+		if isAdmin {
+			err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
+				&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt, &row.SumScore)
+		} else {
+			err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
+				&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt)
+		}
+
 		if err != nil {
 			return nil, err
 		}

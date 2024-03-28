@@ -4,10 +4,8 @@ import (
 	"archive/zip"
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -558,7 +556,8 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		return err
 	}
 
-	return errors.New("===DEBUGGING ERROR")
+	// return errors.New("===DEBUGGING ERROR")
+
 	// write pdf file to attachments zip and form zip
 	formPdfFile, err := os.Open(pdfPath)
 	if err != nil {
@@ -623,6 +622,5 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 	if err != nil {
 		return err
 	}
-	log.Println("==DONE")
 	return nil
 }

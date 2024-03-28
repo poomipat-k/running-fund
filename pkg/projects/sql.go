@@ -276,16 +276,11 @@ project_history.fund_approved_amount as fund_approved_amount,
 project_history.admin_comment as admin_comment,
 review.id as review_id,
 review.user_id as reviewer_id,
-review.created_at as reviewed_at,
-SUM(review_details.score)
+review.created_at as reviewed_at
 FROM project
 INNER JOIN project_history ON project.project_code = project_history.project_code
 LEFT JOIN review ON review.project_history_id = project_history.id
-LEFT JOIN review_details ON review.id = review_details.review_id
 WHERE project.project_code = $1 AND project.user_id = $2
-GROUP BY project.project_code, project.user_id, project_history.project_name, 
-project_history.status, project_history.admin_score, project_history.fund_approved_amount,
-project_history.admin_comment, review.id
 ;
 `
 

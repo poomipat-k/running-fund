@@ -79,7 +79,6 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		slog.Error("error saving a pdf file to a local file", "error", err.Error())
 		return "", err
 	}
-	fmt.Println("== Done ==")
 	return targetPath, nil
 }
 
