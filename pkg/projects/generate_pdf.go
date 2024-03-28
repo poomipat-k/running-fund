@@ -510,5 +510,25 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	}
 	pdf.Ln(4)
 
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.5.3 การจัดการจราจร", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Route.TrafficManagement.AskPermission {
+		pdf.MultiCell(0, 16, indent("- ก่อนและระหว่างการจัดกิจกรรมมีการติดตั้งป้ายขออภัยในความไม่สะดวกในการใช้เส้นทาง", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Route.TrafficManagement.HasSupporter {
+		pdf.MultiCell(0, 16, indent("- มีผู้ช่วยดูแลความปลอดภัย เช่น ตำรวจ อาสาสมัครในพื้นที่", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Route.TrafficManagement.RoadClosure {
+		pdf.MultiCell(0, 16, indent("- ขออนุญาตหน่วยงานปิดถนน หรือแบ่งช่องทางการจราจร", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Route.TrafficManagement.Signs {
+		pdf.MultiCell(0, 16, indent("- ตั้งป้ายสัญลักษณ์ เช่น ป้ายบอกระยะทาง ป้ายจุดบริการน้ำดื่ม", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Route.TrafficManagement.Lighting {
+		pdf.MultiCell(0, 16, indent("- มีการจัดแสงไฟในเส้นทางวิ่ง ในช่วงเส้นทางมืด", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	pdf.Ln(4)
+
 	return nil
 }
