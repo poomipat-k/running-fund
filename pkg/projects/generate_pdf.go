@@ -69,6 +69,9 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	// 4. Experience
 	s.generateExperienceSection(pdf, payload)
 
+	// 5. Fund request
+	s.generateFundRequestSection(pdf, payload)
+
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
 	err = pdf.OutputFileAndClose(targetPath)
@@ -608,10 +611,10 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.ThisSeries.History.Completed1.Year,
 					payload.Experience.ThisSeries.History.Completed1.Name,
-					payload.Experience.ThisSeries.History.Completed1.Participant,
+					utils.FormatInt(int64(payload.Experience.ThisSeries.History.Completed1.Participant)),
 				), 6),
 				gofpdf.BorderNone,
 				gofpdf.AlignLeft,
@@ -622,10 +625,10 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.ThisSeries.History.Completed2.Year,
 					payload.Experience.ThisSeries.History.Completed2.Name,
-					payload.Experience.ThisSeries.History.Completed2.Participant,
+					utils.FormatInt(int64(payload.Experience.ThisSeries.History.Completed2.Participant)),
 				), 6),
 				gofpdf.BorderNone,
 				gofpdf.AlignLeft,
@@ -636,10 +639,10 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.ThisSeries.History.Completed3.Year,
 					payload.Experience.ThisSeries.History.Completed3.Name,
-					payload.Experience.ThisSeries.History.Completed3.Participant,
+					utils.FormatInt(int64(payload.Experience.ThisSeries.History.Completed3.Participant)),
 				), 6),
 				gofpdf.BorderNone,
 				gofpdf.AlignLeft,
@@ -660,10 +663,10 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.OtherSeries.History.Completed1.Year,
 					payload.Experience.OtherSeries.History.Completed1.Name,
-					payload.Experience.OtherSeries.History.Completed1.Participant,
+					utils.FormatInt(int64(payload.Experience.OtherSeries.History.Completed1.Participant)),
 				), 6),
 				gofpdf.BorderNone,
 				gofpdf.AlignLeft,
@@ -674,10 +677,10 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.OtherSeries.History.Completed2.Year,
 					payload.Experience.OtherSeries.History.Completed2.Name,
-					payload.Experience.OtherSeries.History.Completed2.Participant,
+					utils.FormatInt(int64(payload.Experience.OtherSeries.History.Completed2.Participant)),
 				), 6),
 				gofpdf.BorderNone,
 				gofpdf.AlignLeft,
@@ -688,10 +691,10 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.OtherSeries.History.Completed3.Year,
 					payload.Experience.OtherSeries.History.Completed3.Name,
-					payload.Experience.OtherSeries.History.Completed3.Participant,
+					utils.FormatInt(int64(payload.Experience.OtherSeries.History.Completed3.Participant)),
 				), 6),
 				gofpdf.BorderNone,
 				gofpdf.AlignLeft,
@@ -699,5 +702,79 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 			)
 		}
 	}
+}
 
+func (s *store) generateFundRequestSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) {
+	pdf.Ln(12)
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("ส่วนที่ 5 ความต้องการขอรับการสนับสนุน", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, indent("5.1 งบประมาณในภาพรวมและการสนับสนุนจากแหล่งอื่น", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, indent("5.1.1 การจัดงานครั้งนี้ประมาณการงบประมาณจัดงานทั้งหมด (บาท)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(fmt.Sprintf("-  %s บาท", utils.FormatInt(int64(payload.Fund.Budget.Total))), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("5.1.2 หน่วยงาน/องค์กรที่ให้การสนับสนุนการจัดงานครั้งนี้", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	pdf.MultiCell(0, 16, indent(payload.Fund.Budget.SupportOrganization, 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("5.2 ความต้องการการสนับสนุนจากสสส. และสมาพันธ์ฯ", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Fund.Request.Type.Fund {
+		pdf.MultiCell(
+			0,
+			16,
+			indent(fmt.Sprintf("- งบประมาณ %s บาท", utils.FormatInt(int64(payload.Fund.Request.Details.FundAmount))), 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	}
+	if payload.Fund.Request.Type.BIB {
+		pdf.MultiCell(
+			0,
+			16,
+			indent(fmt.Sprintf("- เบอร์วิ่ง (BIB) จำนวน %s ใบ", utils.FormatInt(int64(payload.Fund.Request.Details.BibAmount))), 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	}
+	if payload.Fund.Request.Type.Pr {
+		pdf.MultiCell(
+			0,
+			16,
+			indent("- การประชาสัมพันธ์กิจกรรม และการรับสมัคร", 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	}
+	if payload.Fund.Request.Type.Seminar {
+		pdf.MultiCell(
+			0,
+			16,
+			indent(fmt.Sprintf("- การอบรม/การพัฒนาศักยภาพ หัวข้อเรื่อง %s", payload.Fund.Request.Details.Seminar), 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	}
+	if payload.Fund.Request.Type.Other {
+		pdf.MultiCell(
+			0,
+			16,
+			indent(fmt.Sprintf("- อื่นๆ %s", payload.Fund.Request.Details.Other), 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	}
 }
