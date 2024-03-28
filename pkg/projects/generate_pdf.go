@@ -57,12 +57,17 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		return "", err
 	}
 
+	// 2. Contact
 	err = s.generateContactSection(pdf, payload)
 	if err != nil {
 		return "", err
 	}
 
+	// 3. Details
 	s.generateDetailsSection(pdf, payload)
+
+	// 4. Experience
+	s.generateExperienceSection(pdf, payload)
 
 	// save pdf to a file
 	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
@@ -79,9 +84,14 @@ func indent(input string, n int) string {
 	return fmt.Sprintf("%s%s", strings.Repeat(" ", n), input)
 }
 
-func getDateString(year, month, day, hour, minute int) string {
+func getDateTimeString(year, month, day, hour, minute int) string {
 	monthStr := utils.MonthMapThai[month]
 	return fmt.Sprintf("%d %s %d %02d:%02d", day, monthStr, year, hour, minute)
+}
+
+func getDateString(year, month, day int) string {
+	monthStr := utils.MonthMapThai[month]
+	return fmt.Sprintf("%d %s %d", day, monthStr, year)
 }
 
 func (s *store) getAddressDetails(addressId int) (AddressDetails, error) {
@@ -118,7 +128,7 @@ func (s *store) generateGeneralDetailsSection(pdf *gofpdf.Fpdf, payload AddProje
 	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, "1.2 วันที่จัดงานวิ่ง:", gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
-	fromTimeStr := getDateString(
+	fromTimeStr := getDateTimeString(
 		payload.General.EventDate.Year,
 		payload.General.EventDate.Month,
 		payload.General.EventDate.Day,
@@ -574,4 +584,120 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	pdf.MultiCell(0, 16, indent(payload.Details.Feedback, 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
 	return nil
+}
+
+func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRequest) {
+	pdf.Ln(12)
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("ส่วนที่ 4 ประสบการณ์ดำเนินการโครงการ", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, indent("4.1 การจัดกิจกรรมวิ่งเพื่อสุขภาพที่ท่านส่งข้อเสนอโครงการในครั้งนี้เป็นการจัดกิจกรรมครั้งแรกหรือไม่", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if *payload.Experience.ThisSeries.FirstTime {
+		pdf.MultiCell(0, 16, indent("- ครั้งแรก", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	} else {
+		latestThisEventDate := getDateString(
+			payload.Experience.ThisSeries.History.Year,
+			payload.Experience.ThisSeries.History.Month,
+			payload.Experience.ThisSeries.History.Day,
+		)
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ครั้งนี้ครั้งที่ %d  จัดครั้งล่าสุดเมื่อวันที่ %s", payload.Experience.ThisSeries.History.OrdinalNumber, latestThisEventDate), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.MultiCell(0, 16, indent("การจัดงานครั้งที่ผ่านมา", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		if payload.Experience.ThisSeries.History.Completed1.Name != "" {
+			pdf.MultiCell(
+				0,
+				16,
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+					payload.Experience.ThisSeries.History.Completed1.Year,
+					payload.Experience.ThisSeries.History.Completed1.Name,
+					payload.Experience.ThisSeries.History.Completed1.Participant,
+				), 6),
+				gofpdf.BorderNone,
+				gofpdf.AlignLeft,
+				false,
+			)
+		}
+		if payload.Experience.ThisSeries.History.Completed2.Name != "" {
+			pdf.MultiCell(
+				0,
+				16,
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+					payload.Experience.ThisSeries.History.Completed2.Year,
+					payload.Experience.ThisSeries.History.Completed2.Name,
+					payload.Experience.ThisSeries.History.Completed2.Participant,
+				), 6),
+				gofpdf.BorderNone,
+				gofpdf.AlignLeft,
+				false,
+			)
+		}
+		if payload.Experience.ThisSeries.History.Completed3.Name != "" {
+			pdf.MultiCell(
+				0,
+				16,
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+					payload.Experience.ThisSeries.History.Completed3.Year,
+					payload.Experience.ThisSeries.History.Completed3.Name,
+					payload.Experience.ThisSeries.History.Completed3.Participant,
+				), 6),
+				gofpdf.BorderNone,
+				gofpdf.AlignLeft,
+				false,
+			)
+		}
+	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("4.2 นอกจากการจัดกิจกรรมตามข้อเสนอโครงการในครั้งนี้ ท่านมีประสบการณ์จัดงานวิ่งอื่น ๆ หรือไม่", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if !*payload.Experience.OtherSeries.DoneBefore {
+		pdf.MultiCell(0, 16, indent("- ไม่มี", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	} else {
+		pdf.MultiCell(0, 16, indent("การจัดงานครั้งที่ผ่านมา", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		if payload.Experience.OtherSeries.History.Completed1.Name != "" {
+			pdf.MultiCell(
+				0,
+				16,
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+					payload.Experience.OtherSeries.History.Completed1.Year,
+					payload.Experience.OtherSeries.History.Completed1.Name,
+					payload.Experience.OtherSeries.History.Completed1.Participant,
+				), 6),
+				gofpdf.BorderNone,
+				gofpdf.AlignLeft,
+				false,
+			)
+		}
+		if payload.Experience.OtherSeries.History.Completed2.Name != "" {
+			pdf.MultiCell(
+				0,
+				16,
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+					payload.Experience.OtherSeries.History.Completed2.Year,
+					payload.Experience.OtherSeries.History.Completed2.Name,
+					payload.Experience.OtherSeries.History.Completed2.Participant,
+				), 6),
+				gofpdf.BorderNone,
+				gofpdf.AlignLeft,
+				false,
+			)
+		}
+		if payload.Experience.OtherSeries.History.Completed3.Name != "" {
+			pdf.MultiCell(
+				0,
+				16,
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %d",
+					payload.Experience.OtherSeries.History.Completed3.Year,
+					payload.Experience.OtherSeries.History.Completed3.Name,
+					payload.Experience.OtherSeries.History.Completed3.Participant,
+				), 6),
+				gofpdf.BorderNone,
+				gofpdf.AlignLeft,
+				false,
+			)
+		}
+	}
+
 }
