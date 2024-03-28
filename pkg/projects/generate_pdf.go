@@ -489,5 +489,26 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- อื่นๆ: %s", payload.Details.Safety.Addition), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
 	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("3.5 การวัดระยะทางวิ่งและการจัดการจราจร", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, indent("3.5.1 เส้นทาง (เอกสารแนบ)", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.Ln(4)
+
+	pdf.MultiCell(0, 16, indent("3.5.2 การวัดระยะทาง", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Details.Route.Measurement.AthleticsAssociation {
+		pdf.MultiCell(0, 16, indent("- ได้รับการวัดและรับรองจากสมาคมกีฬากรีฑาแห่งประเทศไทย", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Route.Measurement.CalibratedBicycle {
+		pdf.MultiCell(0, 16, indent("- การวัดระยะทางด้วยจักรยานที่สอบเทียบ (Calibrated Bicycle)", 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	if payload.Details.Route.Measurement.SelfMeasurement {
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ผู้จัดการแข่งขันวัดระยะทางเอง เครื่องมือ: %s", payload.Details.Route.Tool), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
+	pdf.Ln(4)
+
 	return nil
 }
