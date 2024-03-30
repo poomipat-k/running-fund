@@ -556,14 +556,12 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		return err
 	}
 
-	// return errors.New("===DEBUGGING ERROR")
-
 	// write pdf file to attachments zip and form zip
 	formPdfFile, err := os.Open(pdfPath)
 	if err != nil {
 		return err
 	}
-	err = utils.WriteToZip(attachmentsZipWriter, formPdfFile, "แบบฟอร์ม.pdf")
+	err = utils.WriteToZip(attachmentsZipWriter, formPdfFile, fmt.Sprintf("%s_แบบฟอร์ม.pdf", projectCode))
 	if err != nil {
 		return err
 	}
@@ -572,7 +570,7 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		return err
 	}
 
-	err = s.awsS3Service.DoUploadFileToS3(formPdfFile, fmt.Sprintf("%s/แบบฟอร์ม.pdf", baseFilePrefix))
+	err = s.awsS3Service.DoUploadFileToS3(formPdfFile, fmt.Sprintf("%s/%s_แบบฟอร์ม.pdf", baseFilePrefix, projectCode))
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,8 @@ var expectedParticipantsMap = map[string]string{
 	">=5501":    "5,501 คนขึ้นไป",
 }
 
+var scoreMeaning = []string{"", "ไม่มั่นใจอย่างยิ่ง", "ไม่มั่นใจ", "กลาง ๆ", "มั่นใจ", "มั่นใจอย่างยิ่ง"}
+
 func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload AddProjectRequest) (string, error) {
 	pdf := gofpdf.New(gofpdf.OrientationPortrait, gofpdf.UnitPoint, "A4", "")
 	w, h := pdf.GetPageSize()
@@ -472,7 +474,7 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 		score := payload.Details.Score[key]
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("3.3.%d %s", cri.OrderNumber, cri.PdfDisplay), 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 		pdf.SetFont(sr, "", 16)
-		pdf.MultiCell(0, 16, indent(fmt.Sprintf("-  %d คะแนน", score), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+		pdf.MultiCell(0, 16, indent(fmt.Sprintf("-  %s", scoreMeaning[score]), 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 		pdf.Ln(4)
 	}
 
