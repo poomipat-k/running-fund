@@ -72,7 +72,6 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	utils.WriteJSON(w, http.StatusOK, projects)
 }
 
-// Here
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
 	var reviewerId int
 	loggedInUserId, err := utils.GetUserIdFromRequestHeader(r)
@@ -82,7 +81,11 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		return
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
-	if userRole == "applicant" || userRole == "admin" {
+	if userRole == "applicant" {
+		utils.ErrorJSON(w, errors.New("no permission"), "userRole", http.StatusForbidden)
+		return
+	}
+	if userRole == "admin" {
 		var payload ProjectReviewer
 		utils.ReadJSON(w, r, &payload)
 		if payload.ReviewerId == 0 {
