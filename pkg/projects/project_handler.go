@@ -370,6 +370,10 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 		return
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole != "applicant" && userRole != "admin" {
+		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusForbidden)
+		return
+	}
 	if userRole == "admin" {
 		userId = payload.UserId
 	}

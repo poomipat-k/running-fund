@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
@@ -75,7 +77,12 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 	s.generateFundRequestSection(pdf, payload)
 
 	// save pdf to a file
-	targetPath := fmt.Sprintf("../home/tmp/pdf/user_%d_%s.pdf", userId, projectCode)
+	tmpPdfFolder := filepath.Join("../home/tmp/pdf")
+	err = os.MkdirAll(tmpPdfFolder, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+	targetPath := fmt.Sprintf("%s/user_%d_%s.pdf", tmpPdfFolder, userId, projectCode)
 	err = pdf.OutputFileAndClose(targetPath)
 	if err != nil {
 		slog.Error("error saving a pdf file to a local file", "error", err.Error())
