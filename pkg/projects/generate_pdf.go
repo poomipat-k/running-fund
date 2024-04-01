@@ -46,7 +46,7 @@ func (s *store) generateApplicantFormPdf(userId int, projectCode string, payload
 		ReadDpi: true,
 	}, 0, "")
 
-	pdf.ImageOptions("../home/images/run_club.png", 120, 10, 50, 0, false, gofpdf.ImageOptions{
+	pdf.ImageOptions("../home/images/run_club.png", 120, 10, 40, 0, false, gofpdf.ImageOptions{
 		ReadDpi: true,
 	}, 0, "")
 

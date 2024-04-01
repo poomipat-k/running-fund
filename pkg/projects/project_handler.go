@@ -191,8 +191,8 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
-	// slog.Info("AddProject payload", "userId", userId, "payload", r.Form)
-	slog.Info("AddProject payload", "userId", userId)
+	slog.Info("AddProject payload", "userId", userId, "payload", r.Form)
+	// slog.Info("AddProject payload", "userId", userId)
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
