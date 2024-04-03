@@ -74,7 +74,7 @@ type EventDetails struct {
 	Category       Category         `json:"category,omitempty"`
 	DistanceAndFee []DistanceAndFee `json:"distanceAndFee,omitempty"`
 	VIP            *bool            `json:"vip,omitempty"`
-	VIPFree        *float64         `json:"vipFee,omitempty"`
+	VIPFee         *float64         `json:"vipFee,omitempty"`
 }
 
 type Category struct {

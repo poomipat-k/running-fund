@@ -259,8 +259,8 @@ func (s *store) generateGeneralDetailsSection(pdf *gofpdf.Fpdf, payload AddProje
 
 	pdf.SetFont(srB, "B", 16)
 	var vipText string
-	if *payload.General.EventDetails.VIP {
-		// vipText = fmt.Sprintf("- มี  ค่าสมัคร: %.0f บาท")
+	if *payload.General.EventDetails.VIP && payload.General.EventDetails.VIPFee != nil {
+		vipText = fmt.Sprintf("- มี  ค่าสมัคร: %s บาท", utils.FormatInt(int64(*payload.General.EventDetails.VIPFee)))
 	} else {
 		vipText = "- ไม่มี"
 	}

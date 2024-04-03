@@ -185,6 +185,7 @@ func addProjectHistory(
 		payload.General.EventDetails.Category.Available.Other,
 		payload.General.EventDetails.Category.OtherType,
 		payload.General.EventDetails.VIP,
+		payload.General.EventDetails.VIPFee,
 		payload.General.ExpectedParticipants,
 		payload.General.HasOrganizer,
 		payload.General.OrganizerName,
@@ -555,8 +556,6 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		slog.Error("error generating a pdf for", "projectCode", projectCode)
 		return err
 	}
-
-	panic("====Debugging")
 
 	// write pdf file to attachments zip and form zip
 	formPdfFile, err := os.Open(pdfPath)

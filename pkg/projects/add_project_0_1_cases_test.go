@@ -1081,8 +1081,8 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 					DistanceAndFee: []projects.DistanceAndFee{
 						{Checked: true, Type: "half", Fee: newFloat64(330), Dynamic: newTrue()},
 					},
-					VIP:     newTrue(),
-					VIPFree: newFloat64(-1.234),
+					VIP:    newTrue(),
+					VIPFee: newFloat64(-1.234),
 				},
 			}},
 		store: &mock.MockProjectStore{
