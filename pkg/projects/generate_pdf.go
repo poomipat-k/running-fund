@@ -260,11 +260,11 @@ func (s *store) generateGeneralDetailsSection(pdf *gofpdf.Fpdf, payload AddProje
 	pdf.SetFont(srB, "B", 16)
 	var vipText string
 	if *payload.General.EventDetails.VIP {
-		vipText = "- มี"
+		// vipText = fmt.Sprintf("- มี  ค่าสมัคร: %.0f บาท")
 	} else {
 		vipText = "- ไม่มี"
 	}
-	pdf.MultiCell(0, 16, indent("1.5.2 การเปิดรับสมัครประเภท VIP", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.MultiCell(0, 16, indent("1.5.3 การเปิดรับสมัครประเภท VIP", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 	pdf.MultiCell(0, 16, indent(vipText, 10), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.Ln(4)

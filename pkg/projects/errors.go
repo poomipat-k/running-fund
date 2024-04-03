@@ -180,6 +180,18 @@ func (e *VIPRequiredError) Error() string {
 	return "vip is required"
 }
 
+type VIPFeeRequiredError struct{}
+
+func (e *VIPFeeRequiredError) Error() string {
+	return "vipFee is required"
+}
+
+type VIPFeeNegativeError struct{}
+
+func (e *VIPFeeNegativeError) Error() string {
+	return "vipFee must greater equal to zero"
+}
+
 type ExpectedParticipantsRequiredError struct{}
 
 func (e *ExpectedParticipantsRequiredError) Error() string {

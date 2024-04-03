@@ -159,6 +159,12 @@ func validateGeneralEventDetails(payload AddProjectRequest) error {
 	if payload.General.EventDetails.VIP == nil {
 		return &VIPRequiredError{}
 	}
+	if *payload.General.EventDetails.VIP && payload.General.EventDetails.VIPFree == nil {
+		return &VIPFeeRequiredError{}
+	}
+	if *payload.General.EventDetails.VIP && payload.General.EventDetails.VIPFree != nil && *payload.General.EventDetails.VIPFree < 0 {
+		return &VIPFeeNegativeError{}
+	}
 	return nil
 }
 

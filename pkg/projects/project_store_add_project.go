@@ -172,7 +172,7 @@ func addProjectHistory(
 		1,
 		now,         // created_at
 		now,         // updated_at
-		"Reviewing", // valid status: Reviewing, Revise, Approved, NotApproved
+		"Reviewing", // valid status: Reviewing, Reviewed, Revise, NotApproved, Approved, Start, Completed
 		payload.Collaborated,
 		payload.General.ProjectName,
 		fromDate,
@@ -555,6 +555,8 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		slog.Error("error generating a pdf for", "projectCode", projectCode)
 		return err
 	}
+
+	panic("====Debugging")
 
 	// write pdf file to attachments zip and form zip
 	formPdfFile, err := os.Open(pdfPath)
