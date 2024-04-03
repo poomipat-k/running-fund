@@ -24,6 +24,7 @@ CREATE TABLE project_history(
   cat_has_other BOOLEAN NOT NULL,
   cat_other_type VARCHAR(255) NOT NULL,
   vip BOOLEAN NOT NULL,
+  vip_fee FLOAT,
   expected_participants VARCHAR(64) NOT NULL,
   has_organizer BOOLEAN NOT NULL,
   organizer_name VARCHAR(255) NOT NULL,
