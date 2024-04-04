@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -396,4 +397,11 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 	}
 
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})
+}
+
+func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Request) {
+	log.Println("===AdminUpdateProject handler")
+	projectCode := chi.URLParam(r, "projectCode")
+	log.Println("==projectCode", projectCode)
+	utils.WriteJSON(w, http.StatusBadRequest, nil)
 }

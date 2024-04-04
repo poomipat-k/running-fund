@@ -740,3 +740,9 @@ type ReviewerIdRequiredError struct{}
 func (e *ReviewerIdRequiredError) Error() string {
 	return "reviewerId is required"
 }
+
+type ProjectStatusPrimaryRequiredError struct{}
+
+func (e *ProjectStatusPrimaryRequiredError) Error() string {
+	return "projectStatusPrimary is required"
+}

@@ -96,6 +96,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
+		r.Patch("/admin/project/{projectCode}", mw.IsAdmin(projectHandler.AdminUpdateProject))
+
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)

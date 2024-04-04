@@ -329,3 +329,11 @@ type ListFilesRequest struct {
 type ProjectReviewer struct {
 	ReviewerId int `json:"reviewerId,omitempty"`
 }
+
+type AdminUpdateProjectRequest struct {
+	ProjectStatusPrimary   string `json:"projectStatusPrimary,omitempty"`
+	ProjectStatusSecondary string `json:"projectStatusSecondary,omitempty"`
+	AdminScore             int    `json:"adminScore,omitempty"`
+	FundApprovedAmount     *int   `json:"fundApprovedAmount,omitempty"`
+	AdminComment           string `json:"adminComment,omitempty"`
+}
