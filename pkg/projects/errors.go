@@ -746,3 +746,21 @@ type ProjectStatusPrimaryRequiredError struct{}
 func (e *ProjectStatusPrimaryRequiredError) Error() string {
 	return "projectStatusPrimary is required"
 }
+
+type ProjectStatusSecondaryRequiredError struct{}
+
+func (e *ProjectStatusSecondaryRequiredError) Error() string {
+	return "projectStatusSecondary is required"
+}
+
+type AdminScoreOutOfRangeError struct{}
+
+func (e *AdminScoreOutOfRangeError) Error() string {
+	return "adminScore is out of range 0-100"
+}
+
+type FundApprovedAmountNegativeError struct{}
+
+func (e *FundApprovedAmountNegativeError) Error() string {
+	return "fundApprovedAmount is negative"
+}

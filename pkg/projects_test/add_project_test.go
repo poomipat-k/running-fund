@@ -185,6 +185,11 @@ func newInt(val int) *int {
 	return &v
 }
 
+func newInt64(val int64) *int64 {
+	v := val
+	return &v
+}
+
 func newFloat64(val float64) *float64 {
 	v := val
 	return &v

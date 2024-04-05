@@ -400,8 +400,19 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 }
 
 func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Request) {
-	log.Println("===AdminUpdateProject handler")
 	projectCode := chi.URLParam(r, "projectCode")
 	log.Println("==projectCode", projectCode)
+	var payload AdminUpdateProjectRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload")
+		return
+	}
+	log.Println(payload)
+	field, err := validateAdminUpdateProjectPayload(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, field)
+		return
+	}
 	utils.WriteJSON(w, http.StatusBadRequest, nil)
 }

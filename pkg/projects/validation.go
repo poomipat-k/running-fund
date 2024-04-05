@@ -44,3 +44,21 @@ func validateAddProjectPayload(
 
 	return nil
 }
+
+func validateAdminUpdateProjectPayload(payload AdminUpdateProjectRequest) (string, error) {
+	if payload.ProjectStatusPrimary == "" {
+		return "projectStatusPrimary", &ProjectStatusPrimaryRequiredError{}
+	}
+	if payload.ProjectStatusSecondary == "" {
+		return "projectStatusSecondary", &ProjectStatusSecondaryRequiredError{}
+	}
+	if payload.AdminScore != nil {
+		if *payload.AdminScore < 0 || *payload.AdminScore > 100 {
+			return "adminScore", &AdminScoreOutOfRangeError{}
+		}
+	}
+	if payload.FundApprovedAmount != nil && *payload.FundApprovedAmount < 0 {
+		return "fundApprovedAmount", &FundApprovedAmountNegativeError{}
+	}
+	return "", nil
+}

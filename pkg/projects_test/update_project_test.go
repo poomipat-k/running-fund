@@ -30,6 +30,49 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.ProjectStatusPrimaryRequiredError{},
 		},
+		{
+			name: "should error when projectStatusPrimary is missing",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary: "CurrentBeforeApprove",
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.ProjectStatusSecondaryRequiredError{},
+		},
+		{
+			name: "should error when adminScore is less than 0",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
+				AdminScore:             newInt(-10),
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.AdminScoreOutOfRangeError{},
+		},
+		{
+			name: "should error when adminScore is greater than 100",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
+				AdminScore:             newInt(110),
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.AdminScoreOutOfRangeError{},
+		},
+		{
+			name: "should error when fundApprovedAmount is less than 0",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
+				AdminScore:             newInt(60),
+				FundApprovedAmount:     newInt64(-20),
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.FundApprovedAmountNegativeError{},
+		},
 	}
 
 	for _, tt := range tests {
@@ -42,6 +85,10 @@ func TestAdminUpdateProject(t *testing.T) {
 			res := httptest.NewRecorder()
 			handler.AdminUpdateProject(res, req)
 			assertStatus(t, res.Code, tt.expectedStatus)
+			if tt.expectedError != nil {
+				errBody := getErrorResponse(t, res)
+				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
+			}
 		})
 	}
 }
