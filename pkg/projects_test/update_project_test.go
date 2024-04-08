@@ -121,16 +121,6 @@ func TestAdminUpdateProject(t *testing.T) {
 			userStore := &mock.MockUserStore{}
 			handler := projects.NewProjectHandler(store, userStore, s3Service.S3Service{})
 
-			// reqPayload := adminUpdateProjectPayloadToJSON(tt.payload)
-			// req := httptest.NewRequest(http.MethodPatch, "/api/v1/admin/project/{projectCode}", reqPayload)
-			// res := httptest.NewRecorder()
-			// handler.AdminUpdateProject(res, req)
-			// assertStatus(t, res.Code, tt.expectedStatus)
-			// if tt.expectedError != nil {
-			// 	errBody := getErrorResponse(t, res)
-			// 	assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
-			// }
-
 			// multipart/form-data set up
 			pipeReader, pipeWriter := io.Pipe()
 			// this writer is going to transform what we pass to it to multipart form data
