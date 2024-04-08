@@ -339,10 +339,11 @@ type AdminUpdateProjectRequest struct {
 }
 
 type AdminUpdateParam struct {
-	Status             string
-	AdminScore         int
-	FundApprovedAmount int64
-	AdminComment       string
-	AdminApprovedAt    time.Time
-	UpdatedAt          time.Time
+	ProjectHistoryId   int        `json:"projectHistoryId,omitempty"`
+	ProjectStatus      string     `json:"projectStatus,omitempty"`
+	AdminScore         *int       `json:"adminScore,omitempty"`
+	FundApprovedAmount *int64     `json:"fundApprovedAmount,omitempty"`
+	AdminComment       *string    `json:"adminComment,omitempty"`
+	AdminApprovedAt    *time.Time `json:"adminApprovedAt,omitempty"`
+	UpdatedAt          time.Time  `json:"updatedAt,omitempty"`
 }

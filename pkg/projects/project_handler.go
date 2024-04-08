@@ -31,7 +31,7 @@ type projectStore interface {
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
 	GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
-	GetProjectStatusByProjectCode(projectCode string) (string, error)
+	GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error)
 }
 
 type ProjectHandler struct {
@@ -402,33 +402,41 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 
 func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Request) {
 	projectCode := chi.URLParam(r, "projectCode")
-	log.Println("==projectCode", projectCode)
-	var payload AdminUpdateProjectRequest
-	err := utils.ReadJSON(w, r, &payload)
-	if err != nil {
-		utils.ErrorJSON(w, err, "payload")
+	if err := r.ParseMultipartForm(50 << 20); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	formJsonString := r.FormValue("form")
+	payload := AdminUpdateProjectRequest{}
+	err := json.Unmarshal([]byte(formJsonString), &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+	additionFiles := r.MultipartForm.File["additionFiles"]
 	log.Println(payload)
+	log.Println("==additionFiles", additionFiles)
 	field, err := validateAdminUpdateProjectPayload(payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, field)
 		return
 	}
 
-	currentStatus, err := h.store.GetProjectStatusByProjectCode(projectCode)
+	currentProject, err := h.store.GetProjectStatusByProjectCode(projectCode)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusNotFound)
 		return
 	}
-	log.Println("==projectStatus", currentStatus)
+	currentStatus := currentProject.ProjectStatus
+	log.Println("==currentStatus", currentStatus)
 	primaryStatusChanged := payload.ProjectStatusPrimary != currentStatus
 	secondaryStatusChanged := payload.ProjectStatusSecondary != currentStatus
 	now := time.Now()
 	if !primaryStatusChanged && !secondaryStatusChanged {
-		log.Println("===same currentStatus", currentStatus)
+		log.Println("===1")
 		// change all other attributes
-		utils.WriteJSON(w, http.StatusOK, currentStatus)
+		utils.WriteJSON(w, http.StatusOK, currentProject)
 		return
 	}
 	var newStatus string
@@ -441,6 +449,8 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	if newStatus == "Approved" {
 		// update admin_approved_at to now
 		log.Println("==now", now)
+		log.Println("===2")
 	}
-	utils.WriteJSON(w, http.StatusOK, newStatus)
+	log.Println("===3")
+	utils.WriteJSON(w, http.StatusOK, currentProject)
 }

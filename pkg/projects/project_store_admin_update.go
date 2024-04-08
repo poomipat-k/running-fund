@@ -6,18 +6,26 @@ import (
 	"log/slog"
 )
 
-func (s *store) GetProjectStatusByProjectCode(projectCode string) (string, error) {
-	var projectStatus string
-	row := s.db.QueryRow(GetProjectStatusByProjectCodeSQL, projectCode)
-	err := row.Scan(&projectStatus)
+func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error) {
+	var payload AdminUpdateParam
+	row := s.db.QueryRow(GetProjectForAdminUpdateByProjectCodeSQL, projectCode)
+	err := row.Scan(
+		&payload.ProjectHistoryId,
+		&payload.ProjectStatus,
+		&payload.AdminScore,
+		&payload.FundApprovedAmount,
+		&payload.AdminComment,
+		&payload.AdminApprovedAt,
+		&payload.UpdatedAt,
+	)
 	switch err {
 	case sql.ErrNoRows:
-		slog.Error("GetReviewPeriod(): no row were returned!")
-		return "", err
+		slog.Error("GetProjectStatusByProjectCode(): no row were returned!")
+		return AdminUpdateParam{}, err
 	case nil:
-		return projectStatus, nil
+		return payload, nil
 	default:
 		slog.Error(err.Error())
-		return "", fmt.Errorf("GetReviewPeriod() unknown error")
+		return AdminUpdateParam{}, fmt.Errorf("GetProjectStatusByProjectCode() unknown error")
 	}
 }

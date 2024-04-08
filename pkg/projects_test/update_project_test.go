@@ -2,10 +2,11 @@ package projects_test
 
 import (
 	"encoding/json"
-	"log"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"os"
 	"testing"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
@@ -14,11 +15,12 @@ import (
 )
 
 type UpdateProjectTestCase struct {
-	name           string
-	payload        projects.AdminUpdateProjectRequest
-	store          *mock.MockProjectStore
-	expectedStatus int
-	expectedError  error
+	name              string
+	payload           projects.AdminUpdateProjectRequest
+	store             *mock.MockProjectStore
+	expectedStatus    int
+	expectedError     error
+	additionFilesPath string
 }
 
 func TestAdminUpdateProject(t *testing.T) {
@@ -103,8 +105,10 @@ func TestAdminUpdateProject(t *testing.T) {
 				AdminComment:           newString("Admin comment 1"),
 			},
 			store: &mock.MockProjectStore{
-				GetProjectStatusByProjectCodeFunc: func(projectCode string) (string, error) {
-					return "Reviewing", nil
+				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+					return projects.AdminUpdateParam{
+						ProjectStatus: "Reviewing",
+					}, nil
 				},
 			},
 			expectedStatus: http.StatusOK,
@@ -116,23 +120,71 @@ func TestAdminUpdateProject(t *testing.T) {
 			store := tt.store
 			userStore := &mock.MockUserStore{}
 			handler := projects.NewProjectHandler(store, userStore, s3Service.S3Service{})
-			reqPayload := adminUpdateProjectPayloadToJSON(tt.payload)
-			req := httptest.NewRequest(http.MethodPatch, "/api/v1/admin/project/{projectCode}", reqPayload)
+
+			// reqPayload := adminUpdateProjectPayloadToJSON(tt.payload)
+			// req := httptest.NewRequest(http.MethodPatch, "/api/v1/admin/project/{projectCode}", reqPayload)
+			// res := httptest.NewRecorder()
+			// handler.AdminUpdateProject(res, req)
+			// assertStatus(t, res.Code, tt.expectedStatus)
+			// if tt.expectedError != nil {
+			// 	errBody := getErrorResponse(t, res)
+			// 	assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
+			// }
+
+			// multipart/form-data set up
+			pipeReader, pipeWriter := io.Pipe()
+			// this writer is going to transform what we pass to it to multipart form data
+			// and write it to our io.Pipe
+			multipartWriter := multipart.NewWriter(pipeWriter)
+			body, err := json.Marshal(tt.payload)
+			if err != nil {
+				t.Error("error marshal payload err:", err)
+			}
+
+			go func() {
+				// close it when it done its job
+				defer multipartWriter.Close()
+
+				// create a form field writer for name
+				formStr, err := multipartWriter.CreateFormField("form")
+				if err != nil {
+					t.Error(err)
+				}
+
+				// write string to the form field writer for form
+				formStr.Write(body)
+
+				filePath := "test.png"
+				file, err := os.Open(filePath)
+				if err != nil {
+					t.Error(err)
+				}
+				defer file.Close()
+
+				if tt.additionFilesPath != "" {
+					mk, err := multipartWriter.CreateFormFile("additionFiles", filePath)
+					if err != nil {
+						t.Error(err)
+					}
+					if _, err := io.Copy(mk, file); err != nil {
+						t.Error(err)
+					}
+				}
+			}()
+			// End multipart/form-data setup
+
 			res := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodPost, "/admin/project/{projectCode}", pipeReader)
+			// Set content-type to multipart
+			req.Header.Add("content-type", multipartWriter.FormDataContentType())
+
 			handler.AdminUpdateProject(res, req)
 			assertStatus(t, res.Code, tt.expectedStatus)
 			if tt.expectedError != nil {
 				errBody := getErrorResponse(t, res)
 				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
 			}
+
 		})
 	}
-}
-
-func adminUpdateProjectPayloadToJSON(payload projects.AdminUpdateProjectRequest) *strings.Reader {
-	userJson, err := json.Marshal(payload)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return strings.NewReader(string(userJson))
 }
