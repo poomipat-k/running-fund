@@ -11,14 +11,14 @@ var thirtyDaysMonth = map[int]int{
 	11: 30,
 }
 
-var PROJECT_STATUS = map[string]bool{
-	"Reviewing":   true,
-	"Reviewed":    true,
-	"Revise":      true,
-	"NotApproved": true,
-	"Approved":    true,
-	"Start":       true,
-	"Completed":   true,
+var PROJECT_STATUS = map[string]int{
+	"Reviewing":   1,
+	"Reviewed":    2,
+	"Revise":      3,
+	"NotApproved": 4,
+	"Approved":    5,
+	"Start":       6,
+	"Completed":   7,
 }
 
 var PRIMARY_STATUS = map[string]bool{
@@ -71,7 +71,7 @@ func validateAdminUpdateProjectPayload(payload AdminUpdateProjectRequest) (strin
 	if payload.ProjectStatusSecondary == "" {
 		return "projectStatusSecondary", &ProjectStatusSecondaryRequiredError{}
 	}
-	if !PROJECT_STATUS[payload.ProjectStatusSecondary] {
+	if PROJECT_STATUS[payload.ProjectStatusSecondary] == 0 {
 		return "projectStatusSecondary", &ProjectStatusSecondaryInvalidError{}
 	}
 	if payload.AdminScore != nil {

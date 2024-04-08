@@ -429,8 +429,7 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	currentStatus := currentProject.ProjectStatus
-	log.Println("==currentStatus", currentStatus)
-	primaryStatusChanged := payload.ProjectStatusPrimary != currentStatus
+	primaryStatusChanged := hasPrimaryStatusChanged(currentStatus, payload.ProjectStatusPrimary)
 	secondaryStatusChanged := payload.ProjectStatusSecondary != currentStatus
 	now := time.Now()
 	if !primaryStatusChanged && !secondaryStatusChanged {
