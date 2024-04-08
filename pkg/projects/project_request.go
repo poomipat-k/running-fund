@@ -337,3 +337,12 @@ type AdminUpdateProjectRequest struct {
 	FundApprovedAmount     *int64  `json:"fundApprovedAmount,omitempty"`
 	AdminComment           *string `json:"adminComment,omitempty"`
 }
+
+type AdminUpdateParam struct {
+	Status             string
+	AdminScore         int
+	FundApprovedAmount int64
+	AdminComment       string
+	AdminApprovedAt    time.Time
+	UpdatedAt          time.Time
+}

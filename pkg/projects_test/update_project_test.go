@@ -31,13 +31,32 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedError:  &projects.ProjectStatusPrimaryRequiredError{},
 		},
 		{
-			name: "should error when projectStatusPrimary is missing",
+			name: "should error when projectStatusPrimary is invalid",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary: "Something",
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.ProjectStatusPrimaryInvalidError{},
+		},
+		{
+			name: "should error when projectStatusSecondary is missing",
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary: "CurrentBeforeApprove",
 			},
 			store:          &mock.MockProjectStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.ProjectStatusSecondaryRequiredError{},
+		},
+		{
+			name: "should error when projectStatusSecondary is invalid",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "XXX",
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.ProjectStatusSecondaryInvalidError{},
 		},
 		{
 			name: "should error when adminScore is less than 0",
@@ -72,6 +91,23 @@ func TestAdminUpdateProject(t *testing.T) {
 			store:          &mock.MockProjectStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.FundApprovedAmountNegativeError{},
+		},
+		// ok
+		{
+			name: "should be okay",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "Approved",
+				ProjectStatusSecondary: "Reviewed",
+				AdminScore:             newInt(66),
+				FundApprovedAmount:     newInt64(200000),
+				AdminComment:           newString("Admin comment 1"),
+			},
+			store: &mock.MockProjectStore{
+				GetProjectStatusByProjectCodeFunc: func(projectCode string) (string, error) {
+					return "Reviewing", nil
+				},
+			},
+			expectedStatus: http.StatusOK,
 		},
 	}
 

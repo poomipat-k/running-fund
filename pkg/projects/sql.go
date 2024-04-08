@@ -326,3 +326,11 @@ INNER JOIN district ON subdistrict.district_id = district.id
 INNER JOIN province ON district.province_id = province.id
 WHERE postcode.id = $1;
 `
+
+const GetProjectStatusByProjectCodeSQL = `
+SELECT
+project_history.status as project_status
+FROM project
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.project_code = $1;
+`

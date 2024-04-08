@@ -31,6 +31,7 @@ type projectStore interface {
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
 	GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
+	GetProjectStatusByProjectCode(projectCode string) (string, error)
 }
 
 type ProjectHandler struct {
@@ -414,5 +415,32 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		utils.ErrorJSON(w, err, field)
 		return
 	}
-	utils.WriteJSON(w, http.StatusBadRequest, nil)
+
+	currentStatus, err := h.store.GetProjectStatusByProjectCode(projectCode)
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusNotFound)
+		return
+	}
+	log.Println("==projectStatus", currentStatus)
+	primaryStatusChanged := payload.ProjectStatusPrimary != currentStatus
+	secondaryStatusChanged := payload.ProjectStatusSecondary != currentStatus
+	now := time.Now()
+	if !primaryStatusChanged && !secondaryStatusChanged {
+		log.Println("===same currentStatus", currentStatus)
+		// change all other attributes
+		utils.WriteJSON(w, http.StatusOK, currentStatus)
+		return
+	}
+	var newStatus string
+	newStatus = currentStatus
+	if primaryStatusChanged {
+		newStatus = payload.ProjectStatusPrimary
+	} else if secondaryStatusChanged {
+		newStatus = payload.ProjectStatusSecondary
+	}
+	if newStatus == "Approved" {
+		// update admin_approved_at to now
+		log.Println("==now", now)
+	}
+	utils.WriteJSON(w, http.StatusOK, newStatus)
 }

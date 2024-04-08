@@ -747,10 +747,22 @@ func (e *ProjectStatusPrimaryRequiredError) Error() string {
 	return "projectStatusPrimary is required"
 }
 
+type ProjectStatusPrimaryInvalidError struct{}
+
+func (e *ProjectStatusPrimaryInvalidError) Error() string {
+	return "projectStatusPrimary is invalid"
+}
+
 type ProjectStatusSecondaryRequiredError struct{}
 
 func (e *ProjectStatusSecondaryRequiredError) Error() string {
 	return "projectStatusSecondary is required"
+}
+
+type ProjectStatusSecondaryInvalidError struct{}
+
+func (e *ProjectStatusSecondaryInvalidError) Error() string {
+	return "projectStatusSecondary is invalid"
 }
 
 type AdminScoreOutOfRangeError struct{}

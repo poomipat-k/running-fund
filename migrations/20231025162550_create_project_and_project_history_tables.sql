@@ -10,6 +10,7 @@ CREATE TABLE project_history(
   fund_approved_amount BIGINT,
   admin_comment VARCHAR(512),
   admin_score SMALLINT,
+  admin_approved_at TIMESTAMP WITH TIME ZONE,
   -- STEP 0
   collaborated BOOLEAN NOT NULL,
   -- STEP 1

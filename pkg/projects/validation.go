@@ -11,6 +11,22 @@ var thirtyDaysMonth = map[int]int{
 	11: 30,
 }
 
+var PROJECT_STATUS = map[string]bool{
+	"Reviewing":   true,
+	"Reviewed":    true,
+	"Revise":      true,
+	"NotApproved": true,
+	"Approved":    true,
+	"Start":       true,
+	"Completed":   true,
+}
+
+var PRIMARY_STATUS = map[string]bool{
+	"CurrentBeforeApprove": true,
+	"Approved":             true,
+	"NotApproved":          true,
+}
+
 func validateAddProjectPayload(
 	payload AddProjectRequest,
 	collaborateFiles []*multipart.FileHeader,
@@ -49,8 +65,14 @@ func validateAdminUpdateProjectPayload(payload AdminUpdateProjectRequest) (strin
 	if payload.ProjectStatusPrimary == "" {
 		return "projectStatusPrimary", &ProjectStatusPrimaryRequiredError{}
 	}
+	if !PRIMARY_STATUS[payload.ProjectStatusPrimary] {
+		return "projectStatusPrimary", &ProjectStatusPrimaryInvalidError{}
+	}
 	if payload.ProjectStatusSecondary == "" {
 		return "projectStatusSecondary", &ProjectStatusSecondaryRequiredError{}
+	}
+	if !PROJECT_STATUS[payload.ProjectStatusSecondary] {
+		return "projectStatusSecondary", &ProjectStatusSecondaryInvalidError{}
 	}
 	if payload.AdminScore != nil {
 		if *payload.AdminScore < 0 || *payload.AdminScore > 100 {
