@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -193,6 +194,11 @@ func newInt64(val int64) *int64 {
 func newString(val string) *string {
 	v := val
 	return &v
+}
+
+func newNow() *time.Time {
+	now := time.Now()
+	return &now
 }
 
 func newFloat64(val float64) *float64 {

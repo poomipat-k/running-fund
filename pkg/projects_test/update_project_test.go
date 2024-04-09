@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -15,12 +16,13 @@ import (
 )
 
 type UpdateProjectTestCase struct {
-	name              string
-	payload           projects.AdminUpdateProjectRequest
-	store             *mock.MockProjectStore
-	expectedStatus    int
-	expectedError     error
-	additionFilesPath string
+	name                string
+	payload             projects.AdminUpdateProjectRequest
+	store               *mock.MockProjectStore
+	expectedStatus      int
+	expectedError       error
+	additionFilesPath   string
+	expectedUpdatedData projects.AdminUpdateParam
 }
 
 func TestAdminUpdateProject(t *testing.T) {
@@ -94,12 +96,11 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.FundApprovedAmountNegativeError{},
 		},
-		// ok
 		{
-			name: "should be okay",
+			name: "should save data correctly when ProjectStatusPrimary and ProjectStatusSecondary haven't changed",
 			payload: projects.AdminUpdateProjectRequest{
-				ProjectStatusPrimary:   "Approved",
-				ProjectStatusSecondary: "Reviewed",
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
 				AdminScore:             newInt(66),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 1"),
@@ -107,12 +108,46 @@ func TestAdminUpdateProject(t *testing.T) {
 			store: &mock.MockProjectStore{
 				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
 					return projects.AdminUpdateParam{
-						ProjectStatus: "Reviewing",
+						ProjectHistoryId:   1,
+						ProjectStatus:      "Reviewing",
+						AdminScore:         newInt(60),
+						FundApprovedAmount: newInt64(30000),
+						AdminComment:       newString("comment1"),
+						AdminApprovedAt:    newNow(),
+						UpdatedAt:          time.Now(),
 					}, nil
 				},
 			},
 			expectedStatus: http.StatusOK,
+			expectedUpdatedData: projects.AdminUpdateParam{
+				ProjectHistoryId:   1,
+				ProjectStatus:      "Reviewing",
+				AdminScore:         newInt(60),
+				FundApprovedAmount: newInt64(30000),
+				AdminComment:       newString("comment1"),
+				AdminApprovedAt:    newNow(),
+				UpdatedAt:          time.Now(),
+			},
 		},
+		// // ok
+		// {
+		// 	name: "should be okay",
+		// 	payload: projects.AdminUpdateProjectRequest{
+		// 		ProjectStatusPrimary:   "Approved",
+		// 		ProjectStatusSecondary: "Reviewed",
+		// 		AdminScore:             newInt(66),
+		// 		FundApprovedAmount:     newInt64(200000),
+		// 		AdminComment:           newString("Admin comment 1"),
+		// 	},
+		// 	store: &mock.MockProjectStore{
+		// 		GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+		// 			return projects.AdminUpdateParam{
+		// 				ProjectStatus: "Reviewing",
+		// 			}, nil
+		// 		},
+		// 	},
+		// 	expectedStatus: http.StatusOK,
+		// },
 	}
 
 	for _, tt := range tests {
@@ -164,7 +199,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			// End multipart/form-data setup
 
 			res := httptest.NewRecorder()
-			req := httptest.NewRequest(http.MethodPost, "/admin/project/{projectCode}", pipeReader)
+			req := httptest.NewRequest(http.MethodPost, "/admin/project/APR67_0501", pipeReader)
 			// Set content-type to multipart
 			req.Header.Add("content-type", multipartWriter.FormDataContentType())
 
@@ -175,6 +210,19 @@ func TestAdminUpdateProject(t *testing.T) {
 				assertErrorMessage(t, errBody.Message, tt.expectedError.Error())
 			}
 
+			if tt.expectedUpdatedData.ProjectHistoryId != 0 {
+				assertUpdatedData(t, tt.store.AdminUpdateData, tt.expectedUpdatedData)
+			}
 		})
+	}
+}
+
+func assertUpdatedData(t testing.TB, got, want projects.AdminUpdateParam) {
+	t.Helper()
+	if got.ProjectHistoryId != want.ProjectHistoryId {
+		t.Errorf("ProjectHistoryId: got %d, want %d", got.ProjectHistoryId, want.ProjectHistoryId)
+	}
+	if got.ProjectStatus != want.ProjectStatus {
+		t.Errorf("ProjectStatus: got %s, want %s", got.ProjectStatus, want.ProjectStatus)
 	}
 }

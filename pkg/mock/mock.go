@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"log"
 	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -50,6 +51,8 @@ func (m *MockUserStore) GetUserFullNameById(userId int) (users.UserFullName, err
 
 // projects
 type MockProjectStore struct {
+	AdminUpdateData projects.AdminUpdateParam
+
 	GetReviewerDashboardFunc                func(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
 	GetReviewPeriodFunc                     func() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetailsFunc           func(userId int, projectCode string) (projects.ProjectReviewDetailsResponse, error)
@@ -60,6 +63,7 @@ type MockProjectStore struct {
 	GetApplicantProjectDetailsFunc          func(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
 	GetProjectStatusByProjectCodeFunc       func(projectCode string) (projects.AdminUpdateParam, error)
+	// UpdateProjectByAdminFunc                func(payload projects.AdminUpdateParam) error
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -100,4 +104,10 @@ func (m *MockProjectStore) HasPermissionToAddAdditionalFiles(userId int, project
 
 func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (projects.AdminUpdateParam, error) {
 	return m.GetProjectStatusByProjectCodeFunc(projectCode)
+}
+
+func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam) error {
+	log.Println("==payload", payload)
+	m.AdminUpdateData = payload
+	return nil
 }

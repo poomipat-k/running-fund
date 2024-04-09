@@ -144,6 +144,16 @@ type ApplicantDetailsData struct {
 	SumScore           *int       `json:"sumScore,omitempty"`
 }
 
+type AdminUpdateParam struct {
+	ProjectHistoryId   int        `json:"projectHistoryId,omitempty"`
+	ProjectStatus      string     `json:"projectStatus,omitempty"`
+	AdminScore         *int       `json:"adminScore,omitempty"`
+	FundApprovedAmount *int64     `json:"fundApprovedAmount,omitempty"`
+	AdminComment       *string    `json:"adminComment,omitempty"`
+	AdminApprovedAt    *time.Time `json:"adminApprovedAt,omitempty"`
+	UpdatedAt          time.Time  `json:"updatedAt,omitempty"`
+}
+
 type S3ObjectDetails struct {
 	Key          string    `json:"key,omitempty"`
 	LastModified time.Time `json:"lastModified,omitempty"`

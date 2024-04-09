@@ -32,6 +32,7 @@ type projectStore interface {
 	GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
 	GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error)
+	UpdateProjectByAdmin(payload AdminUpdateParam) error
 }
 
 type ProjectHandler struct {
@@ -415,7 +416,6 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	additionFiles := r.MultipartForm.File["additionFiles"]
-	log.Println(payload)
 	log.Println("==additionFiles", additionFiles)
 	field, err := validateAdminUpdateProjectPayload(payload)
 	if err != nil {
@@ -435,7 +435,20 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	if !primaryStatusChanged && !secondaryStatusChanged {
 		log.Println("===1")
 		// change all other attributes
-		utils.WriteJSON(w, http.StatusOK, currentProject)
+		err = h.store.UpdateProjectByAdmin(AdminUpdateParam{
+			ProjectHistoryId:   currentProject.ProjectHistoryId,
+			ProjectStatus:      currentStatus,
+			AdminScore:         currentProject.AdminScore,
+			FundApprovedAmount: currentProject.FundApprovedAmount,
+			AdminComment:       currentProject.AdminComment,
+			AdminApprovedAt:    currentProject.AdminApprovedAt,
+			UpdatedAt:          now,
+		})
+		if err != nil {
+			utils.ErrorJSON(w, err, "", http.StatusNotFound)
+			return
+		}
+		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
 		return
 	}
 	var newStatus string
@@ -447,7 +460,6 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	}
 	if newStatus == "Approved" {
 		// update admin_approved_at to now
-		log.Println("==now", now)
 		log.Println("===2")
 	}
 	log.Println("===3")

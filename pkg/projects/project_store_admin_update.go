@@ -29,3 +29,7 @@ func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdatePa
 		return AdminUpdateParam{}, fmt.Errorf("GetProjectStatusByProjectCode() unknown error")
 	}
 }
+
+func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam) error {
+	return nil
+}
