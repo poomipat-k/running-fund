@@ -448,7 +448,7 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 			utils.ErrorJSON(w, err, "", http.StatusNotFound)
 			return
 		}
-		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
+		utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
 		return
 	}
 	var newStatus string
@@ -461,15 +461,15 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	if newStatus == "Approved" {
 		// update admin_approved_at to now
 		log.Println("===2")
-		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
+		utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
 		return
 	}
 	if newStatus == "NotApproved" {
 		log.Println("===3")
 		// update admin_approved_at to nils
-		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
+		utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
 		return
 	}
 	log.Println("===4")
-	utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
+	utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
 }
