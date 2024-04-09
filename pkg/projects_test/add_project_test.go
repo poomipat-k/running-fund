@@ -246,9 +246,9 @@ func newString(val string) *string {
 	return &v
 }
 
-func newNow() *time.Time {
-	now := time.Now()
-	return &now
+func newTime(t time.Time) *time.Time {
+	v := t
+	return &v
 }
 
 func newFloat64(val float64) *float64 {

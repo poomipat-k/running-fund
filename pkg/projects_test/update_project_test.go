@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -95,6 +96,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.FundApprovedAmountNegativeError{},
 		},
+		// Primary and Secondary not changed
 		{
 			name: "should save data correctly when ProjectStatusPrimary and ProjectStatusSecondary haven't changed",
 			payload: projects.AdminUpdateProjectRequest{
@@ -109,6 +111,7 @@ func TestAdminUpdateProject(t *testing.T) {
 					return projects.AdminUpdateParam{
 						ProjectHistoryId: 1,
 						ProjectStatus:    "Reviewing",
+						AdminApprovedAt:  newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
 					}, nil
 				},
 			},
@@ -119,7 +122,7 @@ func TestAdminUpdateProject(t *testing.T) {
 				AdminScore:         newInt(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 1"),
-				AdminApprovedAt:    nil,
+				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
 			},
 		},
 		{
@@ -147,6 +150,35 @@ func TestAdminUpdateProject(t *testing.T) {
 				AdminApprovedAt:    nil,
 			},
 		},
+		// // ProjectStatusPrimary changed to Approved
+		// {
+		// 	name: "should save data correctly when ProjectStatusPrimary changed to Approved and ProjectStatusSecondary haven't changed",
+		// 	payload: projects.AdminUpdateProjectRequest{
+		// 		ProjectStatusPrimary:   "Approved",
+		// 		ProjectStatusSecondary: "Reviewing",
+		// 		AdminScore:             newInt(70),
+		// 		FundApprovedAmount:     newInt64(200000),
+		// 		AdminComment:           newString("Admin comment 1"),
+		// 	},
+		// 	store: &mock.MockProjectStore{
+		// 		GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+		// 			return projects.AdminUpdateParam{
+		// 				ProjectHistoryId: 1,
+		// 				ProjectStatus:    "Reviewing",
+		// 			}, nil
+		// 		},
+		// 	},
+		// 	expectedStatus: http.StatusOK,
+		// 	expectedUpdatedData: projects.AdminUpdateParam{
+		// 		ProjectHistoryId:   1,
+		// 		ProjectStatus:      "Reviewing",
+		// 		AdminScore:         newInt(70),
+		// 		FundApprovedAmount: newInt64(200000),
+		// 		AdminComment:       newString("Admin comment 1"),
+		// 		AdminApprovedAt:    nil,
+		// 	},
+		// },
+
 		// // ok
 		// {
 		// 	name: "should be okay",

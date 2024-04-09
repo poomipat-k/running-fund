@@ -464,6 +464,12 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
 		return
 	}
-	log.Println("===3")
+	if newStatus == "NotApproved" {
+		log.Println("===3")
+		// update admin_approved_at to nils
+		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
+		return
+	}
+	log.Println("===4")
 	utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
 }
