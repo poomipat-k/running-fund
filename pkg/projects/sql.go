@@ -327,7 +327,7 @@ INNER JOIN province ON district.province_id = province.id
 WHERE postcode.id = $1;
 `
 
-const GetProjectForAdminUpdateByProjectCodeSQL = `
+const getProjectForAdminUpdateByProjectCodeSQL = `
 SELECT
 project.user_id as user_id,
 project_history.id as project_history_id,
@@ -340,4 +340,16 @@ project_history.updated_at as updated_at
 FROM project
 INNER JOIN project_history ON project.project_history_id = project_history.id
 WHERE project.project_code = $1;
+`
+
+const updateProjectByAdminSQL = `
+UPDATE project_history
+SET
+status = $2,
+admin_score = $3,
+fund_approved_amount = $4,
+admin_comment = $5,
+admin_approved_at = $6,
+updated_at = $7
+WHERE project_history.id = $1 RETURNING id;
 `

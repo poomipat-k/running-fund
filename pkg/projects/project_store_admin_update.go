@@ -10,7 +10,7 @@ import (
 
 func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error) {
 	var payload AdminUpdateParam
-	row := s.db.QueryRow(GetProjectForAdminUpdateByProjectCodeSQL, projectCode)
+	row := s.db.QueryRow(getProjectForAdminUpdateByProjectCodeSQL, projectCode)
 	err := row.Scan(
 		&payload.CreatedBy,
 		&payload.ProjectHistoryId,
@@ -43,7 +43,24 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 		return err
 	}
 	defer tx.Rollback()
+	var id int
+	err = tx.QueryRowContext(
+		ctx,
+		updateProjectByAdminSQL,
+		payload.ProjectHistoryId,
+		payload.ProjectStatus,
+		payload.AdminScore,
+		payload.FundApprovedAmount,
+		payload.AdminComment,
+		payload.AdminApprovedAt,
+		payload.UpdatedAt,
+	).Scan(&id)
 
+	if err != nil {
+		return err
+	}
+
+	// upload additionFiles
 	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, projectCode)
 	err = s.awsS3Service.UploadFilesToS3(additionFiles, objectPrefix)
 	if err != nil {
@@ -54,7 +71,7 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 	if err != nil {
 		return err
 	}
-	// commit
+	// committed
 	slog.Info("success update a project", "projectHistoryId", payload.ProjectHistoryId)
 
 	return nil
