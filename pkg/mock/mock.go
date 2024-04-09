@@ -2,6 +2,7 @@ package mock
 
 import (
 	"log"
+	"mime/multipart"
 	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -63,7 +64,6 @@ type MockProjectStore struct {
 	GetApplicantProjectDetailsFunc          func(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
 	GetProjectStatusByProjectCodeFunc       func(projectCode string) (projects.AdminUpdateParam, error)
-	// UpdateProjectByAdminFunc                func(payload projects.AdminUpdateParam) error
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -106,7 +106,7 @@ func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (pr
 	return m.GetProjectStatusByProjectCodeFunc(projectCode)
 }
 
-func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam) error {
+func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
 	log.Println("==mock payload", payload)
 	m.AdminUpdateData = payload
 	return nil

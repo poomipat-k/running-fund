@@ -329,6 +329,7 @@ WHERE postcode.id = $1;
 
 const GetProjectForAdminUpdateByProjectCodeSQL = `
 SELECT
+project.user_id as user_id,
 project_history.id as project_history_id,
 project_history.status as project_status,
 project_history.admin_score as admin_score,

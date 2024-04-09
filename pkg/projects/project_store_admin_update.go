@@ -1,15 +1,18 @@
 package projects
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"mime/multipart"
 )
 
 func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error) {
 	var payload AdminUpdateParam
 	row := s.db.QueryRow(GetProjectForAdminUpdateByProjectCodeSQL, projectCode)
 	err := row.Scan(
+		&payload.CreatedBy,
 		&payload.ProjectHistoryId,
 		&payload.ProjectStatus,
 		&payload.AdminScore,
@@ -30,6 +33,29 @@ func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdatePa
 	}
 }
 
-func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam) error {
+func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
+	// start transaction
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, projectCode)
+	err = s.awsS3Service.UploadFilesToS3(additionFiles, objectPrefix)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	// commit
+	slog.Info("success update a project", "projectHistoryId", payload.ProjectHistoryId)
+
 	return nil
 }

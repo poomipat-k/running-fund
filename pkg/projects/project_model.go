@@ -145,6 +145,7 @@ type ApplicantDetailsData struct {
 }
 
 type AdminUpdateParam struct {
+	CreatedBy          int        `json:"createdBy,omitempty"`
 	ProjectHistoryId   int        `json:"projectHistoryId,omitempty"`
 	ProjectStatus      string     `json:"projectStatus,omitempty"`
 	AdminScore         *int       `json:"adminScore,omitempty"`
