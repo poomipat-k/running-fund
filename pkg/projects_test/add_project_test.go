@@ -181,6 +181,56 @@ func getErrorResponse(t testing.TB, res *httptest.ResponseRecorder) ErrorBody {
 	return body
 }
 
+func assertUpdatedData(t testing.TB, got, want projects.AdminUpdateParam) {
+	t.Helper()
+	if got.ProjectHistoryId != want.ProjectHistoryId {
+		t.Errorf("ProjectHistoryId: got %d, want %d", got.ProjectHistoryId, want.ProjectHistoryId)
+	}
+	if got.ProjectStatus != want.ProjectStatus {
+		t.Errorf("ProjectStatus: got %s, want %s", got.ProjectStatus, want.ProjectStatus)
+	}
+	// AdminScore
+	if got.AdminScore == nil && want.AdminScore != nil {
+		t.Error("AdminScore should not be nil")
+	}
+	if got.AdminScore != nil && want.AdminScore == nil {
+		t.Error("AdminScore should be nil")
+	}
+	if got.AdminScore != nil && want.AdminScore != nil && *got.AdminScore != *want.AdminScore {
+		t.Errorf("AdminScore: got %d, want %d", *got.AdminScore, *want.AdminScore)
+	}
+	// FundApprovedAmount
+	if got.FundApprovedAmount == nil && want.FundApprovedAmount != nil {
+		t.Error("FundApprovedAmount should not be nil")
+	}
+	if got.FundApprovedAmount != nil && want.FundApprovedAmount == nil {
+		t.Error("FundApprovedAmount should be nil")
+	}
+	if got.FundApprovedAmount != nil && want.FundApprovedAmount != nil && *got.FundApprovedAmount != *want.FundApprovedAmount {
+		t.Errorf("FundApprovedAmount: got %d, want %d", *got.FundApprovedAmount, *want.FundApprovedAmount)
+	}
+	// AdminComment
+	if got.AdminComment == nil && want.AdminComment != nil {
+		t.Error("AdminComment should not be nil")
+	}
+	if got.AdminComment != nil && want.AdminComment == nil {
+		t.Error("AdminComment should be nil")
+	}
+	if got.AdminComment != nil && want.AdminComment != nil && *got.AdminComment != *want.AdminComment {
+		t.Errorf("AdminComment: got %s, want %s", *got.AdminComment, *want.AdminComment)
+	}
+	// AdminApprovedAt
+	if got.AdminApprovedAt == nil && want.AdminApprovedAt != nil {
+		t.Error("AdminApprovedAt should not be nil")
+	}
+	if got.AdminApprovedAt != nil && want.AdminApprovedAt == nil {
+		t.Error("AdminApprovedAt should be nil")
+	}
+	if got.AdminApprovedAt != nil && want.AdminApprovedAt != nil && *got.AdminApprovedAt != *want.AdminApprovedAt {
+		t.Errorf("AdminApprovedAt: got %v, want %v", *got.AdminApprovedAt, *want.AdminApprovedAt)
+	}
+}
+
 func newInt(val int) *int {
 	v := val
 	return &v

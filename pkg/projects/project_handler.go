@@ -438,9 +438,9 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		err = h.store.UpdateProjectByAdmin(AdminUpdateParam{
 			ProjectHistoryId:   currentProject.ProjectHistoryId,
 			ProjectStatus:      currentStatus,
-			AdminScore:         currentProject.AdminScore,
-			FundApprovedAmount: currentProject.FundApprovedAmount,
-			AdminComment:       currentProject.AdminComment,
+			AdminScore:         payload.AdminScore,
+			FundApprovedAmount: payload.FundApprovedAmount,
+			AdminComment:       payload.AdminComment,
 			AdminApprovedAt:    currentProject.AdminApprovedAt,
 			UpdatedAt:          now,
 		})
@@ -461,7 +461,9 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	if newStatus == "Approved" {
 		// update admin_approved_at to now
 		log.Println("===2")
+		utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
+		return
 	}
 	log.Println("===3")
-	utils.WriteJSON(w, http.StatusOK, currentProject)
+	utils.WriteJSON(w, http.StatusOK, currentProject.ProjectHistoryId)
 }

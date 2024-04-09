@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -101,20 +100,15 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Reviewing",
-				AdminScore:             newInt(66),
+				AdminScore:             newInt(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 1"),
 			},
 			store: &mock.MockProjectStore{
 				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
 					return projects.AdminUpdateParam{
-						ProjectHistoryId:   1,
-						ProjectStatus:      "Reviewing",
-						AdminScore:         newInt(60),
-						FundApprovedAmount: newInt64(30000),
-						AdminComment:       newString("comment1"),
-						AdminApprovedAt:    newNow(),
-						UpdatedAt:          time.Now(),
+						ProjectHistoryId: 1,
+						ProjectStatus:    "Reviewing",
 					}, nil
 				},
 			},
@@ -122,11 +116,35 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Reviewing",
-				AdminScore:         newInt(60),
-				FundApprovedAmount: newInt64(30000),
-				AdminComment:       newString("comment1"),
-				AdminApprovedAt:    newNow(),
-				UpdatedAt:          time.Now(),
+				AdminScore:         newInt(70),
+				FundApprovedAmount: newInt64(200000),
+				AdminComment:       newString("Admin comment 1"),
+				AdminApprovedAt:    nil,
+			},
+		},
+		{
+			name: "should save data correctly when ProjectStatusPrimary and ProjectStatusSecondary haven't changed and some optional payload is nil",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
+				AdminComment:           newString("Admin comment 1"),
+			},
+			store: &mock.MockProjectStore{
+				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+					return projects.AdminUpdateParam{
+						ProjectHistoryId: 1,
+						ProjectStatus:    "Reviewing",
+					}, nil
+				},
+			},
+			expectedStatus: http.StatusOK,
+			expectedUpdatedData: projects.AdminUpdateParam{
+				ProjectHistoryId:   1,
+				ProjectStatus:      "Reviewing",
+				AdminScore:         nil,
+				FundApprovedAmount: nil,
+				AdminComment:       newString("Admin comment 1"),
+				AdminApprovedAt:    nil,
 			},
 		},
 		// // ok
@@ -214,15 +232,5 @@ func TestAdminUpdateProject(t *testing.T) {
 				assertUpdatedData(t, tt.store.AdminUpdateData, tt.expectedUpdatedData)
 			}
 		})
-	}
-}
-
-func assertUpdatedData(t testing.TB, got, want projects.AdminUpdateParam) {
-	t.Helper()
-	if got.ProjectHistoryId != want.ProjectHistoryId {
-		t.Errorf("ProjectHistoryId: got %d, want %d", got.ProjectHistoryId, want.ProjectHistoryId)
-	}
-	if got.ProjectStatus != want.ProjectStatus {
-		t.Errorf("ProjectStatus: got %s, want %s", got.ProjectStatus, want.ProjectStatus)
 	}
 }

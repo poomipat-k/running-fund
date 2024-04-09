@@ -107,7 +107,7 @@ func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (pr
 }
 
 func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam) error {
-	log.Println("==payload", payload)
+	log.Println("==mock payload", payload)
 	m.AdminUpdateData = payload
 	return nil
 }
