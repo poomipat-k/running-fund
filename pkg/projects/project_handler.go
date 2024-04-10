@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -441,7 +440,6 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 	secondaryStatusChanged := payload.ProjectStatusSecondary != currentStatus
 	now := time.Now()
 	if !primaryStatusChanged && !secondaryStatusChanged {
-		log.Println("===1")
 		// change all other attributes
 		err := h.store.UpdateProjectByAdmin(
 			AdminUpdateParam{
@@ -473,7 +471,6 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 
 	if newStatus == "Approved" {
 		// update admin_approved_at to now
-		log.Println("===2")
 		var approvedAt *time.Time
 		if payload.AdminApprovedAt != nil {
 			approvedAt = payload.AdminApprovedAt
@@ -500,7 +497,6 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 		return nil
 	}
 	if newStatus == "NotApproved" {
-		log.Println("===3")
 		// update admin_approved_at to nils
 		err := h.store.UpdateProjectByAdmin(
 			AdminUpdateParam{
@@ -538,6 +534,5 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 	if err != nil {
 		return err
 	}
-	log.Println("===4")
 	return nil
 }
