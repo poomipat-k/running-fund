@@ -502,7 +502,41 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 	if newStatus == "NotApproved" {
 		log.Println("===3")
 		// update admin_approved_at to nils
+		err := h.store.UpdateProjectByAdmin(
+			AdminUpdateParam{
+				ProjectHistoryId:   currentProject.ProjectHistoryId,
+				ProjectStatus:      newStatus,
+				AdminScore:         payload.AdminScore,
+				FundApprovedAmount: payload.FundApprovedAmount,
+				AdminComment:       payload.AdminComment,
+				AdminApprovedAt:    nil,
+				UpdatedAt:          now,
+			},
+			currentProject.CreatedBy,
+			projectCode,
+			additionFiles,
+		)
+		if err != nil {
+			return err
+		}
 		return nil
+	}
+	err := h.store.UpdateProjectByAdmin(
+		AdminUpdateParam{
+			ProjectHistoryId:   currentProject.ProjectHistoryId,
+			ProjectStatus:      newStatus,
+			AdminScore:         payload.AdminScore,
+			FundApprovedAmount: payload.FundApprovedAmount,
+			AdminComment:       payload.AdminComment,
+			AdminApprovedAt:    currentProject.AdminApprovedAt,
+			UpdatedAt:          now,
+		},
+		currentProject.CreatedBy,
+		projectCode,
+		additionFiles,
+	)
+	if err != nil {
+		return err
 	}
 	log.Println("===4")
 	return nil
