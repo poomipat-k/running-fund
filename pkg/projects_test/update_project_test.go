@@ -209,34 +209,91 @@ func TestAdminUpdateProject(t *testing.T) {
 				AdminApprovedAt:    nil,
 			},
 		},
-		// // ProjectStatus changed to Approved
-		// {
-		// 	name: "should save data correctly when ProjectStatusPrimary changed to Approved and ProjectStatusSecondary haven't changed",
-		// 	payload: projects.AdminUpdateProjectRequest{
-		// 		ProjectStatusPrimary:   "Approved",
-		// 		ProjectStatusSecondary: "Reviewing",
-		// 		AdminScore:             newInt(70),
-		// 		FundApprovedAmount:     newInt64(200000),
-		// 		AdminComment:           newString("Admin comment 1"),
-		// 	},
-		// 	store: &mock.MockProjectStore{
-		// 		GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
-		// 			return projects.AdminUpdateParam{
-		// 				ProjectHistoryId: 1,
-		// 				ProjectStatus:    "Reviewed",
-		// 			}, nil
-		// 		},
-		// 	},
-		// 	expectedStatus: http.StatusCreated,
-		// 	expectedUpdatedData: projects.AdminUpdateParam{
-		// 		ProjectHistoryId:   1,
-		// 		ProjectStatus:      "Reviewing",
-		// 		AdminScore:         newInt(70),
-		// 		FundApprovedAmount: newInt64(200000),
-		// 		AdminComment:       newString("Admin comment 1"),
-		// 		AdminApprovedAt:    nil,
-		// 	},
-		// },
+		// Either Primary and Secondary status changed
+		{
+			name: "should save data correctly when ProjectStatusPrimary changed to Approved and ProjectStatusSecondary haven't changed",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "Approved",
+				ProjectStatusSecondary: "Reviewed",
+				AdminScore:             newInt(70),
+				FundApprovedAmount:     newInt64(200000),
+				AdminComment:           newString("Admin comment 2"),
+				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
+			},
+			store: &mock.MockProjectStore{
+				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+					return projects.AdminUpdateParam{
+						ProjectHistoryId: 1,
+						ProjectStatus:    "Reviewed",
+					}, nil
+				},
+			},
+			expectedStatus: http.StatusCreated,
+			expectedUpdatedData: projects.AdminUpdateParam{
+				ProjectHistoryId:   1,
+				ProjectStatus:      "Approved",
+				AdminScore:         newInt(70),
+				FundApprovedAmount: newInt64(200000),
+				AdminComment:       newString("Admin comment 2"),
+				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
+			},
+		},
+		{
+			name: "should save data correctly when ProjectStatusPrimary changed to Approved and ProjectStatusSecondary changed to Reviewing",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "Approved",
+				ProjectStatusSecondary: "Reviewing",
+				AdminScore:             newInt(70),
+				FundApprovedAmount:     newInt64(200000),
+				AdminComment:           newString("Admin comment 2"),
+				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
+			},
+			store: &mock.MockProjectStore{
+				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+					return projects.AdminUpdateParam{
+						ProjectHistoryId: 1,
+						ProjectStatus:    "Reviewed",
+					}, nil
+				},
+			},
+			expectedStatus: http.StatusCreated,
+			expectedUpdatedData: projects.AdminUpdateParam{
+				ProjectHistoryId:   1,
+				ProjectStatus:      "Approved",
+				AdminScore:         newInt(70),
+				FundApprovedAmount: newInt64(200000),
+				AdminComment:       newString("Admin comment 2"),
+				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
+			},
+		},
+		{
+			name: "should save data correctly when ProjectStatusPrimary haven't changed and ProjectStatusSecondary changed to Approved",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Approved",
+				AdminScore:             newInt(70),
+				FundApprovedAmount:     newInt64(200000),
+				AdminComment:           newString("Admin comment 2"),
+				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
+			},
+			store: &mock.MockProjectStore{
+				GetProjectStatusByProjectCodeFunc: func(projectCode string) (projects.AdminUpdateParam, error) {
+					return projects.AdminUpdateParam{
+						ProjectHistoryId: 1,
+						ProjectStatus:    "Reviewing",
+					}, nil
+				},
+			},
+			expectedStatus: http.StatusCreated,
+			expectedUpdatedData: projects.AdminUpdateParam{
+				ProjectHistoryId:   1,
+				ProjectStatus:      "Approved",
+				AdminScore:         newInt(70),
+				FundApprovedAmount: newInt64(200000),
+				AdminComment:       newString("Admin comment 2"),
+				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -293,6 +350,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			req.Header.Add("content-type", multipartWriter.FormDataContentType())
 
 			handler.AdminUpdateProject(res, req)
+			t.Log("==res: ", res)
 			assertStatus(t, res.Code, tt.expectedStatus)
 			if tt.expectedError != nil {
 				errBody := getErrorResponse(t, res)

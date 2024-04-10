@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"log"
 	"mime/multipart"
 	"time"
 
@@ -107,7 +106,6 @@ func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (pr
 }
 
 func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
-	log.Println("==mock payload", payload)
 	m.AdminUpdateData = payload
 	return nil
 }

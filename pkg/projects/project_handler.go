@@ -427,6 +427,15 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		utils.ErrorJSON(w, err, "", http.StatusNotFound)
 		return
 	}
+	err = h.doUpdateProject(currentProject, payload, projectCode, additionFiles)
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
+		return
+	}
+	utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
+}
+
+func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {
 	currentStatus := currentProject.ProjectStatus
 	primaryStatusChanged := hasPrimaryStatusChanged(currentStatus, payload.ProjectStatusPrimary)
 	secondaryStatusChanged := payload.ProjectStatusSecondary != currentStatus
@@ -434,7 +443,7 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	if !primaryStatusChanged && !secondaryStatusChanged {
 		log.Println("===1")
 		// change all other attributes
-		err = h.store.UpdateProjectByAdmin(
+		err := h.store.UpdateProjectByAdmin(
 			AdminUpdateParam{
 				ProjectHistoryId:   currentProject.ProjectHistoryId,
 				ProjectStatus:      currentStatus,
@@ -449,12 +458,11 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 			additionFiles,
 		)
 		if err != nil {
-			utils.ErrorJSON(w, err, "", http.StatusNotFound)
-			return
+			return err
 		}
-		utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
-		return
+		return nil
 	}
+
 	var newStatus string
 	newStatus = currentStatus
 	if primaryStatusChanged {
@@ -462,18 +470,40 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 	} else if secondaryStatusChanged {
 		newStatus = payload.ProjectStatusSecondary
 	}
+
 	if newStatus == "Approved" {
 		// update admin_approved_at to now
 		log.Println("===2")
-		utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
-		return
+		var approvedAt *time.Time
+		if payload.AdminApprovedAt != nil {
+			approvedAt = payload.AdminApprovedAt
+		} else {
+			approvedAt = &now
+		}
+		err := h.store.UpdateProjectByAdmin(
+			AdminUpdateParam{
+				ProjectHistoryId:   currentProject.ProjectHistoryId,
+				ProjectStatus:      newStatus,
+				AdminScore:         payload.AdminScore,
+				FundApprovedAmount: payload.FundApprovedAmount,
+				AdminComment:       payload.AdminComment,
+				AdminApprovedAt:    approvedAt,
+				UpdatedAt:          now,
+			},
+			currentProject.CreatedBy,
+			projectCode,
+			additionFiles,
+		)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 	if newStatus == "NotApproved" {
 		log.Println("===3")
 		// update admin_approved_at to nils
-		utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
-		return
+		return nil
 	}
 	log.Println("===4")
-	utils.WriteJSON(w, http.StatusCreated, currentProject.ProjectHistoryId)
+	return nil
 }

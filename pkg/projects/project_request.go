@@ -331,9 +331,10 @@ type ProjectReviewer struct {
 }
 
 type AdminUpdateProjectRequest struct {
-	ProjectStatusPrimary   string  `json:"projectStatusPrimary,omitempty"`
-	ProjectStatusSecondary string  `json:"projectStatusSecondary,omitempty"`
-	AdminScore             *int    `json:"adminScore,omitempty"`
-	FundApprovedAmount     *int64  `json:"fundApprovedAmount,omitempty"`
-	AdminComment           *string `json:"adminComment,omitempty"`
+	ProjectStatusPrimary   string     `json:"projectStatusPrimary,omitempty"`
+	ProjectStatusSecondary string     `json:"projectStatusSecondary,omitempty"`
+	AdminScore             *int       `json:"adminScore,omitempty"`
+	FundApprovedAmount     *int64     `json:"fundApprovedAmount,omitempty"`
+	AdminComment           *string    `json:"adminComment,omitempty"`
+	AdminApprovedAt        *time.Time `json:"adminApprovedAt,omitempty"`
 }
