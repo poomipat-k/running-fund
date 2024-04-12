@@ -18,3 +18,12 @@ VALUES
 const getProjectCriteriaMinimalSQL = `
 SELECT id, criteria_version ,order_number FROM review_criteria WHERE criteria_version = $1 ORDER BY order_number ASC;
 `
+
+const updateProjectStatusToReviewed = `
+UPDATE project_history
+SET status = 'Reviewed', updated_at = $2
+WHERE project_history.id = $1 AND (SELECT COUNT(*) as review_count
+FROM review INNER JOIN project_history ON project_history.id = review.project_history_id
+WHERE project_history.id = $1
+) = $3 RETURNING id;
+`

@@ -11,6 +11,8 @@ import (
 
 const dbTimeout = time.Second * 5
 
+const reviewedCountCriteria = 3
+
 type store struct {
 	db *sql.DB
 }
@@ -96,6 +98,18 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 	}
 	_, err = stmt.ExecContext(ctx, values...)
 	if err != nil {
+		return fail(err)
+	}
+
+	var updateStatusId int
+	err = tx.QueryRowContext(
+		ctx,
+		updateProjectStatusToReviewed,
+		payload.ProjectHistoryId,
+		now,
+		reviewedCountCriteria,
+	).Scan(&updateStatusId)
+	if err != nil && err != sql.ErrNoRows {
 		return fail(err)
 	}
 
