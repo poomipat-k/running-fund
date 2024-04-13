@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"mime/multipart"
+	"time"
 )
 
 func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error) {
@@ -75,4 +76,36 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 	slog.Info("success update a project", "projectHistoryId", payload.ProjectHistoryId)
 
 	return nil
+}
+
+func (s *store) GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int) ([]AdminRequestDashboardRow, error) {
+	orderByStmt := orderBy
+	rows, err := s.db.Query(getAdminRequestDashboardSQL, fromDate, toDate, orderByStmt, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var data []AdminRequestDashboardRow
+	for rows.Next() {
+		var row AdminRequestDashboardRow
+		err := rows.Scan(
+			&row.ProjectCode,
+			&row.ProjectCreatedAt,
+			&row.ProjectName,
+			&row.ProjectStatus,
+			&row.ProjectUpdatedAt,
+			&row.AdminComment,
+			&row.AvgScore,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

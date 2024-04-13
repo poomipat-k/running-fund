@@ -353,3 +353,32 @@ admin_approved_at = $6,
 updated_at = $7
 WHERE project_history.id = $1 RETURNING id;
 `
+
+const getAdminRequestDashboardSQL = `
+SELECT
+project.project_code as project_code,
+project.created_at as created_at,
+project_history.project_name as project_name,
+project_history.status as project_status,
+project_history.updated_at as updated_at,
+project_history.admin_comment,
+(
+SELECT ROUND(AVG(sum_score), 2)
+	FROM (
+		SELECT
+		review.project_history_id as project_history_id,
+		review.id as review_id,
+		SUM(review_details.score) as sum_score
+		FROM review
+		INNER JOIN review_details ON review.id = review_details.review_id
+		WHERE project_history_id = project.project_history_id
+		GROUP BY  review.project_history_id, review.id
+		)
+) as avg_score
+FROM project 
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.created_at >= $1 AND project.created_at < $2
+ORDER BY $3
+LIMIT $4 OFFSET $5
+;
+`

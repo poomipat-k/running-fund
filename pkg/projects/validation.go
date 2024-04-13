@@ -84,3 +84,25 @@ func validateAdminUpdateProjectPayload(payload AdminUpdateProjectRequest) (strin
 	}
 	return "", nil
 }
+
+func validateGetAdminDashboardRequestPayload(payload GetAdminDashboardRequest) (string, error) {
+	if payload.FromYear < minDashboardYear {
+		return "fromYear", &FromYearRequiredError{}
+	}
+	if payload.ToYear < minDashboardYear {
+		return "toYear", &ToYearRequiredError{}
+	}
+	if payload.FromYear > payload.ToYear {
+		return "fromYear", &FromYearExceedToYearError{}
+	}
+	if payload.PageNo <= 0 {
+		return "pageNo", &PageNoInvalidError{}
+	}
+	if payload.PageSize < 1 {
+		return "pageSize", &PageSizeInvalidError{}
+	}
+	if len(payload.SortBy) == 0 {
+		return "sortBy", &SortByRequiredError{}
+	}
+	return "", nil
+}

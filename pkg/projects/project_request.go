@@ -338,3 +338,12 @@ type AdminUpdateProjectRequest struct {
 	AdminComment           *string    `json:"adminComment,omitempty"`
 	AdminApprovedAt        *time.Time `json:"adminApprovedAt,omitempty"`
 }
+
+type GetAdminDashboardRequest struct {
+	FromYear int      `json:"fromYear,omitempty"`
+	ToYear   int      `json:"toYear,omitempty"`
+	PageNo   int      `json:"pageNo,omitempty"`
+	PageSize int      `json:"pageSize,omitempty"`
+	SortBy   []string `json:"sortBy,omitempty"`
+	IsAsc    bool     `json:"isAsc,omitempty"`
+}

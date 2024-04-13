@@ -776,3 +776,39 @@ type FundApprovedAmountNegativeError struct{}
 func (e *FundApprovedAmountNegativeError) Error() string {
 	return "fundApprovedAmount is negative"
 }
+
+type FromYearRequiredError struct{}
+
+func (e *FromYearRequiredError) Error() string {
+	return "fromYear is required"
+}
+
+type ToYearRequiredError struct{}
+
+func (e *ToYearRequiredError) Error() string {
+	return "toYear is required"
+}
+
+type PageNoInvalidError struct{}
+
+func (e *PageNoInvalidError) Error() string {
+	return "pageNo is invalid"
+}
+
+type PageSizeInvalidError struct{}
+
+func (e *PageSizeInvalidError) Error() string {
+	return "pageSize is invalid"
+}
+
+type SortByRequiredError struct{}
+
+func (e *SortByRequiredError) Error() string {
+	return "sortBy is required"
+}
+
+type FromYearExceedToYearError struct{}
+
+func (e *FromYearExceedToYearError) Error() string {
+	return "fromYear exceed toYear"
+}

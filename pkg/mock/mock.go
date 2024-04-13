@@ -63,6 +63,7 @@ type MockProjectStore struct {
 	GetApplicantProjectDetailsFunc          func(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
 	GetProjectStatusByProjectCodeFunc       func(projectCode string) (projects.AdminUpdateParam, error)
+	GetAdminRequestDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int) ([]projects.AdminRequestDashboardRow, error)
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -108,4 +109,8 @@ func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (pr
 func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
 	m.AdminUpdateData = payload
 	return nil
+}
+
+func (m *MockProjectStore) GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int) ([]projects.AdminRequestDashboardRow, error) {
+	return m.GetAdminRequestDashboardFunc(fromDate, toDate, orderBy, limit, offset)
 }

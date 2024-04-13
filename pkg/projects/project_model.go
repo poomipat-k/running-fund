@@ -171,3 +171,13 @@ type AddressDetails struct {
 	DistrictName    string `json:"districtName,omitempty"`
 	ProvinceName    string `json:"provinceName,omitempty"`
 }
+
+type AdminRequestDashboardRow struct {
+	ProjectCode      string    `json:"projectCode,omitempty"`
+	ProjectCreatedAt time.Time `json:"projectCreatedAt,omitempty"`
+	ProjectName      string    `json:"projectName,omitempty"`
+	ProjectStatus    string    `json:"projectStatus,omitempty"`
+	ProjectUpdatedAt time.Time `json:"projectUpdatedAt,omitempty"`
+	AdminComment     *string   `json:"adminComment,omitempty"`
+	AvgScore         *float64  `json:"avgScore,omitempty"`
+}
