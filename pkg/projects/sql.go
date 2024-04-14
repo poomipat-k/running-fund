@@ -377,7 +377,8 @@ SELECT ROUND(AVG(sum_score), 2)
 ) as avg_score
 FROM project 
 INNER JOIN project_history ON project.project_history_id = project_history.id
-WHERE project.created_at >= $1 AND project.created_at < $2
+WHERE project.created_at >= $1 AND project.created_at < $2 
+AND (project_history.status != 'Start' AND project_history.status != 'Completed')
 ORDER BY $3
 LIMIT $4 OFFSET $5
 ;
