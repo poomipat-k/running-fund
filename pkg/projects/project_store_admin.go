@@ -109,3 +109,40 @@ func (s *store) GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy str
 	}
 	return data, nil
 }
+
+func (s *store) GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error) {
+	rows, err := s.db.Query(getAdminSummarySQL, fromDate, toDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []AdminSummaryData
+	for rows.Next() {
+		var row AdminSummaryData
+		err := rows.Scan(
+			&row.Status,
+			&row.Count,
+			&row.FundSum,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if row.FundSum == nil {
+			row.FundSum = newInt64(0)
+		}
+
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func newInt64(val int64) *int64 {
+	v := val
+	return &v
+}

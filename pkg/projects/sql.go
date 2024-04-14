@@ -382,3 +382,12 @@ ORDER BY $3
 LIMIT $4 OFFSET $5
 ;
 `
+const getAdminSummarySQL = `
+SELECT 
+project_history.status,
+COUNT(*) as count,
+SUM(project_history.fund_approved_amount)
+FROM project INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.created_at >= $1 AND project.created_at < $2
+GROUP BY project_history.status;
+`

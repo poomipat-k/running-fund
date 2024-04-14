@@ -181,3 +181,9 @@ type AdminRequestDashboardRow struct {
 	AdminComment     *string   `json:"adminComment,omitempty"`
 	AvgScore         *float64  `json:"avgScore,omitempty"`
 }
+
+type AdminSummaryData struct {
+	Status  string `json:"status"`
+	Count   int    `json:"count"`
+	FundSum *int64 `json:"fundSum"`
+}

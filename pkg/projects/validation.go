@@ -106,3 +106,16 @@ func validateGetAdminDashboardRequestPayload(payload GetAdminDashboardRequest) (
 	}
 	return "", nil
 }
+
+func validateGetAdminSummaryRequestPayload(payload GetAdminSummaryRequest) (string, error) {
+	if payload.FromYear < minDashboardYear {
+		return "fromYear", &FromYearRequiredError{}
+	}
+	if payload.ToYear < minDashboardYear {
+		return "toYear", &ToYearRequiredError{}
+	}
+	if payload.FromYear > payload.ToYear {
+		return "fromYear", &FromYearExceedToYearError{}
+	}
+	return "", nil
+}

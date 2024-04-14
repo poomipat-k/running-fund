@@ -347,3 +347,8 @@ type GetAdminDashboardRequest struct {
 	SortBy   []string `json:"sortBy,omitempty"`
 	IsAsc    bool     `json:"isAsc,omitempty"`
 }
+
+type GetAdminSummaryRequest struct {
+	FromYear int `json:"fromYear,omitempty"`
+	ToYear   int `json:"toYear,omitempty"`
+}

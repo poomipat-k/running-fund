@@ -2,7 +2,6 @@ package projects
 
 import (
 	"encoding/json"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"strings"
@@ -55,7 +54,6 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
 		return
 	}
-	log.Println("==payload", payload)
 	errField, err := validateGetAdminDashboardRequestPayload(payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, errField, http.StatusBadRequest)
@@ -76,6 +74,33 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 		orderByStmt += " DESC"
 	}
 	records, err := h.store.GetAdminRequestDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset)
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, records)
+}
+
+func (h *ProjectHandler) GetAdminSummary(w http.ResponseWriter, r *http.Request) {
+	var payload GetAdminSummaryRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
+		return
+	}
+	errField, err := validateGetAdminSummaryRequestPayload(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, errField, http.StatusBadRequest)
+		return
+	}
+	loc, err := getTimeLocation()
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	fromDate := time.Date(payload.FromYear, 1, 1, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, 12, 31, 23, 59, 59, 999999999, loc)
+	records, err := h.store.GetAdminSummary(fromDate, toDate)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return
