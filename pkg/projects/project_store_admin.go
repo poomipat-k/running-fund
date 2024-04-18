@@ -85,62 +85,7 @@ func (s *store) GetAdminRequestDashboard(
 	limit, offset int,
 	projectCode, projectName, projectStatus *string,
 ) ([]AdminRequestDashboardRow, error) {
-	curPlaceholder := 3
-	where := []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
-	values := []any{fromDate, toDate}
-	if projectCode != nil {
-		where = append(where, fmt.Sprintf("AND project_history.project_code = $%d", curPlaceholder))
-		values = append(values, *projectCode)
-		curPlaceholder++
-	}
-	if projectName != nil {
-		where = append(where, fmt.Sprintf("AND project_history.project_name = $%d", curPlaceholder))
-		values = append(values, *projectName)
-		curPlaceholder++
-	}
-	if projectStatus != nil {
-		where = append(where, fmt.Sprintf("AND project_history.status = $%d", curPlaceholder))
-		values = append(values, *projectStatus)
-		curPlaceholder++
-	}
-	whereStmt := strings.Join(where, " ")
-	orderLimitOffsetStmt := fmt.Sprintf(" ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
-	values = append(values, orderBy, limit, offset)
-
-	getAdminRequestDashboardSQL := fmt.Sprintf(`
-	SELECT
-project.project_code as project_code,
-project.created_at as created_at,
-project_history.project_name as project_name,
-project_history.status as project_status,
-project_history.updated_at as updated_at,
-project_history.admin_comment,
-(
-SELECT ROUND(AVG(sum_score), 2)
-	FROM (
-		SELECT
-		review.project_history_id as project_history_id,
-		review.id as review_id,
-		SUM(review_details.score) as sum_score
-		FROM review
-		INNER JOIN review_details ON review.id = review_details.review_id
-		WHERE project_history_id = project.project_history_id
-		GROUP BY  review.project_history_id, review.id
-		)
-) as avg_score,
-%s
-FROM project 
-INNER JOIN project_history ON project.project_history_id = project_history.id
-WHERE `, fmt.Sprintf(`
-(
-	SELECT COUNT(*) FROM project 
-	INNER JOIN project_history ON project.project_history_id = project_history.id
-	WHERE %s
-) as count`, whereStmt),
-	)
-
-	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ")
-
+	queryStmt, values := prepareRequestDashboardQuery(fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
 	rows, err := s.db.Query(queryStmt, values...)
 	if err != nil {
 		return nil, err
@@ -207,4 +152,68 @@ func (s *store) GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData,
 func newInt64(val int64) *int64 {
 	v := val
 	return &v
+}
+
+func prepareRequestDashboardQuery(
+	fromDate, toDate time.Time,
+	orderBy string,
+	limit, offset int,
+	projectCode, projectName, projectStatus *string,
+) (string, []any) {
+	curPlaceholder := 3
+	where := []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
+	values := []any{fromDate, toDate}
+	if projectCode != nil {
+		where = append(where, fmt.Sprintf("AND project_history.project_code = $%d", curPlaceholder))
+		values = append(values, *projectCode)
+		curPlaceholder++
+	}
+	if projectName != nil {
+		where = append(where, fmt.Sprintf("AND project_history.project_name = $%d", curPlaceholder))
+		values = append(values, *projectName)
+		curPlaceholder++
+	}
+	if projectStatus != nil {
+		where = append(where, fmt.Sprintf("AND project_history.status = $%d", curPlaceholder))
+		values = append(values, *projectStatus)
+		curPlaceholder++
+	}
+	whereStmt := strings.Join(where, " ")
+	orderLimitOffsetStmt := fmt.Sprintf(" ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
+	values = append(values, orderBy, limit, offset)
+
+	getAdminRequestDashboardSQL := fmt.Sprintf(`
+	SELECT
+project.project_code as project_code,
+project.created_at as created_at,
+project_history.project_name as project_name,
+project_history.status as project_status,
+project_history.updated_at as updated_at,
+project_history.admin_comment,
+(
+SELECT ROUND(AVG(sum_score), 2)
+	FROM (
+		SELECT
+		review.project_history_id as project_history_id,
+		review.id as review_id,
+		SUM(review_details.score) as sum_score
+		FROM review
+		INNER JOIN review_details ON review.id = review_details.review_id
+		WHERE project_history_id = project.project_history_id
+		GROUP BY  review.project_history_id, review.id
+		)
+) as avg_score,
+%s
+FROM project 
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE `, fmt.Sprintf(`
+(
+	SELECT COUNT(*) FROM project 
+	INNER JOIN project_history ON project.project_history_id = project_history.id
+	WHERE %s
+) as count`, whereStmt),
+	)
+
+	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ")
+	return queryStmt, values
 }
