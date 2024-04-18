@@ -107,6 +107,38 @@ func (s *store) GetAdminRequestDashboard(
 	orderLimitOffsetStmt := fmt.Sprintf(" ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
 	values = append(values, orderBy, limit, offset)
 
+	getAdminRequestDashboardSQL := fmt.Sprintf(`
+	SELECT
+project.project_code as project_code,
+project.created_at as created_at,
+project_history.project_name as project_name,
+project_history.status as project_status,
+project_history.updated_at as updated_at,
+project_history.admin_comment,
+(
+SELECT ROUND(AVG(sum_score), 2)
+	FROM (
+		SELECT
+		review.project_history_id as project_history_id,
+		review.id as review_id,
+		SUM(review_details.score) as sum_score
+		FROM review
+		INNER JOIN review_details ON review.id = review_details.review_id
+		WHERE project_history_id = project.project_history_id
+		GROUP BY  review.project_history_id, review.id
+		)
+) as avg_score,
+%s
+FROM project 
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE `, fmt.Sprintf(`
+(
+	SELECT COUNT(*) FROM project 
+	INNER JOIN project_history ON project.project_history_id = project_history.id
+	WHERE %s
+) as count`, whereStmt),
+	)
+
 	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ")
 
 	rows, err := s.db.Query(queryStmt, values...)
@@ -125,6 +157,7 @@ func (s *store) GetAdminRequestDashboard(
 			&row.ProjectUpdatedAt,
 			&row.AdminComment,
 			&row.AvgScore,
+			&row.Count,
 		)
 		if err != nil {
 			return nil, err

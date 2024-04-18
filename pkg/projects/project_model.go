@@ -180,6 +180,7 @@ type AdminRequestDashboardRow struct {
 	ProjectUpdatedAt time.Time `json:"projectUpdatedAt,omitempty"`
 	AdminComment     *string   `json:"adminComment,omitempty"`
 	AvgScore         *float64  `json:"avgScore,omitempty"`
+	Count            int       `json:"count,omitempty"`
 }
 
 type AdminSummaryData struct {
