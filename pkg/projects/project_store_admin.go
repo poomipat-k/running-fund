@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"mime/multipart"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -169,7 +170,8 @@ func prepareRequestDashboardQuery(
 		curPlaceholder++
 	}
 	if projectName != nil {
-		where = append(where, fmt.Sprintf("AND project_history.project_name = $%d", curPlaceholder))
+		strContainStmt := "AND project_history.project_name LIKE '%' || $" + strconv.Itoa(curPlaceholder) + " || '%'"
+		where = append(where, strContainStmt)
 		values = append(values, *projectName)
 		curPlaceholder++
 	}
