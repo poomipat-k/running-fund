@@ -32,7 +32,7 @@ type projectStore interface {
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
 	GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error)
 	UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error
-	GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int) ([]AdminRequestDashboardRow, error)
+	GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
 }
 

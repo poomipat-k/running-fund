@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"mime/multipart"
+	"strings"
 	"time"
 )
 
@@ -78,9 +79,37 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 	return nil
 }
 
-func (s *store) GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int) ([]AdminRequestDashboardRow, error) {
-	orderByStmt := orderBy
-	rows, err := s.db.Query(getAdminRequestDashboardSQL, fromDate, toDate, orderByStmt, limit, offset)
+func (s *store) GetAdminRequestDashboard(
+	fromDate, toDate time.Time,
+	orderBy string,
+	limit, offset int,
+	projectCode, projectName, projectStatus *string,
+) ([]AdminRequestDashboardRow, error) {
+	curPlaceholder := 3
+	where := []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
+	values := []any{fromDate, toDate}
+	if projectCode != nil {
+		where = append(where, fmt.Sprintf("AND project_history.project_code = $%d", curPlaceholder))
+		values = append(values, *projectCode)
+		curPlaceholder++
+	}
+	if projectName != nil {
+		where = append(where, fmt.Sprintf("AND project_history.project_name = $%d", curPlaceholder))
+		values = append(values, *projectName)
+		curPlaceholder++
+	}
+	if projectStatus != nil {
+		where = append(where, fmt.Sprintf("AND project_history.status = $%d", curPlaceholder))
+		values = append(values, *projectStatus)
+		curPlaceholder++
+	}
+	whereStmt := strings.Join(where, " ")
+	orderLimitOffsetStmt := fmt.Sprintf(" ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
+	values = append(values, orderBy, limit, offset)
+
+	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ")
+
+	rows, err := s.db.Query(queryStmt, values...)
 	if err != nil {
 		return nil, err
 	}

@@ -73,7 +73,7 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 	} else {
 		orderByStmt += " DESC"
 	}
-	records, err := h.store.GetAdminRequestDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset)
+	records, err := h.store.GetAdminRequestDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset, payload.ProjectCode, payload.ProjectName, payload.ProjectStatus)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return

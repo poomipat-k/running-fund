@@ -340,12 +340,15 @@ type AdminUpdateProjectRequest struct {
 }
 
 type GetAdminDashboardRequest struct {
-	FromYear int      `json:"fromYear,omitempty"`
-	ToYear   int      `json:"toYear,omitempty"`
-	PageNo   int      `json:"pageNo,omitempty"`
-	PageSize int      `json:"pageSize,omitempty"`
-	SortBy   []string `json:"sortBy,omitempty"`
-	IsAsc    bool     `json:"isAsc,omitempty"`
+	FromYear      int      `json:"fromYear,omitempty"`
+	ToYear        int      `json:"toYear,omitempty"`
+	PageNo        int      `json:"pageNo,omitempty"`
+	PageSize      int      `json:"pageSize,omitempty"`
+	SortBy        []string `json:"sortBy,omitempty"`
+	IsAsc         bool     `json:"isAsc,omitempty"`
+	ProjectCode   *string  `json:"projectCode,omitempty"`
+	ProjectName   *string  `json:"projectName,omitempty"`
+	ProjectStatus *string  `json:"projectStatus,omitempty"`
 }
 
 type GetAdminSummaryRequest struct {
