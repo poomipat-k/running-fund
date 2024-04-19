@@ -209,6 +209,7 @@ type SafetyReady struct {
 	Ambulance         bool `json:"ambulance,omitempty"`
 	FirstAid          bool `json:"firstAid,omitempty"`
 	AED               bool `json:"aed,omitempty"`
+	VolunteerDoctor   bool `json:"volunteerDoctor,omitempty"`
 	Insurance         bool `json:"insurance,omitempty"`
 	Other             bool `json:"other,omitempty"`
 }

@@ -218,6 +218,7 @@ func addProjectHistory(
 		payload.Details.Safety.Ready.FirstAid,
 		payload.Details.Safety.Ready.AED,
 		payload.Details.Safety.AEDCount,
+		payload.Details.Safety.Ready.VolunteerDoctor,
 		payload.Details.Safety.Ready.Insurance,
 		payload.Details.Safety.Ready.Other,
 		payload.Details.Safety.Addition,
