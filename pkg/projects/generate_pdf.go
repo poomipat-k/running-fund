@@ -618,13 +618,12 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 		)
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- ครั้งนี้ครั้งที่ %d  จัดครั้งล่าสุดเมื่อวันที่ %s", payload.Experience.ThisSeries.History.OrdinalNumber, latestThisEventDate), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 		pdf.MultiCell(0, 16, indent("การจัดงานครั้งที่ผ่านมา", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
-		if payload.Experience.ThisSeries.History.Completed1.Name != "" {
+		if payload.Experience.ThisSeries.History.Completed1.Year > 0 {
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.ThisSeries.History.Completed1.Year,
-					payload.Experience.ThisSeries.History.Completed1.Name,
 					utils.FormatInt(int64(payload.Experience.ThisSeries.History.Completed1.Participant)),
 				), 6),
 				gofpdf.BorderNone,
@@ -632,13 +631,12 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 				false,
 			)
 		}
-		if payload.Experience.ThisSeries.History.Completed2.Name != "" {
+		if payload.Experience.ThisSeries.History.Completed2.Year > 0 {
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.ThisSeries.History.Completed2.Year,
-					payload.Experience.ThisSeries.History.Completed2.Name,
 					utils.FormatInt(int64(payload.Experience.ThisSeries.History.Completed2.Participant)),
 				), 6),
 				gofpdf.BorderNone,
@@ -646,13 +644,12 @@ func (s *store) generateExperienceSection(pdf *gofpdf.Fpdf, payload AddProjectRe
 				false,
 			)
 		}
-		if payload.Experience.ThisSeries.History.Completed3.Name != "" {
+		if payload.Experience.ThisSeries.History.Completed3.Year > 0 {
 			pdf.MultiCell(
 				0,
 				16,
-				indent(fmt.Sprintf("- ปีที่จัดงาน %d  ชื่องาน %s  จำนวนผู้เข้าร่วม %s คน",
+				indent(fmt.Sprintf("- ปีที่จัดงาน %d  จำนวนผู้เข้าร่วม %s คน",
 					payload.Experience.ThisSeries.History.Completed3.Year,
-					payload.Experience.ThisSeries.History.Completed3.Name,
 					utils.FormatInt(int64(payload.Experience.ThisSeries.History.Completed3.Participant)),
 				), 6),
 				gofpdf.BorderNone,
