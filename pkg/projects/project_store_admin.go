@@ -183,6 +183,12 @@ func prepareRequestDashboardQuery(
 	whereStmt := strings.Join(where, " ")
 	orderLimitOffsetStmt := fmt.Sprintf(" ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
 	values = append(values, orderBy, limit, offset)
+	countStmt := fmt.Sprintf(`
+	(
+		SELECT COUNT(*) FROM project 
+		INNER JOIN project_history ON project.project_history_id = project_history.id
+		WHERE %s
+	) as count`, whereStmt)
 
 	getAdminRequestDashboardSQL := fmt.Sprintf(`
 	SELECT
@@ -208,13 +214,7 @@ SELECT ROUND(AVG(sum_score), 2)
 %s
 FROM project 
 INNER JOIN project_history ON project.project_history_id = project_history.id
-WHERE `, fmt.Sprintf(`
-(
-	SELECT COUNT(*) FROM project 
-	INNER JOIN project_history ON project.project_history_id = project_history.id
-	WHERE %s
-) as count`, whereStmt),
-	)
+WHERE `, countStmt)
 
 	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ")
 	return queryStmt, values
