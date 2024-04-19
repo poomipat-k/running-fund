@@ -503,6 +503,9 @@ func (s *store) generateDetailsSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	if payload.Details.Safety.Ready.AED {
 		pdf.MultiCell(0, 16, indent(fmt.Sprintf("- เครื่อง AED จำนวน %d เครื่อง", payload.Details.Safety.AEDCount), 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
+	if payload.Details.Safety.Ready.VolunteerDoctor {
+		pdf.MultiCell(0, 16, indent("- อาสาสมัครด้านการแพทย์ฉุกเฉินในรูปแบบจักรยานหรือจักรยานยนต์ พร้อมเครื่อง AED", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	}
 	if payload.Details.Safety.Ready.Insurance {
 		pdf.MultiCell(0, 16, indent("- ประกันชีวิตสำหรับนักวิ่ง", 6), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	}
