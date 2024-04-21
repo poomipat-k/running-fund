@@ -114,43 +114,6 @@ type ContactPerson struct {
 	LineId               string  `json:"lineId,omitempty"`
 	PhoneNumber          string  `json:"phoneNumber,omitempty"`
 }
-
-type ProjectHead struct {
-	Prefix               string  `json:"prefix,omitempty"`
-	FirstName            string  `json:"firstName,omitempty"`
-	LastName             string  `json:"lastName,omitempty"`
-	OrganizationPosition string  `json:"organizationPosition,omitempty"`
-	EventPosition        string  `json:"eventPosition,omitempty"`
-	Address              Address `json:"address,omitempty"`
-	Email                string  `json:"email,omitempty"`
-	LineId               string  `json:"lineId,omitempty"`
-	PhoneNumber          string  `json:"phoneNumber,omitempty"`
-}
-
-type ProjectManager struct {
-	Prefix               string  `json:"prefix,omitempty"`
-	FirstName            string  `json:"firstName,omitempty"`
-	LastName             string  `json:"lastName,omitempty"`
-	OrganizationPosition string  `json:"organizationPosition,omitempty"`
-	EventPosition        string  `json:"eventPosition,omitempty"`
-	Address              Address `json:"address,omitempty"`
-	Email                string  `json:"email,omitempty"`
-	LineId               string  `json:"lineId,omitempty"`
-	PhoneNumber          string  `json:"phoneNumber,omitempty"`
-}
-
-type ProjectCoordinator struct {
-	Prefix               string  `json:"prefix,omitempty"`
-	FirstName            string  `json:"firstName,omitempty"`
-	LastName             string  `json:"lastName,omitempty"`
-	OrganizationPosition string  `json:"organizationPosition,omitempty"`
-	EventPosition        string  `json:"eventPosition,omitempty"`
-	Address              Address `json:"address,omitempty"`
-	Email                string  `json:"email,omitempty"`
-	LineId               string  `json:"lineId,omitempty"`
-	PhoneNumber          string  `json:"phoneNumber,omitempty"`
-}
-
 type RaceDirector struct {
 	Who         string                  `json:"who,omitempty"`
 	Alternative RaceDirectorAlternative `json:"alternative,omitempty"`

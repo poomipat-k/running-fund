@@ -306,7 +306,38 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	pdf.MultiCell(0, 16,
 		projectHeadStr,
 		gofpdf.BorderNone, gofpdf.AlignLeft, false)
-
+	projectHeadAddress, err := s.getAddressDetails(payload.Contact.ProjectHead.Address.PostcodeId)
+	if err != nil {
+		return err
+	}
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("ที่อยู่: %s,  %s,  %s,  %s %d", payload.Contact.ProjectHead.Address.Address, projectHeadAddress.SubdistrictName, projectHeadAddress.DistrictName, projectHeadAddress.ProvinceName, projectHeadAddress.Postcode), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("อีเมล (E-mail): %s", payload.Contact.ProjectHead.Email), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("ไลน์ไอดี (Line ID): %s", payload.Contact.ProjectHead.LineId), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("หมายเลขโทรศัพท์: %s", payload.Contact.ProjectHead.PhoneNumber), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
 	pdf.Ln(4)
 
 	pdf.SetFont(srB, "B", 16)
@@ -322,6 +353,45 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 	pdf.MultiCell(0, 16,
 		projectManagerStr,
 		gofpdf.BorderNone, gofpdf.AlignLeft, false)
+
+	projectManagerAddress, err := s.getAddressDetails(payload.Contact.ProjectManager.Address.PostcodeId)
+	if err != nil {
+		return err
+	}
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("ที่อยู่: %s,  %s,  %s,  %s %d",
+			payload.Contact.ProjectManager.Address.Address,
+			projectManagerAddress.SubdistrictName,
+			projectManagerAddress.DistrictName,
+			projectManagerAddress.ProvinceName,
+			projectManagerAddress.Postcode),
+			6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("อีเมล (E-mail): %s", payload.Contact.ProjectManager.Email), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("ไลน์ไอดี (Line ID): %s", payload.Contact.ProjectManager.LineId), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
+	pdf.MultiCell(
+		0,
+		16,
+		indent(fmt.Sprintf("หมายเลขโทรศัพท์: %s", payload.Contact.ProjectManager.PhoneNumber), 6),
+		gofpdf.BorderNone,
+		gofpdf.AlignLeft,
+		false)
 	pdf.Ln(4)
 
 	pdf.SetFont(srB, "B", 16)
@@ -338,14 +408,20 @@ func (s *store) generateContactSection(pdf *gofpdf.Fpdf, payload AddProjectReque
 		projectCoordinatorStr,
 		gofpdf.BorderNone, gofpdf.AlignLeft, false)
 
-	address, err := s.getAddressDetails(payload.General.Address.PostcodeId)
+	projectCoordinatorAddress, err := s.getAddressDetails(payload.Contact.ProjectCoordinator.Address.PostcodeId)
 	if err != nil {
 		return err
 	}
 	pdf.MultiCell(
 		0,
 		16,
-		indent(fmt.Sprintf("ที่อยู่: %s,  %s,  %s,  %s %d", payload.General.Address.Address, address.SubdistrictName, address.DistrictName, address.ProvinceName, address.Postcode), 6),
+		indent(fmt.Sprintf("ที่อยู่: %s,  %s,  %s,  %s %d",
+			payload.Contact.ProjectCoordinator.Address.Address,
+			projectCoordinatorAddress.SubdistrictName,
+			projectCoordinatorAddress.DistrictName,
+			projectCoordinatorAddress.ProvinceName,
+			projectCoordinatorAddress.Postcode),
+			6),
 		gofpdf.BorderNone,
 		gofpdf.AlignLeft,
 		false)
