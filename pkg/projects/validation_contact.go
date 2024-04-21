@@ -106,6 +106,36 @@ func validateProjectManager(payload AddProjectRequest) error {
 	if payload.Contact.ProjectManager.EventPosition == "" {
 		return &ProjectManagerEventPositionRequiredError{}
 	}
+	if payload.Contact.ProjectManager.Address.Address == "" {
+		return &ProjectManagerAddressRequiredError{}
+	}
+	if payload.Contact.ProjectManager.Address.ProvinceId <= 0 {
+		return &ProjectManagerProvinceIdRequiredError{}
+	}
+	if payload.Contact.ProjectManager.Address.DistrictId <= 0 {
+		return &ProjectManagerDistrictIdRequiredError{}
+	}
+	if payload.Contact.ProjectManager.Address.SubdistrictId <= 0 {
+		return &ProjectManagerSubdistrictIdRequiredError{}
+	}
+	if payload.Contact.ProjectManager.Address.PostcodeId <= 0 {
+		return &ProjectManagerPostcodeIdRequiredError{}
+	}
+	if payload.Contact.ProjectManager.Email == "" {
+		return &ProjectManagerEmailRequiredError{}
+	}
+	if payload.Contact.ProjectManager.LineId == "" {
+		return &ProjectManagerLineIdRequiredError{}
+	}
+	if payload.Contact.ProjectManager.PhoneNumber == "" {
+		return &ProjectManagerPhoneNumberRequiredError{}
+	}
+	if len(payload.Contact.ProjectManager.PhoneNumber) < 9 {
+		return &ProjectManagerPhoneNumberLengthError{}
+	}
+	if !IsValidPhoneNumber(payload.Contact.ProjectManager.PhoneNumber) {
+		return &ProjectManagerPhoneNumberInvalidError{}
+	}
 	return nil
 }
 func validateProjectCoordinator(payload AddProjectRequest) error {
