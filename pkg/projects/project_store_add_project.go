@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -48,25 +49,48 @@ func (s *store) AddProject(
 		return failAdd("addressId", err)
 	}
 
-	projectCoordinatorAddressId, err := addProjectCoordinatorAddress(ctx, tx, payload)
+	projectHeadAddressId, err := addProjectContactPersonAddress(ctx, tx, payload, "projectHead")
 	if err != nil {
-		return failAdd("projectCoordinatorAddressId", err)
+		return failAdd("projectHeadAddressId", err)
 	}
 
 	// Add contact rows
-	projectHeadContactId, err := addProjectHeadContactId(ctx, tx, payload)
+	projectHeadContactId, err := addProjectHeadContactId(ctx, tx, payload, projectHeadAddressId)
 	if err != nil {
 		return failAdd("projectHeadContactId", err)
 	}
 
-	projectManagerContactId, err := addProjectManagerContactId(ctx, tx, payload)
-	if err != nil {
-		return failAdd("projectManagerContactId", err)
+	// check projectManager is the same person as projectHead otherwise create a new contact
+	var projectManagerContactId int
+	if payload.Contact.ProjectManager == payload.Contact.ProjectHead {
+		projectManagerContactId = projectHeadContactId
+	} else {
+		projectManagerAddressId, err := addProjectContactPersonAddress(ctx, tx, payload, "projectManager")
+		if err != nil {
+			return failAdd("projectManagerAddressId", err)
+		}
+		projectManagerContactId, err = addProjectManagerContactId(ctx, tx, payload, projectManagerAddressId)
+		if err != nil {
+			return failAdd("projectManagerContactId", err)
+		}
 	}
 
-	projectCoordinatorContactId, err := addProjectCoordinatorContactId(ctx, tx, payload, projectCoordinatorAddressId)
-	if err != nil {
-		return failAdd("projectCoordinatorContactId", err)
+	// check projectManager is the same person as projectHead or projectManager otherwise create a new contact
+	var projectCoordinatorContactId int
+	if payload.Contact.ProjectCoordinator == payload.Contact.ProjectHead {
+		projectCoordinatorContactId = projectHeadContactId
+	} else if payload.Contact.ProjectCoordinator == payload.Contact.ProjectManager {
+		projectCoordinatorContactId = projectManagerContactId
+	} else {
+		projectCoordinatorAddressId, err := addProjectContactPersonAddress(ctx, tx, payload, "projectCoordinator")
+		if err != nil {
+			return failAdd("projectCoordinatorAddressId", err)
+		}
+
+		projectCoordinatorContactId, err = addProjectCoordinatorContactId(ctx, tx, payload, projectCoordinatorAddressId)
+		if err != nil {
+			return failAdd("projectCoordinatorContactId", err)
+		}
 	}
 
 	var projectRaceDirectorContactId int
@@ -359,13 +383,27 @@ func addGeneralAddress(ctx context.Context, tx *sql.Tx, payload AddProjectReques
 	return id, nil
 }
 
-func addProjectCoordinatorAddress(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+func addProjectContactPersonAddress(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, contactType string) (int, error) {
 	var id int
+	var addressDesc string
+	var postcodeId int
+	if contactType == "projectHead" {
+		addressDesc = payload.Contact.ProjectHead.Address.Address
+		postcodeId = payload.Contact.ProjectHead.Address.PostcodeId
+	} else if contactType == "projectManager" {
+		addressDesc = payload.Contact.ProjectManager.Address.Address
+		postcodeId = payload.Contact.ProjectManager.Address.PostcodeId
+	} else if contactType == "projectCoordinator" {
+		addressDesc = payload.Contact.ProjectCoordinator.Address.Address
+		postcodeId = payload.Contact.ProjectCoordinator.Address.PostcodeId
+	} else {
+		return 0, errors.New("unsupported contactType")
+	}
 	err := tx.QueryRowContext(
 		ctx,
 		addAddressSQL,
-		payload.Contact.ProjectCoordinator.Address.Address,
-		payload.Contact.ProjectCoordinator.Address.PostcodeId,
+		addressDesc,
+		postcodeId,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -373,16 +411,20 @@ func addProjectCoordinatorAddress(ctx context.Context, tx *sql.Tx, payload AddPr
 	return id, nil
 }
 
-func addProjectHeadContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+func addProjectHeadContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectHeadAddressId int) (int, error) {
 	var id int
 	err := tx.QueryRowContext(
 		ctx,
-		addContactMainSQL,
+		addContactFullSQL,
 		payload.Contact.ProjectHead.Prefix,
 		payload.Contact.ProjectHead.FirstName,
 		payload.Contact.ProjectHead.LastName,
 		payload.Contact.ProjectHead.OrganizationPosition,
 		payload.Contact.ProjectHead.EventPosition,
+		projectHeadAddressId,
+		payload.Contact.ProjectHead.Email,
+		payload.Contact.ProjectHead.LineId,
+		payload.Contact.ProjectHead.PhoneNumber,
 	).Scan(&id)
 	if err != nil {
 		return 0, err
@@ -390,16 +432,20 @@ func addProjectHeadContactId(ctx context.Context, tx *sql.Tx, payload AddProject
 	return id, nil
 }
 
-func addProjectManagerContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest) (int, error) {
+func addProjectManagerContactId(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, projectManagerAddressId int) (int, error) {
 	var id int
 	err := tx.QueryRowContext(
 		ctx,
-		addContactMainSQL,
+		addContactFullSQL,
 		payload.Contact.ProjectManager.Prefix,
 		payload.Contact.ProjectManager.FirstName,
 		payload.Contact.ProjectManager.LastName,
 		payload.Contact.ProjectManager.OrganizationPosition,
 		payload.Contact.ProjectManager.EventPosition,
+		projectManagerAddressId,
+		payload.Contact.ProjectManager.Email,
+		payload.Contact.ProjectManager.LineId,
+		payload.Contact.ProjectManager.PhoneNumber,
 	).Scan(&id)
 	if err != nil {
 		return 0, err

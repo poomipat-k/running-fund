@@ -96,11 +96,23 @@ type DistanceAndFee struct {
 }
 
 type Contact struct {
-	ProjectHead        ProjectHead         `json:"projectHead,omitempty"`
-	ProjectManager     ProjectManager      `json:"projectManager,omitempty"`
-	ProjectCoordinator ProjectCoordinator  `json:"projectCoordinator,omitempty"`
+	ProjectHead        ContactPerson       `json:"projectHead,omitempty"`
+	ProjectManager     ContactPerson       `json:"projectManager,omitempty"`
+	ProjectCoordinator ContactPerson       `json:"projectCoordinator,omitempty"`
 	RaceDirector       RaceDirector        `json:"raceDirector,omitempty"`
 	Organization       ContactOrganization `json:"organization,omitempty"`
+}
+
+type ContactPerson struct {
+	Prefix               string  `json:"prefix,omitempty"`
+	FirstName            string  `json:"firstName,omitempty"`
+	LastName             string  `json:"lastName,omitempty"`
+	OrganizationPosition string  `json:"organizationPosition,omitempty"`
+	EventPosition        string  `json:"eventPosition,omitempty"`
+	Address              Address `json:"address,omitempty"`
+	Email                string  `json:"email,omitempty"`
+	LineId               string  `json:"lineId,omitempty"`
+	PhoneNumber          string  `json:"phoneNumber,omitempty"`
 }
 
 type ProjectHead struct {

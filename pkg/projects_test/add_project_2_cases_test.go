@@ -8,7 +8,7 @@ import (
 )
 
 var ContactOkPayload = projects.Contact{
-	ProjectHead: projects.ProjectHead{
+	ProjectHead: projects.ContactPerson{
 		Prefix:               "Mr",
 		FirstName:            "Poomipat",
 		LastName:             "Khamai",
@@ -25,7 +25,7 @@ var ContactOkPayload = projects.Contact{
 		LineId:      "c",
 		PhoneNumber: "123456789",
 	},
-	ProjectManager: projects.ProjectManager{
+	ProjectManager: projects.ContactPerson{
 		Prefix:               "Mr",
 		FirstName:            "AA",
 		LastName:             "BB",
@@ -42,7 +42,7 @@ var ContactOkPayload = projects.Contact{
 		LineId:      "c",
 		PhoneNumber: "123456789",
 	},
-	ProjectCoordinator: projects.ProjectCoordinator{
+	ProjectCoordinator: projects.ContactPerson{
 		Prefix:               "Mr",
 		FirstName:            "A",
 		LastName:             "B",
@@ -94,7 +94,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix: "Mr",
 				},
 			}},
@@ -111,7 +111,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:    "Mr",
 					FirstName: "Poomipat",
 				},
@@ -129,7 +129,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:    "Mr",
 					FirstName: "Poomipat",
 					LastName:  "Khamai",
@@ -148,7 +148,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -168,7 +168,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -189,7 +189,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -213,7 +213,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -239,7 +239,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -266,7 +266,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -294,7 +294,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -323,7 +323,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -353,7 +353,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -384,7 +384,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -416,7 +416,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
+				ProjectHead: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "Poomipat",
 					LastName:             "Khamai",
@@ -466,7 +466,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix: "Mr",
 				},
 			},
@@ -485,7 +485,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:    "Mr",
 					FirstName: "AA",
 				},
@@ -505,7 +505,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:    "Mr",
 					FirstName: "AA",
 					LastName:  "BB",
@@ -526,7 +526,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -548,7 +548,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -571,7 +571,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -597,7 +597,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -624,7 +624,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -652,7 +652,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -681,7 +681,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -711,7 +711,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -742,7 +742,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -774,7 +774,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -807,7 +807,7 @@ var ContactTestCases = []TestCase{
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
 				ProjectHead: ContactOkPayload.ProjectHead,
-				ProjectManager: projects.ProjectManager{
+				ProjectManager: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "AA",
 					LastName:             "BB",
@@ -859,7 +859,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix: "Mr",
 				},
 			},
@@ -879,7 +879,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:    "Mr",
 					FirstName: "A",
 				},
@@ -900,7 +900,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:    "Mr",
 					FirstName: "A",
 					LastName:  "B",
@@ -922,7 +922,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -946,7 +946,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -970,7 +970,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -997,7 +997,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1025,7 +1025,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1054,7 +1054,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1084,7 +1084,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1115,7 +1115,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1147,7 +1147,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1180,7 +1180,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1214,7 +1214,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1249,7 +1249,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1283,7 +1283,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1320,7 +1320,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1360,7 +1360,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1402,7 +1402,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
@@ -1444,7 +1444,7 @@ var ContactTestCases = []TestCase{
 			Contact: projects.Contact{
 				ProjectHead:    ContactOkPayload.ProjectHead,
 				ProjectManager: ContactOkPayload.ProjectManager,
-				ProjectCoordinator: projects.ProjectCoordinator{
+				ProjectCoordinator: projects.ContactPerson{
 					Prefix:               "Mr",
 					FirstName:            "A",
 					LastName:             "B",
