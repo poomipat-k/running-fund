@@ -200,6 +200,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
+		slog.Error(err.Error(), "payload", r.Form)
 		utils.ErrorJSON(w, err, "")
 		return
 	}
@@ -248,26 +249,27 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	v := os.Getenv("APPLICANT_CRITERIA_VERSION")
 	criteriaVersion, err := strconv.Atoi(v)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error(err.Error(), "criteriaVersion", criteriaVersion)
 		utils.ErrorJSON(w, err, "APPLICANT_CRITERIA_VERSION", http.StatusBadRequest)
 		return
 	}
 	criteria, err := h.store.GetApplicantCriteria(criteriaVersion)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("GetApplicantCriteria error", "error", err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return
 	}
 
 	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("error validateAddProjectPayload", "error", err.Error(), "payload", payload)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
 
 	projectId, err := h.store.AddProject(payload, userId, criteria, attachments)
 	if err != nil {
+		slog.Error("error add project store", "error", err.Error(), "payload", payload)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}

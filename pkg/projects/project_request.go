@@ -25,6 +25,11 @@ type Review struct {
 	Scores        map[string]int    `json:"scores,omitempty"`
 }
 
+type AddProjectFilesRequest struct {
+	ProjectCode string `json:"projectCode,omitempty"`
+	UserId      int    `json:"userId,omitempty"`
+}
+
 type AddProjectRequest struct {
 	Collaborated *bool                    `json:"collaborated,omitempty"`
 	General      AddProjectGeneralDetails `json:"general,omitempty"`
@@ -32,11 +37,6 @@ type AddProjectRequest struct {
 	Details      Details                  `json:"details,omitempty"`
 	Experience   Experience               `json:"experience,omitempty"`
 	Fund         Fund                     `json:"fund,omitempty"`
-}
-
-type AddProjectFilesRequest struct {
-	ProjectCode string `json:"projectCode,omitempty"`
-	UserId      int    `json:"userId,omitempty"`
 }
 
 // Sub-types for AddProjectRequest
@@ -104,19 +104,27 @@ type Contact struct {
 }
 
 type ProjectHead struct {
-	Prefix               string `json:"prefix,omitempty"`
-	FirstName            string `json:"firstName,omitempty"`
-	LastName             string `json:"lastName,omitempty"`
-	OrganizationPosition string `json:"organizationPosition,omitempty"`
-	EventPosition        string `json:"eventPosition,omitempty"`
+	Prefix               string  `json:"prefix,omitempty"`
+	FirstName            string  `json:"firstName,omitempty"`
+	LastName             string  `json:"lastName,omitempty"`
+	OrganizationPosition string  `json:"organizationPosition,omitempty"`
+	EventPosition        string  `json:"eventPosition,omitempty"`
+	Address              Address `json:"address,omitempty"`
+	Email                string  `json:"email,omitempty"`
+	LineId               string  `json:"lineId,omitempty"`
+	PhoneNumber          string  `json:"phoneNumber,omitempty"`
 }
 
 type ProjectManager struct {
-	Prefix               string `json:"prefix,omitempty"`
-	FirstName            string `json:"firstName,omitempty"`
-	LastName             string `json:"lastName,omitempty"`
-	OrganizationPosition string `json:"organizationPosition,omitempty"`
-	EventPosition        string `json:"eventPosition,omitempty"`
+	Prefix               string  `json:"prefix,omitempty"`
+	FirstName            string  `json:"firstName,omitempty"`
+	LastName             string  `json:"lastName,omitempty"`
+	OrganizationPosition string  `json:"organizationPosition,omitempty"`
+	EventPosition        string  `json:"eventPosition,omitempty"`
+	Address              Address `json:"address,omitempty"`
+	Email                string  `json:"email,omitempty"`
+	LineId               string  `json:"lineId,omitempty"`
+	PhoneNumber          string  `json:"phoneNumber,omitempty"`
 }
 
 type ProjectCoordinator struct {
