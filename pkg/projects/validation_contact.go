@@ -58,6 +58,36 @@ func validateProjectHead(payload AddProjectRequest) error {
 	if payload.Contact.ProjectHead.EventPosition == "" {
 		return &ProjectHeadEventPositionRequiredError{}
 	}
+	if payload.Contact.ProjectHead.Address.Address == "" {
+		return &ProjectHeadAddressRequiredError{}
+	}
+	if payload.Contact.ProjectHead.Address.ProvinceId <= 0 {
+		return &ProjectHeadProvinceIdRequiredError{}
+	}
+	if payload.Contact.ProjectHead.Address.DistrictId <= 0 {
+		return &ProjectHeadDistrictIdRequiredError{}
+	}
+	if payload.Contact.ProjectHead.Address.SubdistrictId <= 0 {
+		return &ProjectHeadSubdistrictIdRequiredError{}
+	}
+	if payload.Contact.ProjectHead.Address.PostcodeId <= 0 {
+		return &ProjectHeadPostcodeIdRequiredError{}
+	}
+	if payload.Contact.ProjectHead.Email == "" {
+		return &ProjectHeadEmailRequiredError{}
+	}
+	if payload.Contact.ProjectHead.LineId == "" {
+		return &ProjectHeadLineIdRequiredError{}
+	}
+	if payload.Contact.ProjectHead.PhoneNumber == "" {
+		return &ProjectHeadPhoneNumberRequiredError{}
+	}
+	if len(payload.Contact.ProjectHead.PhoneNumber) < 9 {
+		return &ProjectHeadPhoneNumberLengthError{}
+	}
+	if !IsValidPhoneNumber(payload.Contact.ProjectHead.PhoneNumber) {
+		return &ProjectHeadPhoneNumberInvalidError{}
+	}
 	return nil
 }
 func validateProjectManager(payload AddProjectRequest) error {

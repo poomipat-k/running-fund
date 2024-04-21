@@ -14,6 +14,16 @@ var ContactOkPayload = projects.Contact{
 		LastName:             "Khamai",
 		OrganizationPosition: "Software Engineer",
 		EventPosition:        "Head",
+		Address: projects.Address{
+			Address:       "Address 1",
+			ProvinceId:    1,
+			DistrictId:    1,
+			SubdistrictId: 1,
+			PostcodeId:    1,
+		},
+		Email:       "a@test.com",
+		LineId:      "c",
+		PhoneNumber: "123456789",
 	},
 	ProjectManager: projects.ProjectManager{
 		Prefix:               "Mr",
@@ -21,6 +31,16 @@ var ContactOkPayload = projects.Contact{
 		LastName:             "BB",
 		OrganizationPosition: "COO",
 		EventPosition:        "Y",
+		Address: projects.Address{
+			Address:       "Address 1",
+			ProvinceId:    1,
+			DistrictId:    1,
+			SubdistrictId: 1,
+			PostcodeId:    1,
+		},
+		Email:       "a@test.com",
+		LineId:      "c",
+		PhoneNumber: "123456789",
 	},
 	ProjectCoordinator: projects.ProjectCoordinator{
 		Prefix:               "Mr",
@@ -142,9 +162,53 @@ var ContactTestCases = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.ProjectHeadEventPositionRequiredError{},
 	},
-	// contact.projectManager
 	{
-		name: "should error when contact.projectManager.prefix is empty",
+		name: "should error when contact.projectHead.address.address is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "ABC",
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadAddressRequiredError{},
+	},
+	{
+		name: "should error when contact.projectHead.address.provinceId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "ABC",
+					Address: projects.Address{
+						Address: "Address 1",
+					},
+				},
+			}},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadProvinceIdRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.address.districtId is empty",
 		payload: projects.AddProjectRequest{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
@@ -155,7 +219,237 @@ var ContactTestCases = []TestCase{
 					LastName:             "Khamai",
 					OrganizationPosition: "Software Engineer",
 					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:    "Address 1",
+						ProvinceId: 1,
+					},
 				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadDistrictIdRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.address.subdistrictId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:    "Address 1",
+						ProvinceId: 1,
+						DistrictId: 1,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadSubdistrictIdRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.address.postcodeId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:       "Address 1",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadPostcodeIdRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.email is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:       "Address 1",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    1,
+					},
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadEmailRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.lineId is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:       "Address 1",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    1,
+					},
+					Email: "a@test.com",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadLineIdRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.phoneNumber is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:       "Address 1",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    1,
+					},
+					Email:  "a@test.com",
+					LineId: "c",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadPhoneNumberRequiredError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.phoneNumber is shorter than 9 numbers",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:       "Address 1",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    1,
+					},
+					Email:       "a@test.com",
+					LineId:      "c",
+					PhoneNumber: "12345678",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadPhoneNumberLengthError{},
+	},
+	{
+		name: "should error when contact.ProjectHead.phoneNumber is invalid",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: projects.ProjectHead{
+					Prefix:               "Mr",
+					FirstName:            "Poomipat",
+					LastName:             "Khamai",
+					OrganizationPosition: "Software Engineer",
+					EventPosition:        "Head",
+					Address: projects.Address{
+						Address:       "Address 1",
+						ProvinceId:    1,
+						DistrictId:    1,
+						SubdistrictId: 1,
+						PostcodeId:    1,
+					},
+					Email:       "a@test.com",
+					LineId:      "12345678",
+					PhoneNumber: "1234120ab2",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.ProjectHeadPhoneNumberInvalidError{},
+	},
+	// contact.projectManager
+	{
+		name: "should error when contact.projectManager.prefix is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact: projects.Contact{
+				ProjectHead: ContactOkPayload.ProjectHead,
 			},
 		},
 		store: &mock.MockProjectStore{
@@ -171,13 +465,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix: "Mr",
 				},
@@ -196,13 +484,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:    "Mr",
 					FirstName: "AA",
@@ -222,13 +504,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:    "Mr",
 					FirstName: "AA",
@@ -249,13 +525,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -278,13 +548,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -307,13 +571,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -339,13 +597,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -372,13 +624,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -406,13 +652,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -442,13 +682,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -478,13 +712,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -517,13 +745,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -557,13 +779,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -598,13 +814,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -640,13 +850,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -683,13 +887,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -727,13 +925,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -772,13 +964,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -818,13 +1004,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -865,13 +1045,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -911,13 +1085,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -960,13 +1128,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -1012,13 +1174,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -1066,13 +1222,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",
@@ -1120,13 +1270,7 @@ var ContactTestCases = []TestCase{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
 			Contact: projects.Contact{
-				ProjectHead: projects.ProjectHead{
-					Prefix:               "Mr",
-					FirstName:            "Poomipat",
-					LastName:             "Khamai",
-					OrganizationPosition: "Software Engineer",
-					EventPosition:        "Head",
-				},
+				ProjectHead: ContactOkPayload.ProjectHead,
 				ProjectManager: projects.ProjectManager{
 					Prefix:               "Mr",
 					FirstName:            "AA",

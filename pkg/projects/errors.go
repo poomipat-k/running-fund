@@ -311,6 +311,129 @@ func (e *ProjectCoordinatorEventPositionRequiredError) Error() string {
 	return "projectCoordinator eventPosition is required"
 }
 
+// Head address
+type ProjectHeadAddressRequiredError struct{}
+
+func (e *ProjectHeadAddressRequiredError) Error() string {
+	return "ProjectHead address is required"
+}
+
+type ProjectHeadProvinceIdRequiredError struct{}
+
+func (e *ProjectHeadProvinceIdRequiredError) Error() string {
+	return "ProjectHead provinceId is required"
+}
+
+type ProjectHeadDistrictIdRequiredError struct{}
+
+func (e *ProjectHeadDistrictIdRequiredError) Error() string {
+	return "ProjectHead districtId is required"
+}
+
+type ProjectHeadSubdistrictIdRequiredError struct{}
+
+func (e *ProjectHeadSubdistrictIdRequiredError) Error() string {
+	return "ProjectHead subdistrictId is required"
+}
+
+type ProjectHeadPostcodeIdRequiredError struct{}
+
+func (e *ProjectHeadPostcodeIdRequiredError) Error() string {
+	return "ProjectHead postcodeId is required"
+}
+
+type ProjectHeadEmailRequiredError struct{}
+
+func (e *ProjectHeadEmailRequiredError) Error() string {
+	return "ProjectHead email is required"
+}
+
+type ProjectHeadLineIdRequiredError struct{}
+
+func (e *ProjectHeadLineIdRequiredError) Error() string {
+	return "ProjectHead lineId is required"
+}
+
+type ProjectHeadPhoneNumberRequiredError struct{}
+
+func (e *ProjectHeadPhoneNumberRequiredError) Error() string {
+	return "ProjectHead phoneNumber is required"
+}
+
+type ProjectHeadPhoneNumberLengthError struct{}
+
+func (e *ProjectHeadPhoneNumberLengthError) Error() string {
+	return "ProjectHead phoneNumber is shorter than 9 numbers"
+}
+
+type ProjectHeadPhoneNumberInvalidError struct{}
+
+func (e *ProjectHeadPhoneNumberInvalidError) Error() string {
+	return "ProjectHead phoneNumber is invalid"
+}
+
+// Manager address
+type ProjectManagerAddressRequiredError struct{}
+
+func (e *ProjectManagerAddressRequiredError) Error() string {
+	return "ProjectManager address is required"
+}
+
+type ProjectManagerProvinceIdRequiredError struct{}
+
+func (e *ProjectManagerProvinceIdRequiredError) Error() string {
+	return "ProjectManager provinceId is required"
+}
+
+type ProjectManagerDistrictIdRequiredError struct{}
+
+func (e *ProjectManagerDistrictIdRequiredError) Error() string {
+	return "ProjectManager districtId is required"
+}
+
+type ProjectManagerSubdistrictIdRequiredError struct{}
+
+func (e *ProjectManagerSubdistrictIdRequiredError) Error() string {
+	return "ProjectManager subdistrictId is required"
+}
+
+type ProjectManagerPostcodeIdRequiredError struct{}
+
+func (e *ProjectManagerPostcodeIdRequiredError) Error() string {
+	return "ProjectManager postcodeId is required"
+}
+
+type ProjectManagerEmailRequiredError struct{}
+
+func (e *ProjectManagerEmailRequiredError) Error() string {
+	return "ProjectManager email is required"
+}
+
+type ProjectManagerLineIdRequiredError struct{}
+
+func (e *ProjectManagerLineIdRequiredError) Error() string {
+	return "ProjectManager lineId is required"
+}
+
+type ProjectManagerPhoneNumberRequiredError struct{}
+
+func (e *ProjectManagerPhoneNumberRequiredError) Error() string {
+	return "ProjectManager phoneNumber is required"
+}
+
+type ProjectManagerPhoneNumberLengthError struct{}
+
+func (e *ProjectManagerPhoneNumberLengthError) Error() string {
+	return "ProjectManager phoneNumber is shorter than 9 numbers"
+}
+
+type ProjectManagerPhoneNumberInvalidError struct{}
+
+func (e *ProjectManagerPhoneNumberInvalidError) Error() string {
+	return "ProjectManager phoneNumber is invalid"
+}
+
+// Coordinator address
 type ProjectCoordinatorAddressRequiredError struct{}
 
 func (e *ProjectCoordinatorAddressRequiredError) Error() string {
