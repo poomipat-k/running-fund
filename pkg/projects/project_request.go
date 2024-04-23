@@ -325,7 +325,11 @@ type AdminUpdateProjectRequest struct {
 
 type GetAdminDashboardRequest struct {
 	FromYear      int      `json:"fromYear,omitempty"`
+	FromMonth     int      `json:"fromMonth,omitempty"`
+	FromDay       int      `json:"fromDay,omitempty"`
 	ToYear        int      `json:"toYear,omitempty"`
+	ToMonth       int      `json:"toMonth,omitempty"`
+	ToDay         int      `json:"toDay,omitempty"`
 	PageNo        int      `json:"pageNo,omitempty"`
 	PageSize      int      `json:"pageSize,omitempty"`
 	SortBy        []string `json:"sortBy,omitempty"`
@@ -336,6 +340,10 @@ type GetAdminDashboardRequest struct {
 }
 
 type GetAdminSummaryRequest struct {
-	FromYear int `json:"fromYear,omitempty"`
-	ToYear   int `json:"toYear,omitempty"`
+	FromYear  int `json:"fromYear,omitempty"`
+	FromMonth int `json:"fromMonth,omitempty"`
+	FromDay   int `json:"fromDay,omitempty"`
+	ToYear    int `json:"toYear,omitempty"`
+	ToMonth   int `json:"toMonth,omitempty"`
+	ToDay     int `json:"toDay,omitempty"`
 }

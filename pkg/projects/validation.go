@@ -1,7 +1,9 @@
 package projects
 
 import (
+	"log"
 	"mime/multipart"
+	"time"
 )
 
 var thirtyDaysMonth = map[int]int{
@@ -89,11 +91,31 @@ func validateGetAdminDashboardRequestPayload(payload GetAdminDashboardRequest) (
 	if payload.FromYear < minDashboardYear {
 		return "fromYear", &FromYearRequiredError{}
 	}
+	if payload.FromMonth == 0 {
+		return "fromMonth", &MonthRequiredError{}
+	}
+	if payload.FromMonth < 1 || payload.FromMonth > 12 {
+		return "fromMonth", &MonthOutOfBoundError{}
+	}
+
 	if payload.ToYear < minDashboardYear {
 		return "toYear", &ToYearRequiredError{}
 	}
-	if payload.FromYear > payload.ToYear {
-		return "fromYear", &FromYearExceedToYearError{}
+	if payload.ToMonth == 0 {
+		return "toMonth", &MonthRequiredError{}
+	}
+	if payload.ToMonth < 1 || payload.ToMonth > 12 {
+		return "toMonth", &MonthOutOfBoundError{}
+	}
+	loc, err := getTimeLocation()
+	if err != nil {
+		return "timeLocation", nil
+	}
+	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	if fromDate.After(toDate) {
+		log.Println("===fromDate After toDate")
+		return "fromDate", &FromDateExceedToDateError{}
 	}
 	if payload.PageNo <= 0 {
 		return "pageNo", &PageNoInvalidError{}
@@ -111,11 +133,32 @@ func validateGetAdminSummaryRequestPayload(payload GetAdminSummaryRequest) (stri
 	if payload.FromYear < minDashboardYear {
 		return "fromYear", &FromYearRequiredError{}
 	}
+	if payload.FromMonth == 0 {
+		return "fromMonth", &MonthRequiredError{}
+	}
+	if payload.FromMonth < 1 || payload.FromMonth > 12 {
+		return "fromMonth", &MonthOutOfBoundError{}
+	}
+
 	if payload.ToYear < minDashboardYear {
 		return "toYear", &ToYearRequiredError{}
 	}
-	if payload.FromYear > payload.ToYear {
-		return "fromYear", &FromYearExceedToYearError{}
+	if payload.ToMonth == 0 {
+		return "toMonth", &MonthRequiredError{}
 	}
+	if payload.ToMonth < 1 || payload.ToMonth > 12 {
+		return "toMonth", &MonthOutOfBoundError{}
+	}
+	loc, err := getTimeLocation()
+	if err != nil {
+		return "timeLocation", nil
+	}
+	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	if fromDate.After(toDate) {
+		log.Println("===fromDate After toDate")
+		return "fromDate", &FromDateExceedToDateError{}
+	}
+
 	return "", nil
 }

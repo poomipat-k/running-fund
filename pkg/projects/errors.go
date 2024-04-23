@@ -930,8 +930,8 @@ func (e *SortByRequiredError) Error() string {
 	return "sortBy is required"
 }
 
-type FromYearExceedToYearError struct{}
+type FromDateExceedToDateError struct{}
 
-func (e *FromYearExceedToYearError) Error() string {
-	return "fromYear exceed toYear"
+func (e *FromDateExceedToDateError) Error() string {
+	return "fromDate is later than toDate"
 }
