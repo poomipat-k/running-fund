@@ -48,7 +48,7 @@ func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
+		utils.ErrorJSON(w, err, "userId", http.StatusUnauthorized)
 		return
 	}
 	userRole := r.Header.Get("userRole")
