@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"log/slog"
 	"mime/multipart"
 	"strconv"
@@ -87,6 +88,9 @@ func (s *store) GetAdminRequestDashboard(
 	projectCode, projectName, projectStatus *string,
 ) ([]AdminRequestDashboardRow, error) {
 	queryStmt, values := prepareRequestDashboardQuery(fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
+	log.Println(queryStmt)
+	log.Println("===values: ", values)
+	log.Println(values[2])
 	rows, err := s.db.Query(queryStmt, values...)
 	if err != nil {
 		return nil, err
@@ -162,7 +166,7 @@ func prepareRequestDashboardQuery(
 	projectCode, projectName, projectStatus *string,
 ) (string, []any) {
 	curPlaceholder := 3
-	where := []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
+	where := []string{"project.created_at >= $1 AND project.created_at <= $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
 	values := []any{fromDate, toDate}
 	if projectCode != nil {
 		where = append(where, fmt.Sprintf("AND project_history.project_code = $%d", curPlaceholder))
@@ -181,7 +185,7 @@ func prepareRequestDashboardQuery(
 		curPlaceholder++
 	}
 	whereStmt := strings.Join(where, " ")
-	orderLimitOffsetStmt := fmt.Sprintf(" ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
+	orderLimitOffsetStmt := fmt.Sprintf("ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
 	values = append(values, orderBy, limit, offset)
 	countStmt := fmt.Sprintf(`
 	(
@@ -216,6 +220,8 @@ FROM project
 INNER JOIN project_history ON project.project_history_id = project_history.id
 WHERE `, countStmt)
 
-	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ")
+	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ") + ";"
+	log.Println("==orderBy: ", orderBy)
+	log.Println("===orderLimitOffsetStmt", orderLimitOffsetStmt)
 	return queryStmt, values
 }

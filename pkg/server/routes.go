@@ -97,8 +97,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
 		r.Post("/admin/project/{projectCode}", mw.IsAdmin(projectHandler.AdminUpdateProject))
-		r.Post("/admin/dashboard/request", mw.IsAdmin(projectHandler.GetAdminRequestDashboard))
 		r.Post("/admin/dashboard/summary", mw.IsAdmin(projectHandler.GetAdminSummary))
+		r.Post("/admin/dashboard/request", mw.IsAdmin(projectHandler.GetAdminRequestDashboard))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
