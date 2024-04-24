@@ -2,7 +2,6 @@ package projects
 
 import (
 	"encoding/json"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"strings"
@@ -65,8 +64,6 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return
 	}
-	fromDate := time.Date(payload.FromYear, 1, 1, 0, 0, 0, 0, loc)
-	toDate := time.Date(payload.ToYear, 12, 31, 23, 59, 59, 999999999, loc)
 	offset := (payload.PageNo - 1) * payload.PageSize
 	orderByStmt := strings.Join(payload.SortBy, ", ")
 	if payload.IsAsc {
@@ -74,6 +71,8 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 	} else {
 		orderByStmt += " DESC"
 	}
+	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
 	records, err := h.store.GetAdminRequestDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset, payload.ProjectCode, payload.ProjectName, payload.ProjectStatus)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
@@ -101,8 +100,6 @@ func (h *ProjectHandler) GetAdminSummary(w http.ResponseWriter, r *http.Request)
 	}
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
 	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
-	log.Println("===fromDate", fromDate.String())
-	log.Println("===toDate", toDate.String())
 	records, err := h.store.GetAdminSummary(fromDate, toDate)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)

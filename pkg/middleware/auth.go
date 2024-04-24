@@ -15,7 +15,7 @@ func IsLoggedIn(next http.HandlerFunc) http.HandlerFunc {
 
 		at, err := getAccessToken(r)
 		if err != nil {
-			utils.ErrorJSON(w, err, "authToken", http.StatusUnauthorized)
+			utils.ErrorJSON(w, err, "authToken", http.StatusForbidden)
 			return
 		}
 

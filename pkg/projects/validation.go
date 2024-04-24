@@ -1,7 +1,6 @@
 package projects
 
 import (
-	"log"
 	"mime/multipart"
 	"time"
 )
@@ -114,7 +113,6 @@ func validateGetAdminDashboardRequestPayload(payload GetAdminDashboardRequest) (
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
 	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
 	if fromDate.After(toDate) {
-		log.Println("===fromDate After toDate")
 		return "fromDate", &FromDateExceedToDateError{}
 	}
 	if payload.PageNo <= 0 {
@@ -156,7 +154,6 @@ func validateGetAdminSummaryRequestPayload(payload GetAdminSummaryRequest) (stri
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
 	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
 	if fromDate.After(toDate) {
-		log.Println("===fromDate After toDate")
 		return "fromDate", &FromDateExceedToDateError{}
 	}
 
