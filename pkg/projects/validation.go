@@ -28,6 +28,7 @@ var sortByWhiteList = map[string]bool{
 	"project_history.updated_at":   true,
 	"project_history.status":       true,
 	"POSITION(project_history.status::text IN 'Reviewing,Reviewed,Revise,NotApproved,Approved')": true,
+	"POSITION(project_history.status::text IN 'Start,Completed')":                                true,
 }
 
 var PRIMARY_STATUS = map[string]bool{
@@ -94,7 +95,7 @@ func validateAdminUpdateProjectPayload(payload AdminUpdateProjectRequest) (strin
 	return "", nil
 }
 
-func validateGetAdminDashboardRequestPayload(payload GetAdminDashboardRequest) (string, error) {
+func validateGetAdminDashboardPayload(payload GetAdminDashboardRequest) (string, error) {
 	if payload.FromYear < minDashboardYear {
 		return "fromYear", &FromYearRequiredError{}
 	}

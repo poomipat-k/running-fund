@@ -54,7 +54,7 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
 		return
 	}
-	errField, err := validateGetAdminDashboardRequestPayload(payload)
+	errField, err := validateGetAdminDashboardPayload(payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, errField, http.StatusBadRequest)
 		return
@@ -74,6 +74,40 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
 	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
 	records, err := h.store.GetAdminRequestDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset, payload.ProjectCode, payload.ProjectName, payload.ProjectStatus)
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, records)
+}
+
+func (h *ProjectHandler) GetAdminStartedDashboard(w http.ResponseWriter, r *http.Request) {
+	var payload GetAdminDashboardRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
+		return
+	}
+	errField, err := validateGetAdminDashboardPayload(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, errField, http.StatusBadRequest)
+		return
+	}
+	loc, err := getTimeLocation()
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	offset := (payload.PageNo - 1) * payload.PageSize
+	orderByStmt := strings.Join(payload.SortBy, ", ")
+	if payload.IsAsc {
+		orderByStmt += " ASC"
+	} else {
+		orderByStmt += " DESC"
+	}
+	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	records, err := h.store.GetAdminStartedDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset, payload.ProjectCode, payload.ProjectName, payload.ProjectStatus)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return

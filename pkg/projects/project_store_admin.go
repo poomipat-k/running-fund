@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"mime/multipart"
 	"strconv"
@@ -87,10 +86,45 @@ func (s *store) GetAdminRequestDashboard(
 	limit, offset int,
 	projectCode, projectName, projectStatus *string,
 ) ([]AdminRequestDashboardRow, error) {
-	queryStmt, values := prepareRequestDashboardQuery(fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
-	log.Println(queryStmt)
-	log.Println("===values: ", values)
-	log.Println(values[2])
+	queryStmt, values := prepareAdminDashboardQuery("request", fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
+	rows, err := s.db.Query(queryStmt, values...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var data []AdminRequestDashboardRow
+	for rows.Next() {
+		var row AdminRequestDashboardRow
+		err := rows.Scan(
+			&row.ProjectCode,
+			&row.ProjectCreatedAt,
+			&row.ProjectName,
+			&row.ProjectStatus,
+			&row.ProjectUpdatedAt,
+			&row.AdminComment,
+			&row.AvgScore,
+			&row.Count,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (s *store) GetAdminStartedDashboard(
+	fromDate, toDate time.Time,
+	orderBy string,
+	limit, offset int,
+	projectCode, projectName, projectStatus *string,
+) ([]AdminRequestDashboardRow, error) {
+	queryStmt, values := prepareAdminDashboardQuery("started", fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
 	rows, err := s.db.Query(queryStmt, values...)
 	if err != nil {
 		return nil, err
@@ -159,14 +193,20 @@ func newInt64(val int64) *int64 {
 	return &v
 }
 
-func prepareRequestDashboardQuery(
+func prepareAdminDashboardQuery(
+	dashboardType string,
 	fromDate, toDate time.Time,
 	orderBy string,
 	limit, offset int,
 	projectCode, projectName, projectStatus *string,
 ) (string, []any) {
 	curPlaceholder := 3
-	where := []string{"project.created_at >= $1 AND project.created_at <= $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
+	var where []string
+	if dashboardType == "request" {
+		where = []string{"project.created_at >= $1 AND project.created_at <= $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
+	} else {
+		where = []string{"project.created_at >= $1 AND project.created_at <= $2 AND (project_history.status = 'Start' OR project_history.status = 'Completed')"}
+	}
 	values := []any{fromDate, toDate}
 	if projectCode != nil {
 		where = append(where, fmt.Sprintf("AND project_history.project_code = $%d", curPlaceholder))

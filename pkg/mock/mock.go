@@ -64,6 +64,7 @@ type MockProjectStore struct {
 	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
 	GetProjectStatusByProjectCodeFunc       func(projectCode string) (projects.AdminUpdateParam, error)
 	GetAdminRequestDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]projects.AdminRequestDashboardRow, error)
+	GetAdminStartedDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]projects.AdminRequestDashboardRow, error)
 	GetAdminSummaryFunc                     func(fromDate, toDate time.Time) ([]projects.AdminSummaryData, error)
 }
 
@@ -113,6 +114,16 @@ func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdatePara
 }
 
 func (m *MockProjectStore) GetAdminRequestDashboard(
+	fromDate,
+	toDate time.Time,
+	orderBy string,
+	limit, offset int,
+	projectCode, projectName, projectStatus *string,
+) ([]projects.AdminRequestDashboardRow, error) {
+	return m.GetAdminRequestDashboardFunc(fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
+}
+
+func (m *MockProjectStore) GetAdminStartedDashboard(
 	fromDate,
 	toDate time.Time,
 	orderBy string,
