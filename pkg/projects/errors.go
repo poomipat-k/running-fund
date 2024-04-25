@@ -930,6 +930,12 @@ func (e *SortByRequiredError) Error() string {
 	return "sortBy is required"
 }
 
+type SortByInvalidError struct{}
+
+func (e *SortByInvalidError) Error() string {
+	return "sortBy is invalid"
+}
+
 type FromDateExceedToDateError struct{}
 
 func (e *FromDateExceedToDateError) Error() string {

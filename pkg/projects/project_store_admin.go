@@ -185,8 +185,9 @@ func prepareRequestDashboardQuery(
 		curPlaceholder++
 	}
 	whereStmt := strings.Join(where, " ")
-	orderLimitOffsetStmt := fmt.Sprintf("ORDER BY $%d LIMIT $%d OFFSET $%d", curPlaceholder, curPlaceholder+1, curPlaceholder+2)
-	values = append(values, orderBy, limit, offset)
+	// orderBy must be safe string
+	orderLimitOffsetStmt := fmt.Sprintf("ORDER BY %s LIMIT $%d OFFSET $%d", orderBy, curPlaceholder, curPlaceholder+1)
+	values = append(values, limit, offset)
 	countStmt := fmt.Sprintf(`
 	(
 		SELECT COUNT(*) FROM project 
@@ -221,7 +222,5 @@ INNER JOIN project_history ON project.project_history_id = project_history.id
 WHERE `, countStmt)
 
 	queryStmt := strings.Join([]string{getAdminRequestDashboardSQL, whereStmt, orderLimitOffsetStmt}, " ") + ";"
-	log.Println("==orderBy: ", orderBy)
-	log.Println("===orderLimitOffsetStmt", orderLimitOffsetStmt)
 	return queryStmt, values
 }

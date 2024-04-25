@@ -22,6 +22,14 @@ var PROJECT_STATUS = map[string]int{
 	"Completed":   7,
 }
 
+var sortByWhiteList = map[string]bool{
+	"project_history.project_name": true,
+	"project_history.created_at":   true,
+	"project_history.updated_at":   true,
+	"project_history.status":       true,
+	"POSITION(project_history.status::text IN 'Reviewing, Reviewed, Revise, NotApproved, Approved')": true,
+}
+
 var PRIMARY_STATUS = map[string]bool{
 	"CurrentBeforeApprove": true,
 	"Approved":             true,
@@ -123,6 +131,12 @@ func validateGetAdminDashboardRequestPayload(payload GetAdminDashboardRequest) (
 	}
 	if len(payload.SortBy) == 0 {
 		return "sortBy", &SortByRequiredError{}
+	}
+
+	for i := 0; i < len(payload.SortBy); i++ {
+		if !sortByWhiteList[payload.SortBy[i]] {
+			return "sortBy", &SortByInvalidError{}
+		}
 	}
 	return "", nil
 }
