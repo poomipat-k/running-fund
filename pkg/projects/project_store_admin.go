@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	myCsv "github.com/poomipat-k/running-fund/pkg/csv-app"
 )
 
 func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error) {
@@ -186,6 +188,25 @@ func (s *store) GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData,
 		return nil, err
 	}
 	return data, nil
+}
+
+func (s *store) GenerateAdminReport() error {
+	items := [][]string{
+		{"id", "name", "price"},
+		{"1", "Book", "18"},
+		{"2", "Pencil", "3"},
+		{"3", "Rubber", "2"},
+	}
+
+	buffer, err := myCsv.GenCsvBuffer(items)
+	if err != nil {
+		panic(err)
+	}
+	err = s.awsS3Service.DoUploadFileToS3(buffer, fmt.Sprintf("%s/%s", "csv", "myTestCsv.csv"))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func newInt64(val int64) *int64 {

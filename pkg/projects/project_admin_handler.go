@@ -142,6 +142,23 @@ func (h *ProjectHandler) GetAdminSummary(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusOK, records)
 }
 
+func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Request) {
+	var payload GenerateAdminReportRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
+		return
+	}
+
+	err = h.store.GenerateAdminReport()
+	if err != nil {
+		utils.ErrorJSON(w, err, "report", http.StatusInternalServerError)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, nil)
+}
+
 func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {
 	currentStatus := currentProject.ProjectStatus
 	primaryStatusChanged := hasPrimaryStatusChanged(currentStatus, payload.ProjectStatusPrimary)
