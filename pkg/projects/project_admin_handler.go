@@ -149,10 +149,20 @@ func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Requ
 		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
 		return
 	}
-	now := time.Now()
-	ago := time.Date(2023, 10, 20, 17, 0, 0, 0, time.UTC)
+	errField, err := validateGenerateAdminReportRequest(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, errField, http.StatusBadRequest)
+		return
+	}
+	loc, err := getTimeLocation()
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
 
-	buffer, err := h.store.GenerateAdminReport(ago, now)
+	buffer, err := h.store.GenerateAdminReport(fromDate, toDate)
 	if err != nil {
 		utils.ErrorJSON(w, err, "report", http.StatusInternalServerError)
 		return
