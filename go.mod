@@ -11,6 +11,7 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lib/pq v1.10.9
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	golang.org/x/crypto v0.16.0
@@ -32,5 +33,4 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.23.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.28.1 // indirect
 	github.com/aws/smithy-go v1.20.1 // indirect
-	github.com/jung-kurt/gofpdf v1.16.2 // indirect
 )
