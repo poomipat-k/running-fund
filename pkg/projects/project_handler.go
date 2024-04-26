@@ -36,7 +36,7 @@ type projectStore interface {
 	GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminStartedDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
-	GenerateAdminReport() (*bytes.Buffer, error)
+	GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error)
 }
 
 type ProjectHandler struct {

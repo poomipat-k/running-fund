@@ -361,3 +361,16 @@ FROM project INNER JOIN project_history ON project.project_history_id = project_
 WHERE project.created_at >= $1 AND project.created_at < $2
 GROUP BY project_history.status;
 `
+
+const getAdminReportSQL = `
+SELECT 
+project_history.project_code as project_code,
+project_history.project_name as project_name,
+project_history.created_at as created_at,
+project_history.from_date as from_date,
+project_history.fund_approved_amount as fund_approved_amount
+FROM project
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.created_at >= $1 AND project.created_at <= $2
+;
+`

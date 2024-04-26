@@ -149,8 +149,10 @@ func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Requ
 		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
 		return
 	}
+	now := time.Now()
+	ago := time.Date(2023, 10, 20, 17, 0, 0, 0, time.UTC)
 
-	buffer, err := h.store.GenerateAdminReport()
+	buffer, err := h.store.GenerateAdminReport(ago, now)
 	if err != nil {
 		utils.ErrorJSON(w, err, "report", http.StatusInternalServerError)
 		return

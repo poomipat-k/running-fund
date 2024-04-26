@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 	"mime/multipart"
@@ -191,25 +192,48 @@ func (s *store) GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData,
 	return data, nil
 }
 
-func (s *store) GenerateAdminReport() (*bytes.Buffer, error) {
-	items := [][]string{
-		{"id", "name", "price"},
-		{"1", "Book", "18"},
-		{"2", "Pencil", "3"},
-		{"3", "Rubber", "2"},
+func (s *store) GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error) {
+	rows, err := s.db.Query(getAdminReportSQL, fromDate, toDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items [][]string
+	headers := []string{"ลำดับ", "รหัสโครงการ", "ชื่อโครงการ", "วันที่ขอทุน", "วันที่ดำเนินโครงการ", "จำนวนเงินที่ได้รับ"}
+	items = append(items, headers)
+	count := 1
+	for rows.Next() {
+		var row AdminReportRow
+		err := rows.Scan(
+			&row.ProjectCode,
+			&row.ProjectName,
+			&row.CreatedAt,
+			&row.FromDate,
+			&row.FundApprovedAmount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		var supportAmount int64
+		if row.FundApprovedAmount != nil {
+			supportAmount = *row.FundApprovedAmount
+		}
+		csvRow := []string{fmt.Sprint(count), row.ProjectCode, row.ProjectName, row.CreatedAt.String(), row.FromDate.String(), fmt.Sprint(supportAmount)}
+		items = append(items, csvRow)
+		count++
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 
 	buffer, err := myCsv.GenCsvBuffer(items)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if buffer == nil {
-		panic("nil buffer")
+		return nil, errors.New("buffer cannot be nil")
 	}
-	// err = s.awsS3Service.DoUploadFileToS3(buffer, fmt.Sprintf("%s/%s", "csv", "myTestCsv.csv"))
-	// if err != nil {
-	// 	return err
-	// }
 	return buffer, nil
 }
 

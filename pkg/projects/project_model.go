@@ -188,3 +188,11 @@ type AdminSummaryData struct {
 	Count   int    `json:"count"`
 	FundSum *int64 `json:"fundSum"`
 }
+
+type AdminReportRow struct {
+	ProjectCode        string
+	ProjectName        string
+	CreatedAt          time.Time
+	FromDate           time.Time
+	FundApprovedAmount *int64
+}
