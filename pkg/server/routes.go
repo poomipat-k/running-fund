@@ -90,7 +90,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/applicant/project/details/{projectCode}", mw.IsLoggedIn(projectHandler.GetApplicantProjectDetails))
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
-		r.Get("/project/review-period", mw.IsReviewer(projectHandler.GetReviewPeriod))
+		r.Get("/project/review-period", mw.IsLoggedIn(projectHandler.GetReviewPeriod))
 		r.Post("/project/review/{projectCode}", mw.IsLoggedIn(projectHandler.GetReviewerProjectDetails))
 		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
