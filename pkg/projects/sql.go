@@ -15,6 +15,7 @@ LEFT JOIN review
 ON project.project_history_id = review.project_history_id AND review.user_id = $1
 WHERE project.created_at >= $2
 AND project.created_at < $3
+AND project_history.status = 'Reviewing'
 ORDER BY project_name;
 `
 const getReviewerProjectDetailsSQL = `
