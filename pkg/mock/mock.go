@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"bytes"
 	"mime/multipart"
 	"time"
 
@@ -66,7 +67,7 @@ type MockProjectStore struct {
 	GetAdminRequestDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]projects.AdminRequestDashboardRow, error)
 	GetAdminStartedDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]projects.AdminRequestDashboardRow, error)
 	GetAdminSummaryFunc                     func(fromDate, toDate time.Time) ([]projects.AdminSummaryData, error)
-	GenerateAdminReportFunc                 func() error
+	GenerateAdminReportFunc                 func() (*bytes.Buffer, error)
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -138,6 +139,6 @@ func (m *MockProjectStore) GetAdminSummary(fromDate, toDate time.Time) ([]projec
 	return m.GetAdminSummaryFunc(fromDate, toDate)
 }
 
-func (m *MockProjectStore) GenerateAdminReport() error {
+func (m *MockProjectStore) GenerateAdminReport() (*bytes.Buffer, error) {
 	return m.GenerateAdminReportFunc()
 }

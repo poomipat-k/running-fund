@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,7 +36,7 @@ type projectStore interface {
 	GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminStartedDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
-	GenerateAdminReport() error
+	GenerateAdminReport() (*bytes.Buffer, error)
 }
 
 type ProjectHandler struct {

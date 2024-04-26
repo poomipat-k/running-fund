@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -190,7 +191,7 @@ func (s *store) GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData,
 	return data, nil
 }
 
-func (s *store) GenerateAdminReport() error {
+func (s *store) GenerateAdminReport() (*bytes.Buffer, error) {
 	items := [][]string{
 		{"id", "name", "price"},
 		{"1", "Book", "18"},
@@ -202,11 +203,14 @@ func (s *store) GenerateAdminReport() error {
 	if err != nil {
 		panic(err)
 	}
-	err = s.awsS3Service.DoUploadFileToS3(buffer, fmt.Sprintf("%s/%s", "csv", "myTestCsv.csv"))
-	if err != nil {
-		return err
+	if buffer == nil {
+		panic("nil buffer")
 	}
-	return nil
+	// err = s.awsS3Service.DoUploadFileToS3(buffer, fmt.Sprintf("%s/%s", "csv", "myTestCsv.csv"))
+	// if err != nil {
+	// 	return err
+	// }
+	return buffer, nil
 }
 
 func newInt64(val int64) *int64 {

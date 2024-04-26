@@ -150,13 +150,28 @@ func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = h.store.GenerateAdminReport()
+	buffer, err := h.store.GenerateAdminReport()
 	if err != nil {
 		utils.ErrorJSON(w, err, "report", http.StatusInternalServerError)
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, nil)
+	// io.Copy(w, buffer)
+	// utils.WriteJSON(w, http.StatusOK, *buffer)
+
+	out, err := json.Marshal(buffer.Bytes())
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Disposition", "attachment;filename=report.csv")
+	w.Header().Set("Content-Type", "text/csv")
+
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(out)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {
