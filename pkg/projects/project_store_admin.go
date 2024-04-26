@@ -214,9 +214,9 @@ func (s *store) GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, 
 		if err != nil {
 			return nil, err
 		}
-		var supportAmount int64
+		supportAmount := "ยังไม่ได้รับ"
 		if row.FundApprovedAmount != nil {
-			supportAmount = *row.FundApprovedAmount
+			supportAmount = fmt.Sprint(*row.FundApprovedAmount)
 		}
 		csvRow := []string{fmt.Sprint(count), row.ProjectCode, row.ProjectName, row.CreatedAt.String(), row.FromDate.String(), fmt.Sprint(supportAmount)}
 		items = append(items, csvRow)
