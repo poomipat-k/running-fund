@@ -13,7 +13,6 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DSN: "host=postgres port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable timezone=UTC connect_timeout=5"
       CRITERIA_VERSION: 1
     env_file:
       - .env

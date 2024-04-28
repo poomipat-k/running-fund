@@ -36,6 +36,7 @@ docker-compose-staging.yaml
 
 # env
 .env
+.env.prod
 
 /download
 /tmp
