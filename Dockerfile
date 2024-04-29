@@ -10,7 +10,7 @@ RUN go mod download
 
 EXPOSE 8080
 
-RUN env GOOS=linux CGO_ENABLED=0 go build -o /myApp ./cmd/
+RUN env GOOS=linux CGO_ENABLED=0 go build -o /myApp ./
 
 # Deploy Stage
 

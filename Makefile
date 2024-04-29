@@ -25,7 +25,7 @@ up_build_dev: build_running
 ## build_running: builds the running app binary as a linux executable
 build_running:
 	@echo "Building app binary..."
-	env GOOS=linux CGO_ENABLED=0 go build -o ${APP} ./cmd/
+	env GOOS=linux CGO_ENABLED=0 go build -o ${APP} ./
 	@echo "Done!"
 
 ## down: stop docker compose
