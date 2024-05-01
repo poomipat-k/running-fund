@@ -16,6 +16,7 @@ import (
 	"github.com/patrickmn/go-cache"
 
 	"github.com/poomipat-k/running-fund/pkg/address"
+	"github.com/poomipat-k/running-fund/pkg/assist"
 	"github.com/poomipat-k/running-fund/pkg/captcha"
 	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
@@ -80,6 +81,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	addressStore := address.NewStore(db, c)
 	addressHandler := address.NewAddressHandler(addressStore)
 
+	assistHandler := assist.NewAssistHandler(emailService)
+
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("API landing page"))
@@ -124,6 +127,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/s3/presigned", mw.IsLoggedIn(s3Handler.GeneratePresignedUrl))
 		r.Post("/s3/objects", mw.IsLoggedIn(projectHandler.ListApplicantFiles))
+
+		r.Post("/assist/contact-us", assistHandler.ContactUs)
 	})
 
 	return mux
