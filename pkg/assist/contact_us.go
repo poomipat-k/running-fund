@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"net/mail"
 	"os"
 
 	"github.com/jordan-wright/email"
@@ -58,9 +57,8 @@ func (h *AssistHandler) ContactUs(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateContactUs(payload ContactUsRequest) error {
-	err := validateEmail(payload.Email)
-	if err != nil {
-		return err
+	if payload.Email == "" {
+		return &EmailRequiredError{}
 	}
 	if payload.FirstName == "" {
 		return &FirstNameRequiredError{}
@@ -72,24 +70,6 @@ func validateContactUs(payload ContactUsRequest) error {
 		return &MessageRequiredError{}
 	}
 	return nil
-}
-
-func validateEmail(email string) error {
-	if email == "" {
-		return &EmailRequiredError{}
-	}
-	if len(email) > 255 {
-		return &EmailTooLongError{}
-	}
-	if !isValidEmail(email) {
-		return &InvalidEmailError{}
-	}
-	return nil
-}
-
-func isValidEmail(email string) bool {
-	_, err := mail.ParseAddress(email)
-	return err == nil
 }
 
 func buildContactUsEmail(to, userEmail, firstName, lastName, message string) email.Email {

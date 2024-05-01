@@ -6,18 +6,6 @@ func (e *EmailRequiredError) Error() string {
 	return "email is required"
 }
 
-type InvalidEmailError struct{}
-
-func (e *InvalidEmailError) Error() string {
-	return "email is invalid"
-}
-
-type EmailTooLongError struct{}
-
-func (e *EmailTooLongError) Error() string {
-	return "email is too long"
-}
-
 type FirstNameRequiredError struct{}
 
 func (e *FirstNameRequiredError) Error() string {
