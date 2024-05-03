@@ -375,3 +375,21 @@ INNER JOIN project_history ON project.project_history_id = project_history.id
 WHERE project.created_at >= $1 AND project.created_at <= $2
 ;
 `
+
+const getAdminWebsiteDashboardDateConfigPreviewSQL = `
+SELECT
+(
+	SELECT COUNT(*) FROM project 
+	INNER JOIN project_history ON project.project_history_id = project_history.id
+	WHERE project.created_at >= $1 AND project.created_at < $2
+) as count,
+project.project_code as project_code,
+project.created_at as created_at,
+project_history.project_name as project_name,
+project_history.status as project_status
+FROM project 
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.created_at >= $1 AND project.created_at < $2
+ORDER BY project_history.created_at ASC
+LIMIT $3 OFFSET $4
+;`

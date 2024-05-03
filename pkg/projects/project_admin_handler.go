@@ -170,6 +170,35 @@ func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSON(w, http.StatusOK, buffer.String())
 }
 
+func (h *ProjectHandler) GetAdminWebsiteDashboardDateConfigPreview(w http.ResponseWriter, r *http.Request) {
+	var payload GetAdminDashboardDateConfigPreviewRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
+		return
+	}
+
+	errField, err := validateAdminWebsiteDashboardDateConfigPreviewRequest(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, errField, http.StatusBadRequest)
+		return
+	}
+	loc, err := getTimeLocation()
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	offset := (payload.PageNo - 1) * payload.PageSize
+	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	records, err := h.store.GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate, payload.PageSize, offset)
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, records)
+}
+
 func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {
 	currentStatus := currentProject.ProjectStatus
 	primaryStatusChanged := hasPrimaryStatusChanged(currentStatus, payload.ProjectStatusPrimary)

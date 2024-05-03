@@ -356,3 +356,14 @@ type GenerateAdminReportRequest struct {
 	ToMonth   int `json:"toMonth,omitempty"`
 	ToDay     int `json:"toDay,omitempty"`
 }
+
+type GetAdminDashboardDateConfigPreviewRequest struct {
+	FromYear  int `json:"fromYear,omitempty"`
+	FromMonth int `json:"fromMonth,omitempty"`
+	FromDay   int `json:"fromDay,omitempty"`
+	ToYear    int `json:"toYear,omitempty"`
+	ToMonth   int `json:"toMonth,omitempty"`
+	ToDay     int `json:"toDay,omitempty"`
+	PageNo    int `json:"pageNo,omitempty"`
+	PageSize  int `json:"pageSize,omitempty"`
+}

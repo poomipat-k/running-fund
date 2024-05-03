@@ -196,3 +196,11 @@ type AdminReportRow struct {
 	FromDate           time.Time
 	FundApprovedAmount *int64
 }
+
+type AdminDateConfigPreviewRow struct {
+	ProjectCode      string    `json:"projectCode,omitempty"`
+	ProjectCreatedAt time.Time `json:"projectCreatedAt,omitempty"`
+	ProjectName      string    `json:"projectName,omitempty"`
+	ProjectStatus    string    `json:"projectStatus,omitempty"`
+	Count            int       `json:"count,omitempty"`
+}

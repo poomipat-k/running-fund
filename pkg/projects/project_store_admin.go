@@ -237,6 +237,35 @@ func (s *store) GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, 
 	return buffer, nil
 }
 
+func (s *store) GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error) {
+	rows, err := s.db.Query(getAdminWebsiteDashboardDateConfigPreviewSQL, fromDate, toDate, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []AdminDateConfigPreviewRow
+	for rows.Next() {
+		var row AdminDateConfigPreviewRow
+		err := rows.Scan(
+			&row.Count,
+			&row.ProjectCode,
+			&row.ProjectCreatedAt,
+			&row.ProjectName,
+			&row.ProjectStatus,
+		)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func newInt64(val int64) *int64 {
 	v := val
 	return &v
