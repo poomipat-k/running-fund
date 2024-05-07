@@ -163,7 +163,6 @@ func addProjectHistory(
 	projectCoordinatorContactId int,
 	rawProjectRaceDirectorContactId int,
 	baseFilePrefix string,
-
 ) (int, error) {
 	fromDate, toDate, thisSeriesLatestCompletedDate, err := buildTimeFromPayload(payload)
 	if err != nil {

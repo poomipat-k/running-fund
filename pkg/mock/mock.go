@@ -69,6 +69,7 @@ type MockProjectStore struct {
 	GetAdminSummaryFunc                           func(fromDate, toDate time.Time) ([]projects.AdminSummaryData, error)
 	GenerateAdminReportFunc                       func(fromDate, toDate time.Time) (*bytes.Buffer, error)
 	GetAdminWebsiteDashboardDateConfigPreviewFunc func(fromDate, toDate time.Time, limit, offset int) ([]projects.AdminDateConfigPreviewRow, error)
+	AdminUpdateWebsiteConfigFunc                  func(payload projects.AdminUpdateWebsiteConfigRequest) error
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
@@ -146,4 +147,8 @@ func (m *MockProjectStore) GenerateAdminReport(fromDate, toDate time.Time) (*byt
 
 func (m *MockProjectStore) GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]projects.AdminDateConfigPreviewRow, error) {
 	return m.GetAdminWebsiteDashboardDateConfigPreviewFunc(fromDate, toDate, limit, offset)
+}
+
+func (m *MockProjectStore) AdminUpdateWebsiteConfig(payload projects.AdminUpdateWebsiteConfigRequest) error {
+	return m.AdminUpdateWebsiteConfigFunc(payload)
 }

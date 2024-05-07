@@ -105,6 +105,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/admin/dashboard/started", mw.IsAdmin(projectHandler.GetAdminStartedDashboard))
 		r.Post("/admin/report", mw.IsAdmin(projectHandler.GenerateAdminReport))
 		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(projectHandler.GetAdminWebsiteDashboardDateConfigPreview))
+		r.Put("/admin/website/config", mw.IsAdmin(projectHandler.AdminUpdateWebsiteConfig))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 

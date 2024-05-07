@@ -393,3 +393,8 @@ WHERE project.created_at >= $1 AND project.created_at < $2
 ORDER BY project_history.created_at ASC
 LIMIT $3 OFFSET $4
 ;`
+
+const adminUpdateReviewerPeriodSQL = `
+INSERT INTO review_period (from_date, to_date)
+VALUES ($1, $2) RETURNING id;
+`

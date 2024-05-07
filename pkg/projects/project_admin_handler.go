@@ -206,6 +206,17 @@ func (h *ProjectHandler) AdminUpdateWebsiteConfig(w http.ResponseWriter, r *http
 		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
 		return
 	}
+	fn, err := validateAdminUpdateWebsiteConfigRequest(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, fn, http.StatusBadRequest)
+		return
+	}
+	err = h.store.AdminUpdateWebsiteConfig(payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "Successfully updated website config"})
 }
 
 func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {

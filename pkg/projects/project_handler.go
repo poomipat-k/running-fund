@@ -38,6 +38,7 @@ type projectStore interface {
 	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
 	GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error)
 	GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
+	AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
 }
 
 type ProjectHandler struct {

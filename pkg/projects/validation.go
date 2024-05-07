@@ -127,6 +127,21 @@ func validateGetAdminSummaryRequestPayload(payload GetAdminSummaryRequest) (stri
 	return "", nil
 }
 
+func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
+	fn, err := validateFormDateToDate(
+		payload.DashboardConfig.FromYear,
+		payload.DashboardConfig.FromMonth,
+		payload.DashboardConfig.FromDay,
+		payload.DashboardConfig.ToYear,
+		payload.DashboardConfig.ToMonth,
+		payload.DashboardConfig.ToDay,
+	)
+	if err != nil {
+		return fn, err
+	}
+	return "", nil
+}
+
 func validateGenerateAdminReportRequest(payload GenerateAdminReportRequest) (string, error) {
 	fn, err := validateFormDateToDate(payload.FromYear, payload.FromMonth, payload.FromDay, payload.ToYear, payload.ToMonth, payload.ToDay)
 	if err != nil {
