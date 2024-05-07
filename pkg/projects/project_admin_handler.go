@@ -199,6 +199,15 @@ func (h *ProjectHandler) GetAdminWebsiteDashboardDateConfigPreview(w http.Respon
 	utils.WriteJSON(w, http.StatusOK, records)
 }
 
+func (h *ProjectHandler) AdminUpdateWebsiteConfig(w http.ResponseWriter, r *http.Request) {
+	var payload AdminUpdateWebsiteConfigRequest
+	err := utils.ReadJSON(w, r, &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "payload", http.StatusBadRequest)
+		return
+	}
+}
+
 func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {
 	currentStatus := currentProject.ProjectStatus
 	primaryStatusChanged := hasPrimaryStatusChanged(currentStatus, payload.ProjectStatusPrimary)
