@@ -129,12 +129,12 @@ func validateGetAdminSummaryRequestPayload(payload GetAdminSummaryRequest) (stri
 
 func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
 	fn, err := validateFormDateToDate(
-		payload.DashboardConfig.FromYear,
-		payload.DashboardConfig.FromMonth,
-		payload.DashboardConfig.FromDay,
-		payload.DashboardConfig.ToYear,
-		payload.DashboardConfig.ToMonth,
-		payload.DashboardConfig.ToDay,
+		payload.Dashboard.FromYear,
+		payload.Dashboard.FromMonth,
+		payload.Dashboard.FromDay,
+		payload.Dashboard.ToYear,
+		payload.Dashboard.ToMonth,
+		payload.Dashboard.ToDay,
 	)
 	if err != nil {
 		return fn, err

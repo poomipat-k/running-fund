@@ -369,7 +369,7 @@ type GetAdminDashboardDateConfigPreviewRequest struct {
 }
 
 type AdminUpdateWebsiteConfigRequest struct {
-	DashboardConfig DashboardConfig `json:"dashboardConfig,omitempty"`
+	Dashboard DashboardConfig `json:"dashboard,omitempty"`
 }
 
 type DashboardConfig struct {

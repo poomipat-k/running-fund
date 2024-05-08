@@ -277,12 +277,12 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	}
 	defer tx.Rollback()
 
-	needUpdateDashboardConfig, err := s.shouldUpdateDashboardConfig(payload.DashboardConfig)
+	needUpdateDashboardConfig, err := s.shouldUpdateDashboardConfig(payload.Dashboard)
 	if err != nil {
 		return err
 	}
 	if needUpdateDashboardConfig {
-		err := s.updateDashboardConfig(ctx, tx, payload.DashboardConfig)
+		err := s.updateDashboardConfig(ctx, tx, payload.Dashboard)
 		if err != nil {
 			return err
 		}
@@ -312,7 +312,7 @@ func (s *store) shouldUpdateDashboardConfig(payload DashboardConfig) (bool, erro
 		return false, err
 	}
 	newFromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	newToDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 0, 0, 0, 0, loc)
+	newToDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 	return (!curFromDate.Equal(newFromDate) || !curToDate.Equal(newToDate)), nil
 }
 
@@ -326,7 +326,7 @@ func (s *store) updateDashboardConfig(
 		return err
 	}
 	newFromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	newToDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 0, 0, 0, 0, loc)
+	newToDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 	var id int
 	err = tx.QueryRowContext(
 		ctx,
