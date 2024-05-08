@@ -72,7 +72,7 @@ func (h *ProjectHandler) GetAdminRequestDashboard(w http.ResponseWriter, r *http
 		orderByStmt += " DESC"
 	}
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 	records, err := h.store.GetAdminRequestDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset, payload.ProjectCode, payload.ProjectName, payload.ProjectStatus)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
@@ -106,7 +106,7 @@ func (h *ProjectHandler) GetAdminStartedDashboard(w http.ResponseWriter, r *http
 		orderByStmt += " DESC"
 	}
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 	records, err := h.store.GetAdminStartedDashboard(fromDate, toDate, orderByStmt, payload.PageSize, offset, payload.ProjectCode, payload.ProjectName, payload.ProjectStatus)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
@@ -133,7 +133,7 @@ func (h *ProjectHandler) GetAdminSummary(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 	records, err := h.store.GetAdminSummary(fromDate, toDate)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
@@ -159,8 +159,9 @@ func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Requ
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return
 	}
+	// fromDate <= project.created_at < toDate
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 
 	buffer, err := h.store.GenerateAdminReport(fromDate, toDate)
 	if err != nil {
@@ -190,7 +191,7 @@ func (h *ProjectHandler) GetAdminWebsiteDashboardDateConfigPreview(w http.Respon
 	}
 	offset := (payload.PageNo - 1) * payload.PageSize
 	fromDate := time.Date(payload.FromYear, time.Month(payload.FromMonth), payload.FromDay, 0, 0, 0, 0, loc)
-	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay, 23, 59, 59, 999999999, loc)
+	toDate := time.Date(payload.ToYear, time.Month(payload.ToMonth), payload.ToDay+1, 0, 0, 0, 0, loc)
 	records, err := h.store.GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate, payload.PageSize, offset)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)

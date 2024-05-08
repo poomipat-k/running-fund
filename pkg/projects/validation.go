@@ -192,7 +192,7 @@ func validateFormDateToDate(fromYear, fromMonth, fromDay, toYear, toMonth, toDay
 		return "timeLocation", nil
 	}
 	fromDate := time.Date(fromYear, time.Month(fromMonth), fromDay, 0, 0, 0, 0, loc)
-	toDate := time.Date(toYear, time.Month(toMonth), toDay, 23, 59, 59, 999999999, loc)
+	toDate := time.Date(toYear, time.Month(toMonth), toDay+1, 0, 0, 0, 0, loc)
 	if fromDate.After(toDate) {
 		return "fromDate", &FromDateExceedToDateError{}
 	}
