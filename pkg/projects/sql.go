@@ -367,7 +367,7 @@ const getAdminReportSQL = `
 SELECT 
 project_history.project_code as project_code,
 project_history.project_name as project_name,
-project_history.created_at as created_at,
+project.created_at as created_at,
 project_history.from_date as from_date,
 project_history.fund_approved_amount as fund_approved_amount
 FROM project
@@ -390,7 +390,7 @@ project_history.status as project_status
 FROM project 
 INNER JOIN project_history ON project.project_history_id = project_history.id
 WHERE project.created_at >= $1 AND project.created_at < $2
-ORDER BY project_history.created_at ASC
+ORDER BY project.created_at ASC
 LIMIT $3 OFFSET $4
 ;`
 

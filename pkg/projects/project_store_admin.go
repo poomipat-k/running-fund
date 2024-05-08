@@ -202,6 +202,10 @@ func (s *store) GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, 
 	headers := []string{"ลำดับ", "รหัสโครงการ", "ชื่อโครงการ", "วันที่ขอทุน", "วันที่ดำเนินโครงการ", "จำนวนเงินที่ได้รับ"}
 	items = append(items, headers)
 	count := 1
+	loc, err := getTimeLocation()
+	if err != nil {
+		return nil, err
+	}
 	for rows.Next() {
 		var row AdminReportRow
 		err := rows.Scan(
@@ -218,7 +222,11 @@ func (s *store) GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, 
 		if row.FundApprovedAmount != nil {
 			supportAmount = fmt.Sprint(*row.FundApprovedAmount)
 		}
-		csvRow := []string{fmt.Sprint(count), row.ProjectCode, row.ProjectName, row.CreatedAt.String(), row.FromDate.String(), fmt.Sprint(supportAmount)}
+		createdAtLocal := row.CreatedAt.In(loc)
+		createdAt := getDateString(createdAtLocal.Year(), int(createdAtLocal.Month()), createdAtLocal.Day())
+		fromDateLocal := row.FromDate.In(loc)
+		fromDate := getDateTimeString(fromDateLocal.Year(), int(fromDateLocal.Month()), fromDateLocal.Day(), fromDateLocal.Hour(), fromDateLocal.Minute())
+		csvRow := []string{fmt.Sprint(count), row.ProjectCode, row.ProjectName, createdAt, fromDate, fmt.Sprint(supportAmount)}
 		items = append(items, csvRow)
 		count++
 	}
