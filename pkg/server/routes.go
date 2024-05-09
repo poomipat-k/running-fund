@@ -14,7 +14,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/patrickmn/go-cache"
-
 	"github.com/poomipat-k/running-fund/pkg/address"
 	"github.com/poomipat-k/running-fund/pkg/assist"
 	"github.com/poomipat-k/running-fund/pkg/captcha"
@@ -23,8 +22,8 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
 	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
-
 	"github.com/poomipat-k/running-fund/pkg/users"
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 type Server struct{}
@@ -85,7 +84,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("API landing page"))
+			utils.WriteJSON(w, http.StatusOK, "API landing Page")
 		})
 
 		r.Get("/review/criteria/{criteriaVersion}", mw.IsLoggedIn(projectHandler.GetProjectCriteria))
