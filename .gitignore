@@ -33,6 +33,7 @@ notes
 
 # Docker compose
 docker-compose-staging.yaml
+docker-compose-prod.yaml
 
 # env
 .env.staging
