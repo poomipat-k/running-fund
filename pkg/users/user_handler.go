@@ -164,7 +164,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Name:     "authToken",
 		Value:    accessToken,
 		HttpOnly: true,
-		Secure:   true, // TODO: turn on when change to https
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/api",
 		Expires:  time.Unix(accessExpiredAtUnix, 0),
@@ -179,7 +179,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Name:     "refreshToken",
 		Value:    refreshToken,
 		HttpOnly: true,
-		Secure:   true, // TODO: turn on when change to https
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/api/v1/auth",
 		Expires:  time.Unix(refreshExpiredAtUnix, 0),
@@ -196,7 +196,7 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Name:     "authToken",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   true, // TODO: turn on when change to https
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/api",
 		Expires:  time.Now(),
@@ -206,7 +206,7 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Name:     "refreshToken",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   true, // TODO: turn on when change to https
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/api/v1/auth",
 		Expires:  time.Now(),
@@ -242,7 +242,7 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 			Name:     "authToken",
 			Value:    accessToken,
 			HttpOnly: true,
-			Secure:   true, // TODO: turn on when change to https
+			Secure:   true,
 			SameSite: http.SameSiteStrictMode,
 			Path:     "/api",
 			Expires:  time.Unix(accessExpiredAtUnix, 0),
@@ -305,7 +305,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resetPasswordCode := utils.RandAlphaNum(24)
-	resetPasswordLink := fmt.Sprintf("%s/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
+	resetPasswordLink := fmt.Sprintf("http://%s/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
 	rowEffected, err := h.store.ForgotPasswordAction(resetPasswordCode, user.Email, resetPasswordLink)
 	if err != nil {
 		fail(w, err, "")
