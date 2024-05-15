@@ -399,7 +399,8 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 	}
 
 	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
-	err = h.awsS3Service.UploadFilesToS3(additionFiles, objectPrefix)
+	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+	err = h.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)

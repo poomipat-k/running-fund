@@ -18,6 +18,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/address"
 	"github.com/poomipat-k/running-fund/pkg/assist"
 	"github.com/poomipat-k/running-fund/pkg/captcha"
+	"github.com/poomipat-k/running-fund/pkg/cms"
 	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -97,6 +98,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 	assistHandler := assist.NewAssistHandler(emailService)
 
+	cmsHandler := cms.NewCmsHandler(serverS3Service)
+
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			utils.WriteJSON(w, http.StatusOK, "API landing Page")
@@ -120,6 +123,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/admin/report", mw.IsAdmin(projectHandler.GenerateAdminReport))
 		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(projectHandler.GetAdminWebsiteDashboardDateConfigPreview))
 		r.Put("/admin/website/config", mw.IsAdmin(projectHandler.AdminUpdateWebsiteConfig))
+
+		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 

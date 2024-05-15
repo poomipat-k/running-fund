@@ -614,7 +614,8 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		return err
 	}
 
-	err = s.awsS3Service.DoUploadFileToS3(formPdfFile, fmt.Sprintf("%s/%s_แบบฟอร์ม.pdf", baseFilePrefix, projectCode))
+	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+	err = s.awsS3Service.DoUploadFileToS3(formPdfFile, bucketName, fmt.Sprintf("%s/%s_แบบฟอร์ม.pdf", baseFilePrefix, projectCode))
 	if err != nil {
 		return err
 	}
@@ -632,7 +633,6 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 
 	// close zip writer before upload to s3
 	attachmentsZipWriter.Close()
-
 	s3ZipPrefix := fmt.Sprintf("%s/zip", baseFilePrefix)
 	if *payload.Collaborated {
 		collaborationZipWriter.Close()
@@ -640,7 +640,7 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 		if err != nil {
 			return err
 		}
-		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, fmt.Sprintf("%s/%s", s3ZipPrefix, collaborationZipName))
+		err = s.awsS3Service.DoUploadFileToS3(collaborationZip, bucketName, fmt.Sprintf("%s/%s", s3ZipPrefix, collaborationZipName))
 		if err != nil {
 			return err
 		}
@@ -650,7 +650,7 @@ func (s *store) handleCreateProjectFiles(baseFilePrefix string, userId int, proj
 	if err != nil {
 		return err
 	}
-	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, fmt.Sprintf("%s/%s", s3ZipPrefix, attachmentsZipName))
+	err = s.awsS3Service.DoUploadFileToS3(attachmentsZip, bucketName, fmt.Sprintf("%s/%s", s3ZipPrefix, attachmentsZipName))
 	if err != nil {
 		return err
 	}

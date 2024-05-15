@@ -10,6 +10,8 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
+const PUT_PRESIGNED_DURATION_SECOND = 60
+
 type S3Handler struct {
 	// awsS3Service S3Service
 	presigner Presigner

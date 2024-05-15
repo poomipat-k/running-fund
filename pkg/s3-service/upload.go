@@ -50,8 +50,8 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 		}
 
 		s3ObjectKey := fmt.Sprintf("%s/%s", s3ObjectPrefix, fileName)
-
-		err = client.DoUploadFileToS3(file, s3ObjectKey)
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		err = client.DoUploadFileToS3(file, bucketName, s3ObjectKey)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 	return nil
 }
 
-func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3ObjectPrefix string) error {
+func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, bucketName, s3ObjectPrefix string) error {
 	for _, fileHeader := range files {
 		file, err := openFileFromFileHeader(fileHeader)
 		if err != nil {
@@ -69,8 +69,7 @@ func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3Object
 
 		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
 		s3ObjectKey := fmt.Sprintf("%s/%s", s3ObjectPrefix, fileName)
-
-		err = client.DoUploadFileToS3(file, s3ObjectKey)
+		err = client.DoUploadFileToS3(file, bucketName, s3ObjectKey)
 		if err != nil {
 			return err
 		}
@@ -78,8 +77,24 @@ func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3Object
 	return nil
 }
 
-func (client *S3Service) DoUploadFileToS3(file io.Reader, objectKey string) error {
-	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+// User supplied bucketName and objectKey
+func (client *S3Service) UploadFilesToS3WithObjectKey(files []*multipart.FileHeader, bucketName, s3ObjectKey string) error {
+	for _, fileHeader := range files {
+		file, err := openFileFromFileHeader(fileHeader)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		err = client.DoUploadFileToS3(file, bucketName, s3ObjectKey)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (client *S3Service) DoUploadFileToS3(file io.Reader, bucketName, objectKey string) error {
 	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),

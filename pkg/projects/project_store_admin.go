@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"mime/multipart"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -69,7 +70,9 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 
 	// upload additionFiles
 	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, projectCode)
-	err = s.awsS3Service.UploadFilesToS3(additionFiles, objectPrefix)
+
+	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+	err = s.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
 	if err != nil {
 		return err
 	}
