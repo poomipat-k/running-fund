@@ -33,7 +33,7 @@ func NewS3Service(s3Client *s3.Client) *S3Service {
 
 func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zipWriters []*zip.Writer, zipFilePrefix string, s3ObjectPrefix string) error {
 	for _, fileHeader := range files {
-		file, err := openFileFromFileHeader(fileHeader)
+		file, err := OpenFileFromFileHeader(fileHeader)
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 
 func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, bucketName, s3ObjectPrefix string) error {
 	for _, fileHeader := range files {
-		file, err := openFileFromFileHeader(fileHeader)
+		file, err := OpenFileFromFileHeader(fileHeader)
 		if err != nil {
 			return err
 		}
@@ -80,7 +80,7 @@ func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, bucketNa
 // User supplied bucketName and objectKey
 func (client *S3Service) UploadFilesToS3WithObjectKey(files []*multipart.FileHeader, bucketName, s3ObjectKey string) error {
 	for _, fileHeader := range files {
-		file, err := openFileFromFileHeader(fileHeader)
+		file, err := OpenFileFromFileHeader(fileHeader)
 		if err != nil {
 			return err
 		}
@@ -146,7 +146,7 @@ func isAllowedContentType(mimetype string) bool {
 }
 
 // openFile and validate file type
-func openFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
+func OpenFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
 	if fileHeader.Size > MAX_UPLOAD_SIZE {
 		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
 	}

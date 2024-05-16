@@ -368,8 +368,20 @@ type GetAdminDashboardDateConfigPreviewRequest struct {
 	PageSize  int `json:"pageSize,omitempty"`
 }
 
+type Banner struct {
+	Id        int    `json:"id,omitempty"`
+	LinkTo    string `json:"linkTo,omitempty"`
+	ObjectKey string `json:"objectKey,omitempty"`
+}
+
 type AdminUpdateWebsiteConfigRequest struct {
+	Landing   LandingConfig   `json:"landing,omitempty"`
 	Dashboard DashboardConfig `json:"dashboard,omitempty"`
+}
+
+type LandingConfig struct {
+	Banner  []Banner `json:"banner,omitempty"`
+	Content string   `json:"content,omitempty"`
 }
 
 type DashboardConfig struct {

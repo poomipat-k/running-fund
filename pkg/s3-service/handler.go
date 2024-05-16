@@ -1,18 +1,12 @@
 package s3Service
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
-	"time"
 
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
@@ -64,32 +58,4 @@ func (h *S3Handler) GeneratePresignedUrl(w http.ResponseWriter, r *http.Request)
 		utils.ErrorJSON(w, err, "presign")
 	}
 	utils.WriteJSON(w, http.StatusOK, presignedResult)
-}
-
-func (h *S3Handler) GetPresignedPutObject(w http.ResponseWriter, r *http.Request) {
-	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-	objectKey := "presigned/test-presigned.png"
-	lifetimeSecs := 300
-	request, err := h.generatePresignedPutObject(bucketName, objectKey, int64(lifetimeSecs))
-	if err != nil {
-		utils.ErrorJSON(w, err, "presigned", http.StatusBadRequest)
-		return
-	}
-	log.Println("===request:", request)
-	utils.WriteJSON(w, http.StatusOK, request)
-}
-
-func (h *S3Handler) generatePresignedPutObject(
-	bucketName string, objectKey string, lifetimeSecs int64) (*v4.PresignedHTTPRequest, error) {
-	request, err := h.presigner.PresignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-	}, func(opts *s3.PresignOptions) {
-		opts.Expires = time.Duration(lifetimeSecs * int64(time.Second))
-	})
-	if err != nil {
-		log.Printf("Couldn't get a presigned request to put %v:%v. Here's why: %v\n",
-			bucketName, objectKey, err)
-	}
-	return request, err
 }

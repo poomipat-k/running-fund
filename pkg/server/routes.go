@@ -125,7 +125,6 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Put("/admin/website/config", mw.IsAdmin(projectHandler.AdminUpdateWebsiteConfig))
 
 		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
-		r.Post("/admin/test/presigned", mw.IsAdmin(s3Handler.GetPresignedPutObject))
 
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
