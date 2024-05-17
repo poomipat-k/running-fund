@@ -148,6 +148,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/s3/presigned", mw.IsLoggedIn(s3Handler.GeneratePresignedUrl))
 		r.Post("/s3/objects", mw.IsLoggedIn(projectHandler.ListApplicantFiles))
+		r.Post("/s3/static/presigned/put", mw.IsAdmin(s3Handler.GetPresignedPutObjectForStaticBucket))
 
 		r.Post("/assist/contact-us", assistHandler.ContactUs)
 	})
