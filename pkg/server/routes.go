@@ -98,7 +98,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 	assistHandler := assist.NewAssistHandler(emailService)
 
-	cmsHandler := cms.NewCmsHandler(serverS3Service)
+	cmsStore := cms.NewStore(db, c)
+	cmsHandler := cms.NewCmsHandler(serverS3Service, cmsStore)
 
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +111,6 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/applicant/project/details/{projectCode}", mw.IsLoggedIn(projectHandler.GetApplicantProjectDetails))
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
-		r.Get("/project/review-period", mw.IsLoggedIn(projectHandler.GetReviewPeriod))
 		r.Post("/project/review/{projectCode}", mw.IsLoggedIn(projectHandler.GetReviewerProjectDetails))
 		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
@@ -121,8 +121,6 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/admin/dashboard/request", mw.IsAdmin(projectHandler.GetAdminRequestDashboard))
 		r.Post("/admin/dashboard/started", mw.IsAdmin(projectHandler.GetAdminStartedDashboard))
 		r.Post("/admin/report", mw.IsAdmin(projectHandler.GenerateAdminReport))
-		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(projectHandler.GetAdminWebsiteDashboardDateConfigPreview))
-		r.Put("/admin/website/config", mw.IsAdmin(projectHandler.AdminUpdateWebsiteConfig))
 
 		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
 
@@ -151,6 +149,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/s3/static/presigned/put", mw.IsAdmin(s3Handler.GetPresignedPutObjectForStaticBucket))
 
 		r.Post("/assist/contact-us", assistHandler.ContactUs)
+
+		r.Get("/project/review-period", mw.IsLoggedIn(cmsHandler.GetReviewPeriod))
+		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(cmsHandler.GetAdminWebsiteDashboardDateConfigPreview))
+		r.Put("/admin/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
 	})
 
 	return mux

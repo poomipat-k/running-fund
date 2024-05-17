@@ -127,20 +127,20 @@ func validateGetAdminSummaryRequestPayload(payload GetAdminSummaryRequest) (stri
 	return "", nil
 }
 
-func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
-	fn, err := validateFormDateToDate(
-		payload.Dashboard.FromYear,
-		payload.Dashboard.FromMonth,
-		payload.Dashboard.FromDay,
-		payload.Dashboard.ToYear,
-		payload.Dashboard.ToMonth,
-		payload.Dashboard.ToDay,
-	)
-	if err != nil {
-		return fn, err
-	}
-	return "", nil
-}
+// func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
+// 	fn, err := validateFormDateToDate(
+// 		payload.Dashboard.FromYear,
+// 		payload.Dashboard.FromMonth,
+// 		payload.Dashboard.FromDay,
+// 		payload.Dashboard.ToYear,
+// 		payload.Dashboard.ToMonth,
+// 		payload.Dashboard.ToDay,
+// 	)
+// 	if err != nil {
+// 		return fn, err
+// 	}
+// 	return "", nil
+// }
 
 func validateGenerateAdminReportRequest(payload GenerateAdminReportRequest) (string, error) {
 	fn, err := validateFormDateToDate(payload.FromYear, payload.FromMonth, payload.FromDay, payload.ToYear, payload.ToMonth, payload.ToDay)
@@ -151,21 +151,21 @@ func validateGenerateAdminReportRequest(payload GenerateAdminReportRequest) (str
 	return "", nil
 }
 
-func validateAdminWebsiteDashboardDateConfigPreviewRequest(payload GetAdminDashboardDateConfigPreviewRequest) (string, error) {
-	fn, err := validateFormDateToDate(payload.FromYear, payload.FromMonth, payload.FromDay, payload.ToYear, payload.ToMonth, payload.ToDay)
-	if err != nil {
-		return fn, err
-	}
+// func validateAdminWebsiteDashboardDateConfigPreviewRequest(payload GetAdminDashboardDateConfigPreviewRequest) (string, error) {
+// 	fn, err := validateFormDateToDate(payload.FromYear, payload.FromMonth, payload.FromDay, payload.ToYear, payload.ToMonth, payload.ToDay)
+// 	if err != nil {
+// 		return fn, err
+// 	}
 
-	if payload.PageNo <= 0 {
-		return "pageNo", &PageNoInvalidError{}
-	}
-	if payload.PageSize < 1 {
-		return "pageSize", &PageSizeInvalidError{}
-	}
+// 	if payload.PageNo <= 0 {
+// 		return "pageNo", &PageNoInvalidError{}
+// 	}
+// 	if payload.PageSize < 1 {
+// 		return "pageSize", &PageSizeInvalidError{}
+// 	}
 
-	return "", nil
-}
+// 	return "", nil
+// }
 
 func validateFormDateToDate(fromYear, fromMonth, fromDay, toYear, toMonth, toDay int) (string, error) {
 	if fromYear < minDashboardYear {

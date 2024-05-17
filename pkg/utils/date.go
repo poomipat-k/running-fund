@@ -1,5 +1,9 @@
 package utils
 
+import "time"
+
+const TIMEZONE = "Asia/Bangkok"
+
 var MonthMapThai = map[int]string{
 	1:  "มกราคม",
 	2:  "กุมภาพันธ์",
@@ -13,4 +17,12 @@ var MonthMapThai = map[int]string{
 	10: "ตุลาคม",
 	11: "พฤศจิกายน",
 	12: "ธันวาคม",
+}
+
+func GetTimeLocation() (*time.Location, error) {
+	loc, err := time.LoadLocation(TIMEZONE)
+	if err != nil {
+		return &time.Location{}, err
+	}
+	return loc, nil
 }

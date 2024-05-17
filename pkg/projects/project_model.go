@@ -15,11 +15,11 @@ type ReviewDashboardRow struct {
 	ReviewedAt       *time.Time `json:"reviewedAt,omitempty"`
 }
 
-type ReviewPeriod struct {
-	Id       int        `json:"id,omitempty"`
-	FromDate *time.Time `json:"fromDate,omitempty"`
-	ToDate   *time.Time `json:"toDate,omitempty"`
-}
+// type ReviewPeriod struct {
+// 	Id       int        `json:"id,omitempty"`
+// 	FromDate *time.Time `json:"fromDate,omitempty"`
+// 	ToDate   *time.Time `json:"toDate,omitempty"`
+// }
 
 type ProjectReviewDetailsResponse struct {
 	UserId               int                `json:"userId,omitempty"`
@@ -197,10 +197,10 @@ type AdminReportRow struct {
 	FundApprovedAmount *int64
 }
 
-type AdminDateConfigPreviewRow struct {
-	ProjectCode      string    `json:"projectCode,omitempty"`
-	ProjectCreatedAt time.Time `json:"projectCreatedAt,omitempty"`
-	ProjectName      string    `json:"projectName,omitempty"`
-	ProjectStatus    string    `json:"projectStatus,omitempty"`
-	Count            int       `json:"count,omitempty"`
-}
+// type AdminDateConfigPreviewRow struct {
+// 	ProjectCode      string    `json:"projectCode,omitempty"`
+// 	ProjectCreatedAt time.Time `json:"projectCreatedAt,omitempty"`
+// 	ProjectName      string    `json:"projectName,omitempty"`
+// 	ProjectStatus    string    `json:"projectStatus,omitempty"`
+// 	Count            int       `json:"count,omitempty"`
+// }
