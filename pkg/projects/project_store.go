@@ -47,22 +47,6 @@ var monthMap = map[string]string{
 
 const TIMEZONE = "Asia/Bangkok"
 
-// func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
-// 	var period ReviewPeriod
-// 	row := s.db.QueryRow(getReviewPeriodSQL)
-// 	err := row.Scan(&period.Id, &period.FromDate, &period.ToDate)
-// 	switch err {
-// 	case sql.ErrNoRows:
-// 		slog.Error("GetReviewPeriod(): no row were returned!")
-// 		return ReviewPeriod{}, err
-// 	case nil:
-// 		return period, nil
-// 	default:
-// 		slog.Error(err.Error())
-// 		return ReviewPeriod{}, fmt.Errorf("GetReviewPeriod() unknown error")
-// 	}
-// }
-
 func (s *store) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {
 	var projectId int
 	var projectStatus string
