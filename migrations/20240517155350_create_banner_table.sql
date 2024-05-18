@@ -2,7 +2,8 @@
 CREATE TABLE banner(
     id SERIAL PRIMARY KEY NOT NULL,
     full_path VARCHAR(255) NOT NULL,
-    link_to VARCHAR(512) NOT NULL,
+    object_key VARCHAR(255) NOT NULL,
+    link_to VARCHAR(512),
     website_config_id INT REFERENCES website_config (id)
 );
 

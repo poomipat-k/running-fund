@@ -127,17 +127,6 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 	utils.WriteJSON(w, http.StatusOK, projectDetails)
 }
 
-// func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
-// 	period, err := h.store.GetReviewPeriod()
-// 	if err != nil {
-// 		slog.Error(err.Error())
-// 		utils.ErrorJSON(w, err, "")
-// 		return
-// 	}
-
-// 	utils.WriteJSON(w, http.StatusOK, period)
-// }
-
 func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Request) {
 	criteriaVersion, err := strconv.Atoi(chi.URLParam(r, "criteriaVersion"))
 	if err != nil {

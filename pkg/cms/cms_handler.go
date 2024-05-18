@@ -25,6 +25,7 @@ type cmdStore interface {
 	GetReviewPeriod() (ReviewPeriod, error)
 	GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
 	AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
+	GetLandingPageContent() (LandingConfig, error)
 }
 
 func NewCmsHandler(awsS3Service s3Service.S3Service, store cmdStore) *CmsHandler {
@@ -82,6 +83,7 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 	})
 }
 
+// Admin date setting preview dashboard
 func (h *CmsHandler) GetAdminWebsiteDashboardDateConfigPreview(w http.ResponseWriter, r *http.Request) {
 	var payload GetAdminDashboardDateConfigPreviewRequest
 	err := utils.ReadJSON(w, r, &payload)
@@ -111,6 +113,16 @@ func (h *CmsHandler) GetAdminWebsiteDashboardDateConfigPreview(w http.ResponseWr
 	utils.WriteJSON(w, http.StatusOK, records)
 }
 
+// Get landing page content
+func (h *CmsHandler) GetLandingPageContent(w http.ResponseWriter, r *http.Request) {
+	data, err := h.store.GetLandingPageContent()
+	if err != nil {
+		utils.ErrorJSON(w, err, "store", http.StatusBadRequest)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, data)
+}
+
 func (h *CmsHandler) AdminUpdateWebsiteConfig(w http.ResponseWriter, r *http.Request) {
 	var payload AdminUpdateWebsiteConfigRequest
 	err := utils.ReadJSON(w, r, &payload)
@@ -125,7 +137,7 @@ func (h *CmsHandler) AdminUpdateWebsiteConfig(w http.ResponseWriter, r *http.Req
 	}
 	err = h.store.AdminUpdateWebsiteConfig(payload)
 	if err != nil {
-		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
+		utils.ErrorJSON(w, err, "Update website Config", http.StatusInternalServerError)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "Successfully updated website config"})

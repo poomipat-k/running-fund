@@ -25,10 +25,11 @@ type ReviewPeriod struct {
 }
 
 type Banner struct {
-	Id        int    `json:"id,omitempty"`
-	LinkTo    string `json:"linkTo,omitempty"`
-	ObjectKey string `json:"objectKey,omitempty"`
-	FullPath  string `json:"fullPath,omitempty"`
+	Id              int     `json:"id,omitempty"`
+	FullPath        string  `json:"fullPath,omitempty"`
+	ObjectKey       string  `json:"objectKey,omitempty"`
+	LinkTo          *string `json:"linkTo,omitempty"`
+	WebsiteConfigId *int    `json:"websiteConfigId,omitempty"`
 }
 
 type AdminUpdateWebsiteConfigRequest struct {
@@ -37,8 +38,9 @@ type AdminUpdateWebsiteConfigRequest struct {
 }
 
 type LandingConfig struct {
-	Banner  []Banner `json:"banner,omitempty"`
-	Content string   `json:"content,omitempty"`
+	WebsiteConfigId int      `json:"websiteConfigId,omitempty"`
+	Banner          []Banner `json:"banner,omitempty"`
+	Content         string   `json:"content,omitempty"`
 }
 
 type DashboardConfig struct {

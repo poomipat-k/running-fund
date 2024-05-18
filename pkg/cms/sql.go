@@ -24,3 +24,21 @@ const adminUpdateReviewerPeriodSQL = `
 INSERT INTO review_period (from_date, to_date)
 VALUES ($1, $2) RETURNING id;
 `
+
+const addWebsiteConfigSQL = `
+INSERT INTO website_config (landing_page)
+VALUES ($1) RETURNING id;
+`
+
+const getLandingPageContentSQL = `
+SELECT
+website_config.id as id,
+landing_page as landing_page
+FROM website_config
+ORDER BY website_config.id DESC LIMIT 1
+;
+`
+const getLandingPageBannerSQL = `
+SELECT  banner.full_path, banner.object_key, banner.link_to
+FROM banner WHERE banner.website_config_id = $1;
+`

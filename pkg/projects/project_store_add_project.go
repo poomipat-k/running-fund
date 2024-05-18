@@ -319,14 +319,14 @@ func addDistances(ctx context.Context, tx *sql.Tx, payload AddProjectRequest, pr
 		}
 	}
 
-	valuesStrStatement := []string{}
+	valuesStrPlaceholder := []string{}
 	values := []any{}
 
 	for i := 0; i < len(checkedDistances); i++ {
-		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
 		values = append(values, checkedDistances[i].Type, checkedDistances[i].Fee, checkedDistances[i].Dynamic, projectHistoryId)
 	}
-	customSQL := addManyDistanceSQL + strings.Join(valuesStrStatement, ",") + ";"
+	customSQL := addManyDistanceSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
 	if err != nil {
 		return 0, err
@@ -346,12 +346,12 @@ func addApplicantScores(
 	projectHistoryId int,
 	criteriaList []ApplicantSelfScoreCriteria,
 ) (int64, error) {
-	valuesStrStatement := []string{}
+	valuesStrPlaceholder := []string{}
 	values := []any{}
 	scores := payload.Details.Score
 
 	for i := 0; i < len(criteriaList); i++ {
-		valuesStrStatement = append(valuesStrStatement, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
 		scoreName := fmt.Sprintf("q_%d_%d", criteriaList[i].CriteriaVersion, criteriaList[i].OrderNumber)
 		score, exist := scores[scoreName]
 		if !exist {
@@ -360,7 +360,7 @@ func addApplicantScores(
 		values = append(values, projectHistoryId, criteriaList[i].Id, score)
 	}
 
-	customSQL := addManyApplicantScoreSQL + strings.Join(valuesStrStatement, ",") + ";"
+	customSQL := addManyApplicantScoreSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
 	if err != nil {
 		return 0, err
