@@ -152,7 +152,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Get("/project/review-period", mw.IsLoggedIn(cmsHandler.GetReviewPeriod))
 		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(cmsHandler.GetAdminWebsiteDashboardDateConfigPreview))
-		r.Put("/admin/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
+		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
 
 		r.Get("/content/landing", cmsHandler.GetLandingPageContent)
 	})

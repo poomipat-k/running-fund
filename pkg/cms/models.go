@@ -35,6 +35,7 @@ type Banner struct {
 type AdminUpdateWebsiteConfigRequest struct {
 	Landing   LandingConfig   `json:"landing,omitempty"`
 	Dashboard DashboardConfig `json:"dashboard,omitempty"`
+	Faq       []FAQ           `json:"faq,omitempty"`
 }
 
 type LandingConfig struct {
@@ -50,6 +51,12 @@ type DashboardConfig struct {
 	ToYear    int `json:"toYear,omitempty"`
 	ToMonth   int `json:"toMonth,omitempty"`
 	ToDay     int `json:"toDay,omitempty"`
+}
+
+type FAQ struct {
+	Id       int    `json:"id,omitempty"`
+	Question string `json:"question,omitempty"`
+	Answer   string `json:"answer,omitempty"`
 }
 
 type CommonSuccessResponse struct {
