@@ -62,7 +62,7 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	fileHeader := banner[0]
-	prefix := "cms/banner"
+	prefix := "cms/landing_banner"
 	objectKey := fmt.Sprintf("%s/%s_%d%s", prefix, strings.Split(fileHeader.Filename, ".")[0], time.Now().Unix(), filepath.Ext(fileHeader.Filename))
 	err := h.awsS3Service.UploadFilesToS3WithObjectKey(banner, bucketName, objectKey)
 	if err != nil {
