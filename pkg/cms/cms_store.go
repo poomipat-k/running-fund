@@ -90,7 +90,7 @@ func (s *store) GetLandingPageContent() (LandingConfig, error) {
 	if err != nil {
 		return LandingConfig{}, err
 	}
-	// Fetch data from the db
+	// Fetch banners from the db
 	rows, err := s.db.Query(getLandingPageBannerSQL, configId)
 	if err != nil {
 		return LandingConfig{}, err
@@ -100,17 +100,17 @@ func (s *store) GetLandingPageContent() (LandingConfig, error) {
 	var banners []Banner
 	for rows.Next() {
 		var row Banner
-		err := rows.Scan(&row.FullPath, &row.ObjectKey, &row.LinkTo)
+		err := rows.Scan(&row.Id, &row.FullPath, &row.ObjectKey, &row.LinkTo)
 		if err != nil {
 			return LandingConfig{}, err
 		}
 		banners = append(banners, row)
 	}
-
 	err = rows.Err()
 	if err != nil {
 		return LandingConfig{}, err
 	}
+
 	responseBody := LandingConfig{
 		WebsiteConfigId: configId,
 		Content:         landingContent,
@@ -139,12 +139,12 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	}
 	log.Println("==webConfigId", webConfigId)
 	// Landing banner
-	bannerAddedCount, err := s.addLandingPageBanners(ctx, tx, payload.Landing.Banner, webConfigId)
-	if err != nil {
-		return err
+	if len(payload.Landing.Banner) > 0 {
+		_, err := s.addLandingPageBanners(ctx, tx, payload.Landing.Banner, webConfigId)
+		if err != nil {
+			return err
+		}
 	}
-	log.Println("===bannerAddedCount", bannerAddedCount)
-
 	// Dashboard
 	needUpdateDashboardConfig, err := s.shouldUpdateDashboardConfig(payload.Dashboard)
 	if err != nil {
