@@ -26,6 +26,7 @@ type cmdStore interface {
 	GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
 	AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
 	GetLandingPageContent() (LandingConfig, error)
+	GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error)
 }
 
 func NewCmsHandler(awsS3Service s3Service.S3Service, store cmdStore) *CmsHandler {
@@ -123,6 +124,15 @@ func (h *CmsHandler) GetLandingPageContent(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusOK, data)
 }
 
+func (h *CmsHandler) GetWebsiteConfigData(w http.ResponseWriter, r *http.Request) {
+	data, err := h.store.GetWebsiteConfigData()
+	if err != nil {
+		utils.ErrorJSON(w, err, "store", http.StatusBadRequest)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, data)
+}
+
 func (h *CmsHandler) AdminUpdateWebsiteConfig(w http.ResponseWriter, r *http.Request) {
 	var payload AdminUpdateWebsiteConfigRequest
 	err := utils.ReadJSON(w, r, &payload)
@@ -154,6 +164,27 @@ func validateAdminWebsiteDashboardDateConfigPreviewRequest(payload GetAdminDashb
 	}
 	if payload.PageSize < 1 {
 		return "pageSize", &PageSizeInvalidError{}
+	}
+
+	return "", nil
+}
+
+func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
+	fn, err := validateFormDateToDate(
+		payload.Dashboard.FromYear,
+		payload.Dashboard.FromMonth,
+		payload.Dashboard.FromDay,
+		payload.Dashboard.ToYear,
+		payload.Dashboard.ToMonth,
+		payload.Dashboard.ToDay,
+	)
+	if err != nil {
+		return fn, err
+	}
+
+	fn, err = validateFaq(payload.Faq)
+	if err != nil {
+		return fn, err
 	}
 
 	return "", nil
@@ -191,17 +222,16 @@ func validateFormDateToDate(fromYear, fromMonth, fromDay, toYear, toMonth, toDay
 	return "", nil
 }
 
-func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
-	fn, err := validateFormDateToDate(
-		payload.Dashboard.FromYear,
-		payload.Dashboard.FromMonth,
-		payload.Dashboard.FromDay,
-		payload.Dashboard.ToYear,
-		payload.Dashboard.ToMonth,
-		payload.Dashboard.ToDay,
-	)
-	if err != nil {
-		return fn, err
+func validateFaq(faqList []FAQ) (string, error) {
+	for i, faq := range faqList {
+		if faq.Question == "" {
+			fn := fmt.Sprintf("question[%d]", i)
+			return fn, fmt.Errorf("%s is empty", fn)
+		}
+		if faq.Answer == "" {
+			fn := fmt.Sprintf("answer[%d]", i)
+			return fn, fmt.Errorf("%s is empty", fn)
+		}
 	}
 	return "", nil
 }

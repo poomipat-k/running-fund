@@ -42,3 +42,8 @@ const getLandingPageBannerSQL = `
 SELECT  banner.id, banner.full_path, banner.object_key, banner.link_to
 FROM banner WHERE banner.website_config_id = $1;
 `
+
+const getLandingPageFaqSQL = `
+SELECT  faq.id, faq.question, faq.answer
+FROM faq WHERE faq.website_config_id = $1;
+`

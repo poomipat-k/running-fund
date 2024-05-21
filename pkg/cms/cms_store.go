@@ -14,6 +14,7 @@ import (
 )
 
 const CONTENT_LANDING_PAGE_CACHE_KEY = "content_landing_page"
+const CONTENT_CMS_DATA_CACHE_KEY = "content_cms"
 
 type store struct {
 	db *sql.DB
@@ -91,22 +92,7 @@ func (s *store) GetLandingPageContent() (LandingConfig, error) {
 		return LandingConfig{}, err
 	}
 	// Fetch banners from the db
-	rows, err := s.db.Query(getLandingPageBannerSQL, configId)
-	if err != nil {
-		return LandingConfig{}, err
-	}
-	defer rows.Close()
-
-	var banners []Banner
-	for rows.Next() {
-		var row Banner
-		err := rows.Scan(&row.Id, &row.FullPath, &row.ObjectKey, &row.LinkTo)
-		if err != nil {
-			return LandingConfig{}, err
-		}
-		banners = append(banners, row)
-	}
-	err = rows.Err()
+	banners, err := s.getLandingPageBanners(configId)
 	if err != nil {
 		return LandingConfig{}, err
 	}
@@ -120,6 +106,79 @@ func (s *store) GetLandingPageContent() (LandingConfig, error) {
 	s.c.Set(CONTENT_LANDING_PAGE_CACHE_KEY, responseBody, cache.NoExpiration)
 
 	return responseBody, nil
+}
+
+// Website cms data
+func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) {
+	// check cache first
+	raw, found := s.c.Get(CONTENT_CMS_DATA_CACHE_KEY)
+	if found {
+		cachedData, ok := raw.(AdminUpdateWebsiteConfigRequest)
+		if ok {
+			return cachedData, nil
+		}
+	}
+	// Fetch data from db
+	landingPage, err := s.GetLandingPageContent()
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, err
+	}
+
+	faqList, err := s.getFAQ(landingPage.WebsiteConfigId)
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, err
+	}
+
+	return AdminUpdateWebsiteConfigRequest{
+		Landing: landingPage,
+		Faq:     faqList,
+	}, nil
+}
+
+func (s *store) getFAQ(websiteConfigId int) ([]FAQ, error) {
+	rows, err := s.db.Query(getLandingPageFaqSQL, websiteConfigId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var faqList []FAQ
+	for rows.Next() {
+		var row FAQ
+		err := rows.Scan(&row.Id, &row.Question, &row.Answer)
+		if err != nil {
+			return nil, err
+		}
+		faqList = append(faqList, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return faqList, nil
+}
+
+func (s *store) getLandingPageBanners(websiteConfigId int) ([]Banner, error) {
+	rows, err := s.db.Query(getLandingPageBannerSQL, websiteConfigId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var banners []Banner
+	for rows.Next() {
+		var row Banner
+		err := rows.Scan(&row.Id, &row.FullPath, &row.ObjectKey, &row.LinkTo)
+		if err != nil {
+			return nil, err
+		}
+		banners = append(banners, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return banners, nil
 }
 
 func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error {
@@ -156,6 +215,15 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 			return err
 		}
 	}
+
+	// FAQ
+	if len(payload.Faq) > 0 {
+		_, err := s.addLandingPageFaqList(ctx, tx, payload.Faq, webConfigId)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		return err
@@ -195,6 +263,32 @@ func (s *store) addLandingPageBanners(ctx context.Context, tx *sql.Tx, banners [
 	result, err := stmt.ExecContext(ctx, values...)
 	if err != nil {
 		slog.Error("execContext on add banners sql", "error", err)
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (s *store) addLandingPageFaqList(ctx context.Context, tx *sql.Tx, faqList []FAQ, websiteConfigId int) (int64, error) {
+	const initialSQL = `
+	INSERT INTO faq (question, answer, website_config_id)
+	VALUES 
+	`
+
+	valuesStrPlaceholder := []string{}
+	values := []any{}
+	for i, faq := range faqList {
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
+		values = append(values, faq.Question, faq.Answer, websiteConfigId)
+	}
+	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
+	stmt, err := tx.Prepare(customSQL)
+	if err != nil {
+		slog.Error("error prepare add faqs sql", "error", err)
+		return 0, err
+	}
+	result, err := stmt.ExecContext(ctx, values...)
+	if err != nil {
+		slog.Error("execContext on add faqs sql", "error", err)
 		return 0, err
 	}
 	return result.RowsAffected()
