@@ -15,6 +15,13 @@ import (
 
 const CONTENT_LANDING_PAGE_CACHE_KEY = "content_landing_page"
 const CONTENT_CMS_DATA_CACHE_KEY = "content_cms"
+const CONTENT_FAQ_CACHE_KEY = "content_faq"
+
+var ReCacheOnUpdateCmsData = []string{
+	CONTENT_LANDING_PAGE_CACHE_KEY,
+	CONTENT_CMS_DATA_CACHE_KEY,
+	CONTENT_FAQ_CACHE_KEY,
+}
 
 type store struct {
 	db *sql.DB
@@ -139,7 +146,7 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) 
 	locToDate := toDate.Add(time.Duration(-1 * time.Minute)).In(loc)
 
 	// faq
-	faqList, err := s.getFAQ(landingPage.WebsiteConfigId)
+	faqList, err := s.GetFAQ()
 	if err != nil {
 		return AdminUpdateWebsiteConfigRequest{}, err
 	}
@@ -162,7 +169,23 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) 
 	return cmsData, nil
 }
 
-func (s *store) getFAQ(websiteConfigId int) ([]FAQ, error) {
+func (s *store) GetFAQ() ([]FAQ, error) {
+	// check cache first
+	raw, found := s.c.Get(CONTENT_FAQ_CACHE_KEY)
+	if found {
+		cachedData, ok := raw.([]FAQ)
+		if ok {
+			return cachedData, nil
+		}
+	}
+
+	// fetch from db
+	var websiteConfigId int
+	row := s.db.QueryRow(getLatestWebsiteConfigIdSQL)
+	err := row.Scan(&websiteConfigId)
+	if err != nil {
+		return nil, err
+	}
 	rows, err := s.db.Query(getLandingPageFaqSQL, websiteConfigId)
 	if err != nil {
 		return nil, err
@@ -182,6 +205,9 @@ func (s *store) getFAQ(websiteConfigId int) ([]FAQ, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Set cache
+	s.c.Set(CONTENT_FAQ_CACHE_KEY, faqList, cache.NoExpiration)
 	return faqList, nil
 }
 
@@ -256,8 +282,9 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 		return err
 	}
 	// Remove cache to have it refreshed later on the first visit
-	s.c.Delete(CONTENT_LANDING_PAGE_CACHE_KEY)
-	s.c.Delete(CONTENT_CMS_DATA_CACHE_KEY)
+	for _, cacheKey := range ReCacheOnUpdateCmsData {
+		s.c.Delete(cacheKey)
+	}
 	return nil
 }
 

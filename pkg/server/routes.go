@@ -155,6 +155,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
 
 		r.Get("/content/landing", cmsHandler.GetLandingPageContent)
+		r.Get("/content/faq", cmsHandler.GetFAQ)
+
 		r.Get("/content/cms", mw.IsAdmin(cmsHandler.GetWebsiteConfigData))
 	})
 

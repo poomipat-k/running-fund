@@ -38,6 +38,14 @@ FROM website_config
 ORDER BY website_config.id DESC LIMIT 1
 ;
 `
+const getLatestWebsiteConfigIdSQL = `
+SELECT
+website_config.id as id
+FROM website_config
+ORDER BY website_config.id DESC LIMIT 1
+;
+`
+
 const getLandingPageBannerSQL = `
 SELECT  banner.id, banner.full_path, banner.object_key, banner.link_to
 FROM banner WHERE banner.website_config_id = $1;
