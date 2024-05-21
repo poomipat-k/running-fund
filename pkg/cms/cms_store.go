@@ -211,16 +211,16 @@ func (s *store) GetFAQ() ([]FAQ, error) {
 	return faqList, nil
 }
 
-func (s *store) getLandingPageBanners(websiteConfigId int) ([]Banner, error) {
+func (s *store) getLandingPageBanners(websiteConfigId int) ([]Image, error) {
 	rows, err := s.db.Query(getLandingPageBannerSQL, websiteConfigId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var banners []Banner
+	var banners []Image
 	for rows.Next() {
-		var row Banner
+		var row Image
 		err := rows.Scan(&row.Id, &row.FullPath, &row.ObjectKey, &row.LinkTo)
 		if err != nil {
 			return nil, err
@@ -276,11 +276,13 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 			return err
 		}
 	}
+	// Footer
 
 	err = tx.Commit()
 	if err != nil {
 		return err
 	}
+
 	// Remove cache to have it refreshed later on the first visit
 	for _, cacheKey := range ReCacheOnUpdateCmsData {
 		s.c.Delete(cacheKey)
@@ -297,17 +299,17 @@ func (s *store) addWebsiteConfig(ctx context.Context, tx *sql.Tx, payload AdminU
 	return id, nil
 }
 
-func (s *store) addLandingPageBanners(ctx context.Context, tx *sql.Tx, banners []Banner, websiteConfigId int) (int64, error) {
+func (s *store) addLandingPageBanners(ctx context.Context, tx *sql.Tx, banners []Image, websiteConfigId int) (int64, error) {
 	const initialSQL = `
-	INSERT INTO banner (full_path, object_key, link_to, website_config_id)
+	INSERT INTO website_image (code, full_path, object_key, link_to, website_config_id)
 	VALUES 
 	`
 
 	valuesStrPlaceholder := []string{}
 	values := []any{}
 	for i, banner := range banners {
-		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
-		values = append(values, banner.FullPath, banner.ObjectKey, banner.LinkTo, websiteConfigId)
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", 5*i+1, 5*i+2, 5*i+3, 5*i+4, 5*i+5))
+		values = append(values, "banner", banner.FullPath, banner.ObjectKey, banner.LinkTo, websiteConfigId)
 	}
 	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)

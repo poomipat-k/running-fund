@@ -47,8 +47,8 @@ ORDER BY website_config.id DESC LIMIT 1
 `
 
 const getLandingPageBannerSQL = `
-SELECT  banner.id, banner.full_path, banner.object_key, banner.link_to
-FROM banner WHERE banner.website_config_id = $1;
+SELECT  website_image.id, website_image.full_path, website_image.object_key, website_image.link_to
+FROM website_image WHERE website_image.website_config_id = $1;
 `
 
 const getLandingPageFaqSQL = `

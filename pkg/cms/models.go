@@ -24,7 +24,7 @@ type ReviewPeriod struct {
 	ToDate   *time.Time `json:"toDate,omitempty"`
 }
 
-type Banner struct {
+type Image struct {
 	Id              int     `json:"id,omitempty"`
 	FullPath        string  `json:"fullPath,omitempty"`
 	ObjectKey       string  `json:"objectKey,omitempty"`
@@ -36,12 +36,13 @@ type AdminUpdateWebsiteConfigRequest struct {
 	Landing   LandingConfig   `json:"landing,omitempty"`
 	Dashboard DashboardConfig `json:"dashboard,omitempty"`
 	Faq       []FAQ           `json:"faq,omitempty"`
+	Footer    FooterConfig    `json:"footer,omitempty"`
 }
 
 type LandingConfig struct {
-	WebsiteConfigId int      `json:"websiteConfigId,omitempty"`
-	Banner          []Banner `json:"banner,omitempty"`
-	Content         string   `json:"content,omitempty"`
+	WebsiteConfigId int     `json:"websiteConfigId,omitempty"`
+	Banner          []Image `json:"banner,omitempty"`
+	Content         string  `json:"content,omitempty"`
 }
 
 type DashboardConfig struct {
@@ -59,6 +60,20 @@ type FAQ struct {
 	Answer   string `json:"answer,omitempty"`
 }
 
+type FooterConfig struct {
+	Logo    []Image       `json:"logo,omitempty"`
+	Contact FooterContact `json:"contact,omitempty"`
+}
+
+type FooterContact struct {
+	Email       string `json:"email,omitempty"`
+	PhoneNumber string `json:"phoneNumber,omitempty"`
+	FromHour    string `json:"fromHour,omitempty"`
+	FromMinute  string `json:"fromMinute,omitempty"`
+	ToHour      string `json:"toHour,omitempty"`
+	ToMinute    string `json:"toMinute,omitempty"`
+}
+
 type CommonSuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
@@ -70,4 +85,9 @@ type AdminDateConfigPreviewRow struct {
 	ProjectName      string    `json:"projectName,omitempty"`
 	ProjectStatus    string    `json:"projectStatus,omitempty"`
 	Count            int       `json:"count,omitempty"`
+}
+
+type UploadFileRequest struct {
+	Name       string `json:"name,omitempty"`
+	PathPrefix string `json:"pathPrefix,omitempty"`
 }

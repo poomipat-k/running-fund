@@ -1,6 +1,7 @@
 package cms
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -53,9 +54,26 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
-	banner := r.MultipartForm.File["banner"]
-	if len(banner) == 0 {
-		utils.ErrorJSON(w, errors.New("banner is empty"), "banner", http.StatusBadRequest)
+	formJsonString := r.FormValue("form")
+	payload := UploadFileRequest{}
+	err := json.Unmarshal([]byte(formJsonString), &payload)
+	if err != nil {
+		utils.ErrorJSON(w, err, "")
+		return
+	}
+
+	if payload.Name == "" {
+		utils.ErrorJSON(w, errors.New("empty upload formData name"), "name")
+		return
+	}
+	if payload.PathPrefix == "" {
+		utils.ErrorJSON(w, errors.New("empty upload formData pathPrefix"), "pathPrefix")
+		return
+	}
+
+	fileHeaders := r.MultipartForm.File[payload.Name]
+	if len(fileHeaders) == 0 {
+		utils.ErrorJSON(w, fmt.Errorf("%s is empty", payload.Name), payload.Name, http.StatusBadRequest)
 		return
 	}
 	bucketName := os.Getenv("AWS_S3_STATIC_BUCKET_NAME")
@@ -63,10 +81,9 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 		utils.ErrorJSON(w, errors.New("AWS_S3_STATIC_BUCKET_NAME is empty"), "AWS_S3_STATIC_BUCKET_NAME", http.StatusInternalServerError)
 		return
 	}
-	fileHeader := banner[0]
-	prefix := "cms/landing_banner"
-	objectKey := fmt.Sprintf("%s/%s_%d%s", prefix, strings.Split(fileHeader.Filename, ".")[0], time.Now().Unix(), filepath.Ext(fileHeader.Filename))
-	err := h.awsS3Service.UploadFilesToS3WithObjectKey(banner, bucketName, objectKey)
+	fileHeader := fileHeaders[0]
+	objectKey := fmt.Sprintf("%s/%s_%d%s", payload.PathPrefix, strings.Split(fileHeader.Filename, ".")[0], time.Now().Unix(), filepath.Ext(fileHeader.Filename))
+	err = h.awsS3Service.UploadFilesToS3WithObjectKey(fileHeaders, bucketName, objectKey)
 	if err != nil {
 		utils.ErrorJSON(w, err, "s3Upload", http.StatusInternalServerError)
 		return

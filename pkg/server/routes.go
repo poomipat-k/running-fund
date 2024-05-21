@@ -122,8 +122,6 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Post("/admin/dashboard/started", mw.IsAdmin(projectHandler.GetAdminStartedDashboard))
 		r.Post("/admin/report", mw.IsAdmin(projectHandler.GenerateAdminReport))
 
-		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
-
 		r.Post("/project/review", mw.IsReviewer(reviewHandler.AddReview))
 
 		r.Post("/user/activate-email", userHandler.ActivateUser)
@@ -158,6 +156,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/content/faq", cmsHandler.GetFAQ)
 
 		r.Get("/content/cms", mw.IsAdmin(cmsHandler.GetWebsiteConfigData))
+		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
 	})
 
 	return mux
