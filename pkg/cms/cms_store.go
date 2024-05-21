@@ -257,6 +257,7 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	}
 	// Remove cache to have it refreshed later on the first visit
 	s.c.Delete(CONTENT_LANDING_PAGE_CACHE_KEY)
+	s.c.Delete(CONTENT_CMS_DATA_CACHE_KEY)
 	return nil
 }
 
