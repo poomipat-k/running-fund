@@ -119,20 +119,47 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) 
 		}
 	}
 	// Fetch data from db
+	// landing
 	landingPage, err := s.GetLandingPageContent()
 	if err != nil {
 		return AdminUpdateWebsiteConfigRequest{}, err
 	}
+	// dashboard
+	period, err := s.GetReviewPeriod()
+	if err != nil && err != sql.ErrNoRows {
+		return AdminUpdateWebsiteConfigRequest{}, err
+	}
+	fromDate := *period.FromDate
+	toDate := *period.ToDate
+	loc, err := utils.GetTimeLocation()
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, err
+	}
+	locFromDate := fromDate.In(loc)
+	locToDate := toDate.Add(time.Duration(-1 * time.Minute)).In(loc)
 
+	// faq
 	faqList, err := s.getFAQ(landingPage.WebsiteConfigId)
 	if err != nil {
 		return AdminUpdateWebsiteConfigRequest{}, err
 	}
 
-	return AdminUpdateWebsiteConfigRequest{
+	cmsData := AdminUpdateWebsiteConfigRequest{
 		Landing: landingPage,
-		Faq:     faqList,
-	}, nil
+		Dashboard: DashboardConfig{
+			FromYear:  locFromDate.Year(),
+			FromMonth: int(locFromDate.Month()),
+			FromDay:   locFromDate.Day(),
+			ToYear:    locToDate.Year(),
+			ToMonth:   int(locToDate.Month()),
+			ToDay:     locToDate.Day(),
+		},
+		Faq: faqList,
+	}
+	// Set cache
+	s.c.Set(CONTENT_CMS_DATA_CACHE_KEY, cmsData, cache.NoExpiration)
+
+	return cmsData, nil
 }
 
 func (s *store) getFAQ(websiteConfigId int) ([]FAQ, error) {
