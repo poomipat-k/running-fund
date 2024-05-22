@@ -55,3 +55,23 @@ const getLandingPageFaqSQL = `
 SELECT  faq.id, faq.question, faq.answer
 FROM faq WHERE faq.website_config_id = $1;
 `
+
+const getFooterLogoSQL = `
+SELECT  
+website_image.id, 
+website_image.full_path, 
+website_image.object_key, 
+website_image.link_to
+FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2;
+`
+
+const getLatestWebsiteConfigWithFooterSQL = `
+SELECT
+website_config.id as id,
+website_config.footer_email as footer_email,
+website_config.footer_phone_number as footer_phone_number,
+website_config.footer_operate_hour as footer_operate_hour
+FROM website_config
+ORDER BY website_config.id DESC LIMIT 1
+;
+`

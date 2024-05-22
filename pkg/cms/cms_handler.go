@@ -29,6 +29,7 @@ type cmdStore interface {
 	GetLandingPageContent() (LandingConfig, error)
 	GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string, error)
 	GetFAQ() ([]FAQ, error)
+	GetFooter() (FooterResponse, error)
 }
 
 func NewCmsHandler(awsS3Service s3Service.S3Service, store cmdStore) *CmsHandler {
@@ -149,6 +150,15 @@ func (h *CmsHandler) GetFAQ(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, faqList)
+}
+
+func (h *CmsHandler) GetFooter(w http.ResponseWriter, r *http.Request) {
+	footer, err := h.store.GetFooter()
+	if err != nil {
+		utils.ErrorJSON(w, err, "store", http.StatusBadRequest)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, footer)
 }
 
 func (h *CmsHandler) GetWebsiteConfigData(w http.ResponseWriter, r *http.Request) {

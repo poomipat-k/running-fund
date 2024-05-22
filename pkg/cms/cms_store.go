@@ -16,11 +16,13 @@ import (
 const CONTENT_LANDING_PAGE_CACHE_KEY = "content_landing_page"
 const CONTENT_CMS_DATA_CACHE_KEY = "content_cms"
 const CONTENT_FAQ_CACHE_KEY = "content_faq"
+const CONTENT_FOOTER_CACHE_KEY = "content_footer"
 
 var ReCacheOnUpdateCmsData = []string{
 	CONTENT_LANDING_PAGE_CACHE_KEY,
 	CONTENT_CMS_DATA_CACHE_KEY,
 	CONTENT_FAQ_CACHE_KEY,
+	CONTENT_FOOTER_CACHE_KEY,
 }
 
 type store struct {
@@ -151,6 +153,13 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 		return AdminUpdateWebsiteConfigRequest{}, "faq", err
 	}
 
+	// footer
+	footer, err := s.GetFooter()
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, "faq", err
+	}
+	operatingHour := getOperatingHourFromStr(footer.Contact.OperatingHour)
+
 	cmsData := AdminUpdateWebsiteConfigRequest{
 		Landing: landingPage,
 		Dashboard: DashboardConfig{
@@ -162,11 +171,84 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 			ToDay:     locToDate.Day(),
 		},
 		Faq: faqList,
+		Footer: FooterConfig{
+			Logo: footer.Logo,
+			Contact: FooterContact{
+				Email:       footer.Contact.Email,
+				PhoneNumber: footer.Contact.PhoneNumber,
+				FromHour:    operatingHour[0],
+				FromMinute:  operatingHour[1],
+				ToHour:      operatingHour[2],
+				ToMinute:    operatingHour[3],
+			},
+		},
 	}
 	// Set cache
 	s.c.Set(CONTENT_CMS_DATA_CACHE_KEY, cmsData, cache.NoExpiration)
 
 	return cmsData, "", nil
+}
+
+func getOperatingHourFromStr(s string) []string {
+	trim := strings.Trim(s, " น.")
+	split := strings.Split(trim, " - ")
+	if len(split) != 2 {
+		return []string{"", "", "", ""}
+	}
+	result := []string{}
+	for _, str := range split {
+		sp := strings.Split(str, ".")
+		result = append(result, sp...)
+	}
+	if len(result) != 4 {
+		return []string{"", "", "", ""}
+	}
+	return result
+}
+
+func (s *store) GetFooter() (FooterResponse, error) {
+	// check cache first
+	raw, found := s.c.Get(CONTENT_FOOTER_CACHE_KEY)
+	if found {
+		cachedData, ok := raw.(FooterResponse)
+		if ok {
+			log.Println("===cachedData", cachedData)
+			return cachedData, nil
+		}
+	}
+
+	var footerData FooterResponse
+	row := s.db.QueryRow(getLatestWebsiteConfigWithFooterSQL)
+	err := row.Scan(&footerData.Id, &footerData.Contact.Email, &footerData.Contact.PhoneNumber, &footerData.Contact.OperatingHour)
+	if err != nil {
+		return FooterResponse{}, err
+	}
+
+	// logos
+	rows, err := s.db.Query(getFooterLogoSQL, footerData.Id, "footer_logo")
+	if err != nil {
+		return FooterResponse{}, err
+	}
+	defer rows.Close()
+
+	var logoList []Image
+	for rows.Next() {
+		var row Image
+		err := rows.Scan(&row.Id, &row.FullPath, &row.ObjectKey, &row.LinkTo)
+		if err != nil {
+			return FooterResponse{}, err
+		}
+		logoList = append(logoList, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return FooterResponse{}, err
+	}
+
+	footerData.Logo = logoList
+	// Set cache
+	s.c.Set(CONTENT_FOOTER_CACHE_KEY, footerData, cache.NoExpiration)
+	return footerData, nil
 }
 
 func (s *store) GetFAQ() ([]FAQ, error) {
@@ -288,7 +370,7 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	if err != nil {
 		return err
 	}
-
+	log.Println("===committed!")
 	// Remove cache to have it refreshed later on the first visit
 	for _, cacheKey := range ReCacheOnUpdateCmsData {
 		s.c.Delete(cacheKey)

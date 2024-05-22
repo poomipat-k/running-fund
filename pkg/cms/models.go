@@ -74,6 +74,18 @@ type FooterContact struct {
 	ToMinute    string `json:"toMinute,omitempty"`
 }
 
+type FooterContactResponse struct {
+	Email         string `json:"email,omitempty"`
+	PhoneNumber   string `json:"phoneNumber,omitempty"`
+	OperatingHour string `json:"operatingHour,omitempty"`
+}
+
+type FooterResponse struct {
+	Id      int                   `json:"id,omitempty"`
+	Logo    []Image               `json:"logo,omitempty"`
+	Contact FooterContactResponse `json:"contact,omitempty"`
+}
+
 type CommonSuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
