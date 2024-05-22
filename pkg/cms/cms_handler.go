@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -27,7 +28,7 @@ type cmdStore interface {
 	GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
 	AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
 	GetLandingPageContent() (LandingConfig, error)
-	GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error)
+	GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string, error)
 	GetFAQ() ([]FAQ, error)
 }
 
@@ -57,6 +58,7 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 	formJsonString := r.FormValue("form")
 	payload := UploadFileRequest{}
 	err := json.Unmarshal([]byte(formJsonString), &payload)
+	log.Println("===payload", payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, "")
 		return
@@ -153,9 +155,9 @@ func (h *CmsHandler) GetFAQ(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CmsHandler) GetWebsiteConfigData(w http.ResponseWriter, r *http.Request) {
-	data, err := h.store.GetWebsiteConfigData()
+	data, errName, err := h.store.GetWebsiteConfigData()
 	if err != nil {
-		utils.ErrorJSON(w, err, "store", http.StatusBadRequest)
+		utils.ErrorJSON(w, err, errName, http.StatusBadRequest)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, data)
@@ -175,7 +177,7 @@ func (h *CmsHandler) AdminUpdateWebsiteConfig(w http.ResponseWriter, r *http.Req
 	}
 	err = h.store.AdminUpdateWebsiteConfig(payload)
 	if err != nil {
-		utils.ErrorJSON(w, err, "Update website Config", http.StatusInternalServerError)
+		utils.ErrorJSON(w, err, "update website config", http.StatusInternalServerError)
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "Successfully updated website config"})
@@ -211,6 +213,11 @@ func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigReq
 	}
 
 	fn, err = validateFaq(payload.Faq)
+	if err != nil {
+		return fn, err
+	}
+
+	fn, err = validateFooter(payload.Footer)
 	if err != nil {
 		return fn, err
 	}
@@ -260,6 +267,28 @@ func validateFaq(faqList []FAQ) (string, error) {
 			fn := fmt.Sprintf("answer[%d]", i)
 			return fn, fmt.Errorf("%s is empty", fn)
 		}
+	}
+	return "", nil
+}
+
+func validateFooter(footer FooterConfig) (string, error) {
+	if footer.Contact.Email == "" {
+		return "email", fmt.Errorf("email is empty")
+	}
+	if footer.Contact.PhoneNumber == "" {
+		return "email", fmt.Errorf("PhoneNumber is empty")
+	}
+	if footer.Contact.FromHour == "" {
+		return "email", fmt.Errorf("FromHour is empty")
+	}
+	if footer.Contact.FromMinute == "" {
+		return "email", fmt.Errorf("FromMinute is empty")
+	}
+	if footer.Contact.ToHour == "" {
+		return "email", fmt.Errorf("ToHour is empty")
+	}
+	if footer.Contact.ToHour == "" {
+		return "email", fmt.Errorf("ToHour is empty")
 	}
 	return "", nil
 }

@@ -26,8 +26,8 @@ VALUES ($1, $2) RETURNING id;
 `
 
 const addWebsiteConfigSQL = `
-INSERT INTO website_config (landing_page)
-VALUES ($1) RETURNING id;
+INSERT INTO website_config (landing_page, footer_email, footer_phone_number, footer_operate_hour)
+VALUES ($1, $2, $3, $4) RETURNING id;
 `
 
 const getLandingPageContentSQL = `
@@ -48,7 +48,7 @@ ORDER BY website_config.id DESC LIMIT 1
 
 const getLandingPageBannerSQL = `
 SELECT  website_image.id, website_image.full_path, website_image.object_key, website_image.link_to
-FROM website_image WHERE website_image.website_config_id = $1;
+FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2;
 `
 
 const getLandingPageFaqSQL = `

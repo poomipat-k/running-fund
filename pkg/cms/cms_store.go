@@ -116,31 +116,31 @@ func (s *store) GetLandingPageContent() (LandingConfig, error) {
 }
 
 // Website cms data
-func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) {
+func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string, error) {
 	// check cache first
 	raw, found := s.c.Get(CONTENT_CMS_DATA_CACHE_KEY)
 	if found {
 		cachedData, ok := raw.(AdminUpdateWebsiteConfigRequest)
 		if ok {
-			return cachedData, nil
+			return cachedData, "cache", nil
 		}
 	}
 	// Fetch data from db
 	// landing
 	landingPage, err := s.GetLandingPageContent()
 	if err != nil {
-		return AdminUpdateWebsiteConfigRequest{}, err
+		return AdminUpdateWebsiteConfigRequest{}, "landingPage", err
 	}
 	// dashboard
 	period, err := s.GetReviewPeriod()
 	if err != nil && err != sql.ErrNoRows {
-		return AdminUpdateWebsiteConfigRequest{}, err
+		return AdminUpdateWebsiteConfigRequest{}, "reviewPeriod", err
 	}
 	fromDate := *period.FromDate
 	toDate := *period.ToDate
 	loc, err := utils.GetTimeLocation()
 	if err != nil {
-		return AdminUpdateWebsiteConfigRequest{}, err
+		return AdminUpdateWebsiteConfigRequest{}, "timeZone loc", err
 	}
 	locFromDate := fromDate.In(loc)
 	locToDate := toDate.Add(time.Duration(-1 * time.Minute)).In(loc)
@@ -148,7 +148,7 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) 
 	// faq
 	faqList, err := s.GetFAQ()
 	if err != nil {
-		return AdminUpdateWebsiteConfigRequest{}, err
+		return AdminUpdateWebsiteConfigRequest{}, "faq", err
 	}
 
 	cmsData := AdminUpdateWebsiteConfigRequest{
@@ -166,7 +166,7 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, error) 
 	// Set cache
 	s.c.Set(CONTENT_CMS_DATA_CACHE_KEY, cmsData, cache.NoExpiration)
 
-	return cmsData, nil
+	return cmsData, "", nil
 }
 
 func (s *store) GetFAQ() ([]FAQ, error) {
@@ -212,7 +212,7 @@ func (s *store) GetFAQ() ([]FAQ, error) {
 }
 
 func (s *store) getLandingPageBanners(websiteConfigId int) ([]Image, error) {
-	rows, err := s.db.Query(getLandingPageBannerSQL, websiteConfigId)
+	rows, err := s.db.Query(getLandingPageBannerSQL, websiteConfigId, "banner")
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +276,13 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 			return err
 		}
 	}
-	// Footer
+	// Footer.Logo
+	if len(payload.Footer.Logo) > 0 {
+		_, err := s.addFooterLogos(ctx, tx, payload.Footer.Logo, webConfigId)
+		if err != nil {
+			return err
+		}
+	}
 
 	err = tx.Commit()
 	if err != nil {
@@ -292,7 +298,20 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 
 func (s *store) addWebsiteConfig(ctx context.Context, tx *sql.Tx, payload AdminUpdateWebsiteConfigRequest) (int, error) {
 	var id int
-	err := tx.QueryRowContext(ctx, addWebsiteConfigSQL, payload.Landing.Content).Scan(&id)
+	operatingHour := fmt.Sprintf("%s.%s - %s.%s น.",
+		payload.Footer.Contact.FromHour,
+		payload.Footer.Contact.FromMinute,
+		payload.Footer.Contact.ToHour,
+		payload.Footer.Contact.ToMinute,
+	)
+	err := tx.QueryRowContext(
+		ctx,
+		addWebsiteConfigSQL,
+		payload.Landing.Content,
+		payload.Footer.Contact.Email,
+		payload.Footer.Contact.PhoneNumber,
+		operatingHour,
+	).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -320,6 +339,32 @@ func (s *store) addLandingPageBanners(ctx context.Context, tx *sql.Tx, banners [
 	result, err := stmt.ExecContext(ctx, values...)
 	if err != nil {
 		slog.Error("execContext on add banners sql", "error", err)
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (s *store) addFooterLogos(ctx context.Context, tx *sql.Tx, logos []Image, websiteConfigId int) (int64, error) {
+	const initialSQL = `
+	INSERT INTO website_image (code, full_path, object_key, link_to, website_config_id)
+	VALUES 
+	`
+
+	valuesStrPlaceholder := []string{}
+	values := []any{}
+	for i, logo := range logos {
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", 5*i+1, 5*i+2, 5*i+3, 5*i+4, 5*i+5))
+		values = append(values, "footer_logo", logo.FullPath, logo.ObjectKey, logo.LinkTo, websiteConfigId)
+	}
+	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
+	stmt, err := tx.Prepare(customSQL)
+	if err != nil {
+		slog.Error("error prepare add logos sql", "error", err)
+		return 0, err
+	}
+	result, err := stmt.ExecContext(ctx, values...)
+	if err != nil {
+		slog.Error("execContext on add logos sql", "error", err)
 		return 0, err
 	}
 	return result.RowsAffected()

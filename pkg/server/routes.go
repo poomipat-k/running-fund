@@ -148,15 +148,14 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/assist/contact-us", assistHandler.ContactUs)
 
-		r.Get("/project/review-period", mw.IsLoggedIn(cmsHandler.GetReviewPeriod))
-		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(cmsHandler.GetAdminWebsiteDashboardDateConfigPreview))
-		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
-
 		r.Get("/content/landing", cmsHandler.GetLandingPageContent)
 		r.Get("/content/faq", cmsHandler.GetFAQ)
 
+		r.Get("/project/review-period", mw.IsLoggedIn(cmsHandler.GetReviewPeriod))
+		r.Post("/admin/dashboard/config/preview", mw.IsAdmin(cmsHandler.GetAdminWebsiteDashboardDateConfigPreview))
 		r.Get("/content/cms", mw.IsAdmin(cmsHandler.GetWebsiteConfigData))
 		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
+		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
 	})
 
 	return mux
