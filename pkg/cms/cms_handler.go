@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -58,7 +57,6 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 	formJsonString := r.FormValue("form")
 	payload := UploadFileRequest{}
 	err := json.Unmarshal([]byte(formJsonString), &payload)
-	log.Println("===payload", payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, "")
 		return
@@ -85,7 +83,7 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 	}
 	fileHeader := fileHeaders[0]
 	objectKey := fmt.Sprintf("%s/%s_%d%s", payload.PathPrefix, strings.Split(fileHeader.Filename, ".")[0], time.Now().Unix(), filepath.Ext(fileHeader.Filename))
-	err = h.awsS3Service.UploadFilesToS3WithObjectKey(fileHeaders, bucketName, objectKey)
+	err = h.awsS3Service.AdminUploadFilesToS3WithObjectKey(fileHeaders, bucketName, objectKey)
 	if err != nil {
 		utils.ErrorJSON(w, err, "s3Upload", http.StatusInternalServerError)
 		return
@@ -97,7 +95,6 @@ func (h *CmsHandler) AdminUploadContentFiles(w http.ResponseWriter, r *http.Requ
 	}
 	fullPath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucketName, awsRegion, objectKey)
 	// Todo: upload another small preview image
-
 	utils.WriteJSON(w, http.StatusOK, S3UploadResponse{
 		ObjectKey: objectKey,
 		FullPath:  fullPath,

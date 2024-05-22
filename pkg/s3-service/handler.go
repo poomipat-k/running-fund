@@ -99,10 +99,6 @@ func (h *S3Handler) GetPresignedPutObjectForStaticBucket(w http.ResponseWriter, 
 
 func (h *S3Handler) generatePresignedPutObject(
 	bucketName string, objectKey string, lifetimeSecs int64) (*v4.PresignedHTTPRequest, error) {
-	// var contentType string
-	// if isSvg(objectKey) {
-	// 	contentType = "image/svg+xml"
-	// }
 	request, err := h.presigner.PresignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
@@ -120,10 +116,3 @@ func (h *S3Handler) generatePresignedPutObject(
 func getS3FullPath(bucketName, awsRegion, objectKey string) string {
 	return fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", bucketName, awsRegion, objectKey)
 }
-
-// func isSvg(objectKey string) bool {
-// 	splits := strings.Split(objectKey, ".")
-// 	ext := splits[len(splits)-1]
-// 	log.Println("==ext:", ext)
-// 	return ext == "svg"
-// }

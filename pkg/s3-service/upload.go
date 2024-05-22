@@ -78,15 +78,20 @@ func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, bucketNa
 }
 
 // User supplied bucketName and objectKey
-func (client *S3Service) UploadFilesToS3WithObjectKey(files []*multipart.FileHeader, bucketName, s3ObjectKey string) error {
+func (client *S3Service) AdminUploadFilesToS3WithObjectKey(files []*multipart.FileHeader, bucketName, s3ObjectKey string) error {
 	for _, fileHeader := range files {
-		file, err := OpenFileFromFileHeader(fileHeader)
+		file, err := OpenFileFromFileHeaderForAdmin(fileHeader)
 		if err != nil {
 			return err
 		}
 		defer file.Close()
 
-		err = client.DoUploadFileToS3(file, bucketName, s3ObjectKey)
+		contentType := "application/octet-stream"
+		headerContentType := fileHeader.Header["Content-Type"][0]
+		if headerContentType != "" {
+			contentType = headerContentType
+		}
+		err = client.DoUploadFileToS3withContentType(file, bucketName, s3ObjectKey, contentType)
 		if err != nil {
 			return err
 		}
@@ -99,6 +104,22 @@ func (client *S3Service) DoUploadFileToS3(file io.Reader, bucketName, objectKey 
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 		Body:   file,
+	})
+	if err != nil {
+		log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
+			objectKey, bucketName, objectKey, err)
+		return err
+	}
+
+	return nil
+}
+
+func (client *S3Service) DoUploadFileToS3withContentType(file io.Reader, bucketName, objectKey string, contentType string) error {
+	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket:      aws.String(bucketName),
+		Key:         aws.String(objectKey),
+		Body:        file,
+		ContentType: aws.String(contentType),
 	})
 	if err != nil {
 		log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
@@ -174,4 +195,27 @@ func OpenFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, e
 		return nil, err
 	}
 	return file, nil
+}
+
+func OpenFileFromFileHeaderForAdmin(fileHeader *multipart.FileHeader) (multipart.File, error) {
+	if fileHeader.Size > MAX_UPLOAD_SIZE {
+		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+
+	headerContentType := fileHeader.Header["Content-Type"][0]
+	if !adminAllowContentType(headerContentType) {
+		return nil, fmt.Errorf("the provided file format is not allowed. got %s", headerContentType)
+	}
+	return file, nil
+}
+
+func adminAllowContentType(contentType string) bool {
+	// allow contentType image/*
+	first := strings.Split(contentType, "/")[0]
+	return first == "image"
 }
