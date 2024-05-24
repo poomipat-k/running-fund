@@ -29,6 +29,7 @@ type cmdStore interface {
 	GetLandingPageContent() (LandingConfig, error)
 	GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string, error)
 	GetFAQ() ([]FAQ, error)
+	GetHowToCreate() ([]HowToCreate, error)
 	GetFooter() (FooterResponse, error)
 }
 
@@ -161,6 +162,15 @@ func (h *CmsHandler) GetFooter(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, footer)
 }
 
+func (h *CmsHandler) GetHowToCreate(w http.ResponseWriter, r *http.Request) {
+	footer, err := h.store.GetHowToCreate()
+	if err != nil {
+		utils.ErrorJSON(w, err, "store", http.StatusBadRequest)
+		return
+	}
+	utils.WriteJSON(w, http.StatusOK, footer)
+}
+
 func (h *CmsHandler) GetWebsiteConfigData(w http.ResponseWriter, r *http.Request) {
 	data, errName, err := h.store.GetWebsiteConfigData()
 	if err != nil {
@@ -224,6 +234,11 @@ func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigReq
 		return fn, err
 	}
 
+	fn, err = validateHowToCreate(payload.HowToCreate)
+	if err != nil {
+		return fn, err
+	}
+
 	fn, err = validateFooter(payload.Footer)
 	if err != nil {
 		return fn, err
@@ -272,6 +287,20 @@ func validateFaq(faqList []FAQ) (string, error) {
 		}
 		if faq.Answer == "" {
 			fn := fmt.Sprintf("answer[%d]", i)
+			return fn, fmt.Errorf("%s is empty", fn)
+		}
+	}
+	return "", nil
+}
+
+func validateHowToCreate(howToCreate []HowToCreate) (string, error) {
+	for i, faq := range howToCreate {
+		if faq.Header == "" {
+			fn := fmt.Sprintf("header[%d]", i)
+			return fn, fmt.Errorf("%s is empty", fn)
+		}
+		if faq.Content == "" {
+			fn := fmt.Sprintf("content[%d]", i)
 			return fn, fmt.Errorf("%s is empty", fn)
 		}
 	}

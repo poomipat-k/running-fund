@@ -33,10 +33,11 @@ type Image struct {
 }
 
 type AdminUpdateWebsiteConfigRequest struct {
-	Landing   LandingConfig   `json:"landing,omitempty"`
-	Dashboard DashboardConfig `json:"dashboard,omitempty"`
-	Faq       []FAQ           `json:"faq,omitempty"`
-	Footer    FooterConfig    `json:"footer,omitempty"`
+	Landing     LandingConfig   `json:"landing,omitempty"`
+	Dashboard   DashboardConfig `json:"dashboard,omitempty"`
+	Faq         []FAQ           `json:"faq,omitempty"`
+	HowToCreate []HowToCreate   `json:"howToCreate,omitempty"`
+	Footer      FooterConfig    `json:"footer,omitempty"`
 }
 
 type LandingConfig struct {
@@ -58,6 +59,12 @@ type FAQ struct {
 	Id       int    `json:"id,omitempty"`
 	Question string `json:"question,omitempty"`
 	Answer   string `json:"answer,omitempty"`
+}
+
+type HowToCreate struct {
+	Id      int    `json:"id,omitempty"`
+	Header  string `json:"header,omitempty"`
+	Content string `json:"content,omitempty"`
 }
 
 type FooterConfig struct {

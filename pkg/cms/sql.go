@@ -51,9 +51,14 @@ SELECT  website_image.id, website_image.full_path, website_image.object_key, web
 FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2;
 `
 
-const getLandingPageFaqSQL = `
+const getFaqSQL = `
 SELECT  faq.id, faq.question, faq.answer
 FROM faq WHERE faq.website_config_id = $1;
+`
+
+const getHowToCreateSQL = `
+SELECT  how_to_create.id, how_to_create.header, how_to_create.content
+FROM how_to_create WHERE how_to_create.website_config_id = $1;
 `
 
 const getFooterLogoSQL = `

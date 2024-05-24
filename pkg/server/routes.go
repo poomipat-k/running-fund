@@ -150,6 +150,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Get("/content/landing", cmsHandler.GetLandingPageContent)
 		r.Get("/content/faq", cmsHandler.GetFAQ)
+		r.Get("/content/how-to-create", cmsHandler.GetHowToCreate)
 		r.Get("/content/footer", cmsHandler.GetFooter)
 
 		r.Get("/project/review-period", mw.IsLoggedIn(cmsHandler.GetReviewPeriod))

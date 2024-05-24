@@ -16,12 +16,14 @@ import (
 const CONTENT_LANDING_PAGE_CACHE_KEY = "content_landing_page"
 const CONTENT_CMS_DATA_CACHE_KEY = "content_cms"
 const CONTENT_FAQ_CACHE_KEY = "content_faq"
+const CONTENT_HOW_TO_CREATE_CACHE_KEY = "content_how_to_create"
 const CONTENT_FOOTER_CACHE_KEY = "content_footer"
 
 var ReCacheOnUpdateCmsData = []string{
 	CONTENT_LANDING_PAGE_CACHE_KEY,
 	CONTENT_CMS_DATA_CACHE_KEY,
 	CONTENT_FAQ_CACHE_KEY,
+	CONTENT_HOW_TO_CREATE_CACHE_KEY,
 	CONTENT_FOOTER_CACHE_KEY,
 }
 
@@ -152,6 +154,11 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 	if err != nil {
 		return AdminUpdateWebsiteConfigRequest{}, "faq", err
 	}
+	// howToCreate
+	howToCreateList, err := s.GetHowToCreate()
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, "howToCreate", err
+	}
 
 	// footer
 	footer, err := s.GetFooter()
@@ -170,7 +177,8 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 			ToMonth:   int(locToDate.Month()),
 			ToDay:     locToDate.Day(),
 		},
-		Faq: faqList,
+		Faq:         faqList,
+		HowToCreate: howToCreateList,
 		Footer: FooterConfig{
 			Logo: footer.Logo,
 			Contact: FooterContact{
@@ -268,7 +276,7 @@ func (s *store) GetFAQ() ([]FAQ, error) {
 	if err != nil {
 		return nil, err
 	}
-	rows, err := s.db.Query(getLandingPageFaqSQL, websiteConfigId)
+	rows, err := s.db.Query(getFaqSQL, websiteConfigId)
 	if err != nil {
 		return nil, err
 	}
@@ -291,6 +299,48 @@ func (s *store) GetFAQ() ([]FAQ, error) {
 	// Set cache
 	s.c.Set(CONTENT_FAQ_CACHE_KEY, faqList, cache.NoExpiration)
 	return faqList, nil
+}
+
+func (s *store) GetHowToCreate() ([]HowToCreate, error) {
+	// check cache first
+	raw, found := s.c.Get(CONTENT_HOW_TO_CREATE_CACHE_KEY)
+	if found {
+		cachedData, ok := raw.([]HowToCreate)
+		if ok {
+			return cachedData, nil
+		}
+	}
+
+	// fetch from db
+	var websiteConfigId int
+	row := s.db.QueryRow(getLatestWebsiteConfigIdSQL)
+	err := row.Scan(&websiteConfigId)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := s.db.Query(getHowToCreateSQL, websiteConfigId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var howToCreateList []HowToCreate
+	for rows.Next() {
+		var row HowToCreate
+		err := rows.Scan(&row.Id, &row.Header, &row.Content)
+		if err != nil {
+			return nil, err
+		}
+		howToCreateList = append(howToCreateList, row)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	// Set cache
+	s.c.Set(CONTENT_HOW_TO_CREATE_CACHE_KEY, howToCreateList, cache.NoExpiration)
+	return howToCreateList, nil
 }
 
 func (s *store) getLandingPageBanners(websiteConfigId int) ([]Image, error) {
@@ -353,11 +403,19 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 
 	// FAQ
 	if len(payload.Faq) > 0 {
-		_, err := s.addLandingPageFaqList(ctx, tx, payload.Faq, webConfigId)
+		_, err := s.addFaqList(ctx, tx, payload.Faq, webConfigId)
 		if err != nil {
 			return err
 		}
 	}
+	// HowToCreate
+	if len(payload.HowToCreate) > 0 {
+		_, err := s.addHowToCreate(ctx, tx, payload.HowToCreate, webConfigId)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Footer.Logo
 	if len(payload.Footer.Logo) > 0 {
 		_, err := s.addFooterLogos(ctx, tx, payload.Footer.Logo, webConfigId)
@@ -452,7 +510,7 @@ func (s *store) addFooterLogos(ctx context.Context, tx *sql.Tx, logos []Image, w
 	return result.RowsAffected()
 }
 
-func (s *store) addLandingPageFaqList(ctx context.Context, tx *sql.Tx, faqList []FAQ, websiteConfigId int) (int64, error) {
+func (s *store) addFaqList(ctx context.Context, tx *sql.Tx, faqList []FAQ, websiteConfigId int) (int64, error) {
 	const initialSQL = `
 	INSERT INTO faq (question, answer, website_config_id)
 	VALUES 
@@ -473,6 +531,32 @@ func (s *store) addLandingPageFaqList(ctx context.Context, tx *sql.Tx, faqList [
 	result, err := stmt.ExecContext(ctx, values...)
 	if err != nil {
 		slog.Error("execContext on add faqs sql", "error", err)
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (s *store) addHowToCreate(ctx context.Context, tx *sql.Tx, howToCreateList []HowToCreate, websiteConfigId int) (int64, error) {
+	const initialSQL = `
+	INSERT INTO how_to_create (header, content, website_config_id)
+	VALUES 
+	`
+
+	valuesStrPlaceholder := []string{}
+	values := []any{}
+	for i, item := range howToCreateList {
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
+		values = append(values, item.Header, item.Content, websiteConfigId)
+	}
+	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
+	stmt, err := tx.Prepare(customSQL)
+	if err != nil {
+		slog.Error("error prepare add howToCreate sql", "error", err)
+		return 0, err
+	}
+	result, err := stmt.ExecContext(ctx, values...)
+	if err != nil {
+		slog.Error("execContext on add howToCreate sql", "error", err)
 		return 0, err
 	}
 	return result.RowsAffected()
