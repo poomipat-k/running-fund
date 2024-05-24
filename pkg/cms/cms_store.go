@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"log/slog"
 	"strings"
 	"time"
@@ -220,7 +219,6 @@ func (s *store) GetFooter() (FooterResponse, error) {
 	if found {
 		cachedData, ok := raw.(FooterResponse)
 		if ok {
-			log.Println("===cachedData", cachedData)
 			return cachedData, nil
 		}
 	}
@@ -381,7 +379,6 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	if err != nil {
 		return err
 	}
-	log.Println("==webConfigId", webConfigId)
 	// Landing banner
 	if len(payload.Landing.Banner) > 0 {
 		_, err := s.addLandingPageBanners(ctx, tx, payload.Landing.Banner, webConfigId)
@@ -428,7 +425,6 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	if err != nil {
 		return err
 	}
-	log.Println("===committed!")
 	// Remove cache to have it refreshed later on the first visit
 	for _, cacheKey := range ReCacheOnUpdateCmsData {
 		s.c.Delete(cacheKey)
