@@ -129,11 +129,6 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 		}
 	}
 	// Fetch data from db
-	// landing
-	landingPage, err := s.GetLandingPageContent()
-	if err != nil {
-		return AdminUpdateWebsiteConfigRequest{}, "landingPage", err
-	}
 	// dashboard
 	period, err := s.GetReviewPeriod()
 	if err != nil && err != sql.ErrNoRows {
@@ -147,6 +142,36 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 	}
 	locFromDate := fromDate.In(loc)
 	locToDate := toDate.Add(time.Duration(-1 * time.Minute)).In(loc)
+
+	// Check website config table is not empty
+	var websiteConfigId int
+	row := s.db.QueryRow(getLatestWebsiteConfigIdSQL)
+	err = row.Scan(&websiteConfigId)
+
+	if err == sql.ErrNoRows {
+		data := AdminUpdateWebsiteConfigRequest{
+			Dashboard: DashboardConfig{
+				FromYear:  locFromDate.Year(),
+				FromMonth: int(locFromDate.Month()),
+				FromDay:   locFromDate.Day(),
+				ToYear:    locToDate.Year(),
+				ToMonth:   int(locToDate.Month()),
+				ToDay:     locToDate.Day(),
+			},
+		}
+		// Set cache
+		s.c.Set(CONTENT_CMS_DATA_CACHE_KEY, data, cache.NoExpiration)
+		return data, "", nil
+	}
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, "", err
+	}
+
+	// landing
+	landingPage, err := s.GetLandingPageContent()
+	if err != nil {
+		return AdminUpdateWebsiteConfigRequest{}, "landingPage", err
+	}
 
 	// faq
 	faqList, err := s.GetFAQ()
