@@ -63,6 +63,64 @@ func IsReviewer(next http.HandlerFunc) http.HandlerFunc {
 	})
 }
 
+func IsApplicant(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, err := getAccessToken(r)
+		if err != nil {
+			utils.ErrorJSON(w, err, "authToken", http.StatusForbidden)
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if ok {
+			userId := fmt.Sprintf("%v", claims["userId"])
+			userRole := fmt.Sprintf("%v", claims["userRole"])
+
+			if userRole != "applicant" {
+				utils.ErrorJSON(w, errors.New("permission denied"), "authToken", http.StatusForbidden)
+				return
+			}
+			r.Header.Set("userId", userId)
+			r.Header.Set("userRole", userRole)
+
+			next(w, r)
+		} else {
+			utils.ErrorJSON(w, errors.New("corrupt token"), "authToken", http.StatusForbidden)
+			return
+
+		}
+	})
+}
+
+func IsAdmin(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, err := getAccessToken(r)
+		if err != nil {
+			utils.ErrorJSON(w, err, "authToken", http.StatusForbidden)
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if ok {
+			userId := fmt.Sprintf("%v", claims["userId"])
+			userRole := fmt.Sprintf("%v", claims["userRole"])
+
+			if userRole != "admin" {
+				utils.ErrorJSON(w, errors.New("permission denied"), "authToken", http.StatusForbidden)
+				return
+			}
+			r.Header.Set("userId", userId)
+			r.Header.Set("userRole", userRole)
+
+			next(w, r)
+		} else {
+			utils.ErrorJSON(w, errors.New("corrupt token"), "authToken", http.StatusForbidden)
+			return
+
+		}
+	})
+}
+
 func getAccessToken(r *http.Request) (*jwt.Token, error) {
 	// Cookie
 	cookie, err := r.Cookie("authToken")

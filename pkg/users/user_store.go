@@ -39,6 +39,22 @@ func (s *store) GetUserById(userId int) (User, error) {
 	}
 }
 
+func (s *store) GetUserFullNameById(userId int) (UserFullName, error) {
+	var user UserFullName
+	row := s.db.QueryRow(getUserFullNameByIdSQL, userId)
+	err := row.Scan(&user.Id, &user.FirstName, &user.LastName)
+	switch err {
+	case sql.ErrNoRows:
+		slog.Error("GetUserFullNameById() no row were returned!")
+		return UserFullName{}, err
+	case nil:
+		return user, nil
+	default:
+		slog.Error(err.Error())
+		return UserFullName{}, err
+	}
+}
+
 func (s *store) GetUserByEmail(email string) (User, error) {
 	var user User
 	row := s.db.QueryRow(getUserByEmailSQL, email)
@@ -79,7 +95,7 @@ func (s *store) AddUser(user User, toBeDeletedUserId int) (int, string, error) {
 		return failAddUser(err, "dbQuery")
 	}
 
-	activateLink := fmt.Sprintf("%s/signup/activate/%s", os.Getenv("UI_URL"), user.ActivateCode)
+	activateLink := fmt.Sprintf("http://%s/signup/activate/%s", os.Getenv("UI_URL"), user.ActivateCode)
 	mail := s.emailService.BuildSignUpConfirmationEmail(user.Email, activateLink)
 	err = s.emailService.SendEmail(mail)
 	if err != nil {

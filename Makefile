@@ -25,7 +25,7 @@ up_build_dev: build_running
 ## build_running: builds the running app binary as a linux executable
 build_running:
 	@echo "Building app binary..."
-	env GOOS=linux CGO_ENABLED=0 go build -o ${APP} ./cmd/
+	env GOOS=linux CGO_ENABLED=0 go build -o ${APP} ./
 	@echo "Done!"
 
 ## down: stop docker compose
@@ -39,7 +39,6 @@ clear:
 	docker image prune -a
 	@echo "Done!"
 
-## Migration database
 
 migration_up:
 	cd migrations; echo "Inside migrations, Start migration"; \
@@ -55,6 +54,8 @@ migration_status:
 	cd migrations; echo "Inside migrations, Start migration"; \
 	goose postgres "host=localhost port=5432 user=poomipat password=running_fund_dev dbname=running_fund_dev sslmode=disable" status
 
+
+# Tests
 test:
 	go test ./pkg/...
 

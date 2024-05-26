@@ -19,20 +19,18 @@ CREATE TABLE review (
   created_at  TIMESTAMP WITH TIME ZONE  DEFAULT now(),
   summary VARCHAR(64) NOT NULL,
   improvement_id INT REFERENCES improvement(id),
-  comment VARCHAR(512)
+  comment VARCHAR(512),
+  CONSTRAINT uq_user_id_project_history_id UNIQUE(user_id, project_history_id)
 );
 
 
 CREATE TABLE review_details (
   id SERIAL PRIMARY KEY NOT NULL,
-  review_id INT,
+  review_id INT REFERENCES review(id), 
   review_criteria_id INT REFERENCES review_criteria(id),
   score SMALLINT NOT NULL
 );
 
-ALTER TABLE review_details ADD CONSTRAINT fk_review_review_details FOREIGN KEY (review_id) REFERENCES review (id);
-
-ALTER TABLE review ADD CONSTRAINT uq_user_id_project_history_id UNIQUE(user_id, project_history_id);
 
 -- +goose Down
 ALTER TABLE review DROP COLUMN user_id;

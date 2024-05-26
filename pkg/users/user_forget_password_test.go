@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/poomipat-k/running-fund/pkg/mock"
 	"github.com/poomipat-k/running-fund/pkg/users"
 )
 
@@ -17,13 +18,13 @@ func TestEmailForgetPassword(t *testing.T) {
 	tests := []struct {
 		name                  string
 		forgotPasswordPayload users.ForgotPasswordRequest
-		store                 *MockUserStore
+		store                 *mock.MockUserStore
 		expectedStatus        int
 		expectedError         error
 	}{
 		{
 			name:           "should error when email is not provided",
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailRequiredError{},
 		},
@@ -37,7 +38,7 @@ func TestEmailForgetPassword(t *testing.T) {
 				bcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabc
 				deabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde@test.com`,
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.EmailTooLongError{},
 		},
@@ -46,13 +47,13 @@ func TestEmailForgetPassword(t *testing.T) {
 			forgotPasswordPayload: users.ForgotPasswordRequest{
 				Email: `aab@`,
 			},
-			store:          &MockUserStore{},
+			store:          &mock.MockUserStore{},
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &users.InvalidEmailError{},
 		},
 		{
 			name: "should error when email is not found",
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{}, sql.ErrNoRows
 				},
@@ -65,7 +66,7 @@ func TestEmailForgetPassword(t *testing.T) {
 		},
 		{
 			name: "should error when user is not activated",
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Activated: false}, nil
 				},
@@ -78,7 +79,7 @@ func TestEmailForgetPassword(t *testing.T) {
 		},
 		{
 			name: "should send create a new password successfully",
-			store: &MockUserStore{
+			store: &mock.MockUserStore{
 				GetUserByEmailFunc: func(email string) (users.User, error) {
 					return users.User{Activated: true}, nil
 				},

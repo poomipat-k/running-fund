@@ -1,5 +1,6 @@
 .git
 
+.env.prod
 *.env
 
 docker-compose-staging.yaml
@@ -9,3 +10,6 @@ notes
 db-data
 
 .vscode
+
+download
+tmp

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/golang-jwt/jwt"
 	"github.com/jordan-wright/email"
 	"github.com/poomipat-k/running-fund/pkg/utils"
@@ -20,6 +21,7 @@ const refreshExpireDurationHour = 4320 // 180 days
 type UserStore interface {
 	GetUserByEmail(email string) (User, error)
 	GetUserById(id int) (User, error)
+	GetUserFullNameById(id int) (UserFullName, error)
 	AddUser(user User, toBeDeletedUserId int) (int, string, error)
 	ActivateUser(activateCode string) (int64, error)
 	ForgotPasswordAction(resetPasswordCode string, email string, resetPasswordLink string) (int64, error)
@@ -63,6 +65,22 @@ func (h *UserHandler) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	utils.WriteJSON(w, http.StatusOK, user)
+}
+
+func (h *UserHandler) GetUserFullNameById(w http.ResponseWriter, r *http.Request) {
+	userId, err := strconv.Atoi(chi.URLParam(r, "userId"))
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "userId")
+		return
+	}
+	user, err := h.store.GetUserFullNameById(userId)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "")
+		return
+	}
 	utils.WriteJSON(w, http.StatusOK, user)
 }
 
@@ -146,8 +164,8 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Name:     "authToken",
 		Value:    accessToken,
 		HttpOnly: true,
-		Secure:   false, // TODO: turn on when change to https
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 		Path:     "/api",
 		Expires:  time.Unix(accessExpiredAtUnix, 0),
 	}
@@ -161,8 +179,8 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		Name:     "refreshToken",
 		Value:    refreshToken,
 		HttpOnly: true,
-		Secure:   false, // TODO: turn on when change to https
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 		Path:     "/api/v1/auth",
 		Expires:  time.Unix(refreshExpiredAtUnix, 0),
 	}
@@ -178,8 +196,8 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Name:     "authToken",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   false, // TODO: turn on when change to https
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 		Path:     "/api",
 		Expires:  time.Now(),
 	}
@@ -188,8 +206,8 @@ func (h *UserHandler) SignOut(w http.ResponseWriter, r *http.Request) {
 		Name:     "refreshToken",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   false, // TODO: turn on when change to https
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 		Path:     "/api/v1/auth",
 		Expires:  time.Now(),
 	}
@@ -224,8 +242,8 @@ func (h *UserHandler) RefreshAccessToken(w http.ResponseWriter, r *http.Request)
 			Name:     "authToken",
 			Value:    accessToken,
 			HttpOnly: true,
-			Secure:   false, // TODO: turn on when change to https
-			SameSite: http.SameSiteLaxMode,
+			Secure:   true,
+			SameSite: http.SameSiteStrictMode,
 			Path:     "/api",
 			Expires:  time.Unix(accessExpiredAtUnix, 0),
 		}
@@ -287,7 +305,7 @@ func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resetPasswordCode := utils.RandAlphaNum(24)
-	resetPasswordLink := fmt.Sprintf("%s/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
+	resetPasswordLink := fmt.Sprintf("http://%s/password/reset/%s", os.Getenv("UI_URL"), resetPasswordCode)
 	rowEffected, err := h.store.ForgotPasswordAction(resetPasswordCode, user.Email, resetPasswordLink)
 	if err != nil {
 		fail(w, err, "")
