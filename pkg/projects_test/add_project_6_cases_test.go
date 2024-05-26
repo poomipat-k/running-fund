@@ -86,26 +86,4 @@ var Attachment = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.EventDetailsFilesRequiredError{},
 	},
-	{
-		name: "should error when screenshotFiles is empty",
-		payload: projects.AddProjectRequest{
-			Collaborated: newTrue(),
-			General:      GeneralDetailsOkPayload,
-			Contact:      ContactOkPayload,
-			Details:      DetailsOkPayload,
-			Experience:   ExperienceOkPayload,
-			Fund:         FundOkPayload,
-		},
-		collaborationFilesPath: "test.png",
-		marketingFilesPath:     "test.png",
-		routeFilesPath:         "test.png",
-		eventMapFilesPath:      "test.png",
-		eventDetailsFilesPath:  "test.png",
-		store: &mock.MockProjectStore{
-			AddProjectFunc:           addProjectSuccess,
-			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
-		},
-		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.ScreenshotFilesRequiredError{},
-	},
 }

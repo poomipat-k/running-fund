@@ -180,6 +180,18 @@ func (e *VIPRequiredError) Error() string {
 	return "vip is required"
 }
 
+type VIPFeeRequiredError struct{}
+
+func (e *VIPFeeRequiredError) Error() string {
+	return "vipFee is required"
+}
+
+type VIPFeeNegativeError struct{}
+
+func (e *VIPFeeNegativeError) Error() string {
+	return "vipFee must greater equal to zero"
+}
+
 type ExpectedParticipantsRequiredError struct{}
 
 func (e *ExpectedParticipantsRequiredError) Error() string {
@@ -299,6 +311,129 @@ func (e *ProjectCoordinatorEventPositionRequiredError) Error() string {
 	return "projectCoordinator eventPosition is required"
 }
 
+// Head address
+type ProjectHeadAddressRequiredError struct{}
+
+func (e *ProjectHeadAddressRequiredError) Error() string {
+	return "ProjectHead address is required"
+}
+
+type ProjectHeadProvinceIdRequiredError struct{}
+
+func (e *ProjectHeadProvinceIdRequiredError) Error() string {
+	return "ProjectHead provinceId is required"
+}
+
+type ProjectHeadDistrictIdRequiredError struct{}
+
+func (e *ProjectHeadDistrictIdRequiredError) Error() string {
+	return "ProjectHead districtId is required"
+}
+
+type ProjectHeadSubdistrictIdRequiredError struct{}
+
+func (e *ProjectHeadSubdistrictIdRequiredError) Error() string {
+	return "ProjectHead subdistrictId is required"
+}
+
+type ProjectHeadPostcodeIdRequiredError struct{}
+
+func (e *ProjectHeadPostcodeIdRequiredError) Error() string {
+	return "ProjectHead postcodeId is required"
+}
+
+type ProjectHeadEmailRequiredError struct{}
+
+func (e *ProjectHeadEmailRequiredError) Error() string {
+	return "ProjectHead email is required"
+}
+
+type ProjectHeadLineIdRequiredError struct{}
+
+func (e *ProjectHeadLineIdRequiredError) Error() string {
+	return "ProjectHead lineId is required"
+}
+
+type ProjectHeadPhoneNumberRequiredError struct{}
+
+func (e *ProjectHeadPhoneNumberRequiredError) Error() string {
+	return "ProjectHead phoneNumber is required"
+}
+
+type ProjectHeadPhoneNumberLengthError struct{}
+
+func (e *ProjectHeadPhoneNumberLengthError) Error() string {
+	return "ProjectHead phoneNumber is shorter than 9 numbers"
+}
+
+type ProjectHeadPhoneNumberInvalidError struct{}
+
+func (e *ProjectHeadPhoneNumberInvalidError) Error() string {
+	return "ProjectHead phoneNumber is invalid"
+}
+
+// Manager address
+type ProjectManagerAddressRequiredError struct{}
+
+func (e *ProjectManagerAddressRequiredError) Error() string {
+	return "ProjectManager address is required"
+}
+
+type ProjectManagerProvinceIdRequiredError struct{}
+
+func (e *ProjectManagerProvinceIdRequiredError) Error() string {
+	return "ProjectManager provinceId is required"
+}
+
+type ProjectManagerDistrictIdRequiredError struct{}
+
+func (e *ProjectManagerDistrictIdRequiredError) Error() string {
+	return "ProjectManager districtId is required"
+}
+
+type ProjectManagerSubdistrictIdRequiredError struct{}
+
+func (e *ProjectManagerSubdistrictIdRequiredError) Error() string {
+	return "ProjectManager subdistrictId is required"
+}
+
+type ProjectManagerPostcodeIdRequiredError struct{}
+
+func (e *ProjectManagerPostcodeIdRequiredError) Error() string {
+	return "ProjectManager postcodeId is required"
+}
+
+type ProjectManagerEmailRequiredError struct{}
+
+func (e *ProjectManagerEmailRequiredError) Error() string {
+	return "ProjectManager email is required"
+}
+
+type ProjectManagerLineIdRequiredError struct{}
+
+func (e *ProjectManagerLineIdRequiredError) Error() string {
+	return "ProjectManager lineId is required"
+}
+
+type ProjectManagerPhoneNumberRequiredError struct{}
+
+func (e *ProjectManagerPhoneNumberRequiredError) Error() string {
+	return "ProjectManager phoneNumber is required"
+}
+
+type ProjectManagerPhoneNumberLengthError struct{}
+
+func (e *ProjectManagerPhoneNumberLengthError) Error() string {
+	return "ProjectManager phoneNumber is shorter than 9 numbers"
+}
+
+type ProjectManagerPhoneNumberInvalidError struct{}
+
+func (e *ProjectManagerPhoneNumberInvalidError) Error() string {
+	return "ProjectManager phoneNumber is invalid"
+}
+
+// Coordinator address
 type ProjectCoordinatorAddressRequiredError struct{}
 
 func (e *ProjectCoordinatorAddressRequiredError) Error() string {
@@ -705,12 +840,6 @@ func (e *EventDetailsFilesRequiredError) Error() string {
 	return "eventDetailsFiles are required"
 }
 
-type ScreenshotFilesRequiredError struct{}
-
-func (e *ScreenshotFilesRequiredError) Error() string {
-	return "screenshotFiles are required"
-}
-
 type AdditionFilesRequiredError struct{}
 
 func (e *AdditionFilesRequiredError) Error() string {
@@ -733,4 +862,82 @@ type ReviewerIdRequiredError struct{}
 
 func (e *ReviewerIdRequiredError) Error() string {
 	return "reviewerId is required"
+}
+
+type ProjectStatusPrimaryRequiredError struct{}
+
+func (e *ProjectStatusPrimaryRequiredError) Error() string {
+	return "projectStatusPrimary is required"
+}
+
+type ProjectStatusPrimaryInvalidError struct{}
+
+func (e *ProjectStatusPrimaryInvalidError) Error() string {
+	return "projectStatusPrimary is invalid"
+}
+
+type ProjectStatusSecondaryRequiredError struct{}
+
+func (e *ProjectStatusSecondaryRequiredError) Error() string {
+	return "projectStatusSecondary is required"
+}
+
+type ProjectStatusSecondaryInvalidError struct{}
+
+func (e *ProjectStatusSecondaryInvalidError) Error() string {
+	return "projectStatusSecondary is invalid"
+}
+
+type AdminScoreOutOfRangeError struct{}
+
+func (e *AdminScoreOutOfRangeError) Error() string {
+	return "adminScore is out of range 0-100"
+}
+
+type FundApprovedAmountNegativeError struct{}
+
+func (e *FundApprovedAmountNegativeError) Error() string {
+	return "fundApprovedAmount is negative"
+}
+
+type FromYearRequiredError struct{}
+
+func (e *FromYearRequiredError) Error() string {
+	return "fromYear is required"
+}
+
+type ToYearRequiredError struct{}
+
+func (e *ToYearRequiredError) Error() string {
+	return "toYear is required"
+}
+
+type PageNoInvalidError struct{}
+
+func (e *PageNoInvalidError) Error() string {
+	return "pageNo is invalid"
+}
+
+type PageSizeInvalidError struct{}
+
+func (e *PageSizeInvalidError) Error() string {
+	return "pageSize is invalid"
+}
+
+type SortByRequiredError struct{}
+
+func (e *SortByRequiredError) Error() string {
+	return "sortBy is required"
+}
+
+type SortByInvalidError struct{}
+
+func (e *SortByInvalidError) Error() string {
+	return "sortBy is invalid"
+}
+
+type FromDateExceedToDateError struct{}
+
+func (e *FromDateExceedToDateError) Error() string {
+	return "fromDate is later than toDate"
 }

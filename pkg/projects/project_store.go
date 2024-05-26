@@ -13,6 +13,7 @@ import (
 )
 
 const applicantCriteriaCachePrefix = "applicant_criteria"
+const applicantCriteriaPdfCachePrefix = "applicant_criteria_pdf"
 const reviewerCriteriaCachePrefix = "reviewer_criteria"
 
 type store struct {
@@ -45,22 +46,6 @@ var monthMap = map[string]string{
 }
 
 const TIMEZONE = "Asia/Bangkok"
-
-func (s *store) GetReviewPeriod() (ReviewPeriod, error) {
-	var period ReviewPeriod
-	row := s.db.QueryRow(getReviewPeriodSQL)
-	err := row.Scan(&period.Id, &period.FromDate, &period.ToDate)
-	switch err {
-	case sql.ErrNoRows:
-		slog.Error("GetReviewPeriod(): no row were returned!")
-		return ReviewPeriod{}, err
-	case nil:
-		return period, nil
-	default:
-		slog.Error(err.Error())
-		return ReviewPeriod{}, fmt.Errorf("GetReviewPeriod() unknown error")
-	}
-}
 
 func (s *store) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {
 	var projectId int
@@ -115,8 +100,14 @@ func (s *store) GetReviewerDashboard(reviewerId int, fromDate, toDate time.Time)
 	return data, nil
 }
 
-func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error) {
-	rows, err := s.db.Query(getApplicantProjectDetailsSQL, userId, projectCode)
+func (s *store) GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error) {
+	var rows *sql.Rows
+	var err error
+	if isAdmin {
+		rows, err = s.db.Query(getApplicantProjectDetailsByAdminSQL, projectCode)
+	} else {
+		rows, err = s.db.Query(getApplicantProjectDetailsSQL, projectCode, userId)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +116,14 @@ func (s *store) GetApplicantProjectDetails(userId int, projectCode string) ([]Ap
 	var data []ApplicantDetailsData
 	for rows.Next() {
 		var row ApplicantDetailsData
-		err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
-			&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt, &row.SumScore)
+		if isAdmin {
+			err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
+				&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt, &row.SumScore)
+		} else {
+			err = rows.Scan(&row.ProjectCode, &row.UserId, &row.ProjectName, &row.ProjectStatus, &row.AdminScore,
+				&row.FundApprovedAmount, &row.AdminComment, &row.ReviewId, &row.ReviewerId, &row.ReviewedAt)
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -353,6 +350,51 @@ func (s *store) GetApplicantCriteria(criteriaVersion int) ([]ApplicantSelfScoreC
 		var row ApplicantSelfScoreCriteria
 
 		err := rows.Scan(&row.Id, &row.CriteriaVersion, &row.OrderNumber, &row.Display)
+		if err != nil {
+			return nil, err
+		}
+		data = append(data, row)
+	}
+	// get any error occur during iteration
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	if len(data) == 0 {
+		return nil, errors.New("criteria version not found")
+	}
+	if len(data) > 0 {
+		s.c.Set(cacheKey, data, cache.NoExpiration)
+	}
+	return data, nil
+}
+
+func (s *store) GetApplicantCriteriaForPDF(criteriaVersion int) ([]ApplicantSelfScoreCriteria, error) {
+	if criteriaVersion == 0 {
+		criteriaVersion = 1
+	}
+	// check cache
+	cacheKey := fmt.Sprintf("%s_%d", applicantCriteriaPdfCachePrefix, criteriaVersion)
+	raw, found := s.c.Get(cacheKey)
+	if found {
+		cachedData, ok := raw.([]ApplicantSelfScoreCriteria)
+		if ok {
+			return cachedData, nil
+		}
+	}
+
+	// Fetch data from the db
+	rows, err := s.db.Query(getApplicantCriteriaPdfSQL, criteriaVersion)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var data []ApplicantSelfScoreCriteria
+	for rows.Next() {
+		var row ApplicantSelfScoreCriteria
+
+		err := rows.Scan(&row.Id, &row.CriteriaVersion, &row.OrderNumber, &row.PdfDisplay)
 		if err != nil {
 			return nil, err
 		}

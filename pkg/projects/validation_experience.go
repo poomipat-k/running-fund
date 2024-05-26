@@ -37,9 +37,6 @@ func validateExperience(payload AddProjectRequest) error {
 		if experience.ThisSeries.History.Completed1.Year < MIN_YEAR || experience.ThisSeries.History.Completed1.Year > localYear {
 			return &CompletedYearOutOfBoundError{}
 		}
-		if experience.ThisSeries.History.Completed1.Name == "" {
-			return &CompletedNameRequiredError{}
-		}
 		if experience.ThisSeries.History.Completed1.Participant == 0 {
 			return &CompletedParticipantRequiredError{}
 		}
@@ -48,11 +45,9 @@ func validateExperience(payload AddProjectRequest) error {
 		}
 		// thisSeries.completed2
 		if experience.ThisSeries.History.Completed2.Year != 0 ||
-			experience.ThisSeries.History.Completed2.Name != "" ||
 			experience.ThisSeries.History.Completed2.Participant != 0 {
-			err := historyCompletedIsValid(
+			err := thisHistoryCompletedIsValid(
 				experience.ThisSeries.History.Completed2.Year,
-				experience.ThisSeries.History.Completed2.Name,
 				experience.ThisSeries.History.Completed2.Participant,
 			)
 			if err != nil {
@@ -61,11 +56,9 @@ func validateExperience(payload AddProjectRequest) error {
 		}
 		// thisSeries.completed3
 		if experience.ThisSeries.History.Completed3.Year != 0 ||
-			experience.ThisSeries.History.Completed3.Name != "" ||
 			payload.Experience.ThisSeries.History.Completed3.Participant != 0 {
-			err := historyCompletedIsValid(
+			err := thisHistoryCompletedIsValid(
 				payload.Experience.ThisSeries.History.Completed3.Year,
-				payload.Experience.ThisSeries.History.Completed3.Name,
 				payload.Experience.ThisSeries.History.Completed3.Participant,
 			)
 			if err != nil {
@@ -98,7 +91,7 @@ func validateExperience(payload AddProjectRequest) error {
 		if experience.OtherSeries.History.Completed2.Year != 0 ||
 			experience.OtherSeries.History.Completed2.Name != "" ||
 			experience.OtherSeries.History.Completed2.Participant != 0 {
-			err := historyCompletedIsValid(
+			err := otherHistoryCompletedIsValid(
 				experience.OtherSeries.History.Completed2.Year,
 				experience.OtherSeries.History.Completed2.Name,
 				experience.OtherSeries.History.Completed2.Participant,
@@ -111,7 +104,7 @@ func validateExperience(payload AddProjectRequest) error {
 		if experience.OtherSeries.History.Completed3.Year != 0 ||
 			experience.OtherSeries.History.Completed3.Name != "" ||
 			experience.OtherSeries.History.Completed3.Participant != 0 {
-			err := historyCompletedIsValid(
+			err := otherHistoryCompletedIsValid(
 				experience.OtherSeries.History.Completed3.Year,
 				experience.OtherSeries.History.Completed3.Name,
 				experience.OtherSeries.History.Completed3.Participant,
@@ -124,7 +117,25 @@ func validateExperience(payload AddProjectRequest) error {
 	return nil
 }
 
-func historyCompletedIsValid(year int, name string, participant int) error {
+func thisHistoryCompletedIsValid(year int, participant int) error {
+	localYear, _, _ := getLocalYearMonthDay()
+	if year == 0 {
+		return &CompletedYearRequiredError{}
+	}
+	if year < MIN_YEAR || year > localYear {
+		return &CompletedYearOutOfBoundError{}
+	}
+	if participant == 0 {
+		return &CompletedParticipantRequiredError{}
+	}
+	if participant < 0 {
+		return &CompletedParticipantInvalidError{}
+	}
+
+	return nil
+}
+
+func otherHistoryCompletedIsValid(year int, name string, participant int) error {
 	localYear, _, _ := getLocalYearMonthDay()
 	if year == 0 {
 		return &CompletedYearRequiredError{}

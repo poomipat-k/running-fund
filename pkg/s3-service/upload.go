@@ -33,7 +33,7 @@ func NewS3Service(s3Client *s3.Client) *S3Service {
 
 func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zipWriters []*zip.Writer, zipFilePrefix string, s3ObjectPrefix string) error {
 	for _, fileHeader := range files {
-		file, err := openFileFromFileHeader(fileHeader)
+		file, err := OpenFileFromFileHeader(fileHeader)
 		if err != nil {
 			return err
 		}
@@ -50,8 +50,8 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 		}
 
 		s3ObjectKey := fmt.Sprintf("%s/%s", s3ObjectPrefix, fileName)
-
-		err = client.DoUploadFileToS3(file, s3ObjectKey)
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		err = client.DoUploadFileToS3(file, bucketName, s3ObjectKey)
 		if err != nil {
 			return err
 		}
@@ -59,9 +59,9 @@ func (client *S3Service) ZipAndUploadFileToS3(files []*multipart.FileHeader, zip
 	return nil
 }
 
-func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3ObjectPrefix string) error {
+func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, bucketName, s3ObjectPrefix string) error {
 	for _, fileHeader := range files {
-		file, err := openFileFromFileHeader(fileHeader)
+		file, err := OpenFileFromFileHeader(fileHeader)
 		if err != nil {
 			return err
 		}
@@ -69,8 +69,7 @@ func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3Object
 
 		fileName := fmt.Sprintf("%s%s", strings.Split(fileHeader.Filename, ".")[0], filepath.Ext(fileHeader.Filename))
 		s3ObjectKey := fmt.Sprintf("%s/%s", s3ObjectPrefix, fileName)
-
-		err = client.DoUploadFileToS3(file, s3ObjectKey)
+		err = client.DoUploadFileToS3(file, bucketName, s3ObjectKey)
 		if err != nil {
 			return err
 		}
@@ -78,12 +77,49 @@ func (client *S3Service) UploadFilesToS3(files []*multipart.FileHeader, s3Object
 	return nil
 }
 
-func (client *S3Service) DoUploadFileToS3(file io.Reader, objectKey string) error {
-	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+// User supplied bucketName and objectKey
+func (client *S3Service) AdminUploadFilesToS3WithObjectKey(files []*multipart.FileHeader, bucketName, s3ObjectKey string) error {
+	for _, fileHeader := range files {
+		file, err := OpenFileFromFileHeaderForAdmin(fileHeader)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		contentType := "application/octet-stream"
+		headerContentType := fileHeader.Header["Content-Type"][0]
+		if headerContentType != "" {
+			contentType = headerContentType
+		}
+		err = client.DoUploadFileToS3withContentType(file, bucketName, s3ObjectKey, contentType)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (client *S3Service) DoUploadFileToS3(file io.Reader, bucketName, objectKey string) error {
 	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 		Body:   file,
+	})
+	if err != nil {
+		log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
+			objectKey, bucketName, objectKey, err)
+		return err
+	}
+
+	return nil
+}
+
+func (client *S3Service) DoUploadFileToS3withContentType(file io.Reader, bucketName, objectKey string, contentType string) error {
+	_, err := client.S3Client.PutObject(context.TODO(), &s3.PutObjectInput{
+		Bucket:      aws.String(bucketName),
+		Key:         aws.String(objectKey),
+		Body:        file,
+		ContentType: aws.String(contentType),
 	})
 	if err != nil {
 		log.Printf("Couldn't upload file %v to %v:%v. Here's why: %v\n",
@@ -109,31 +145,6 @@ func (client *S3Service) ListObjects(bucketName string, prefix string) ([]types.
 	return contents, err
 }
 
-// DownloadFile gets an object from a bucket and stores it in a local file.
-func (client *S3Service) DownloadFile(bucketName string, objectKey string, fileName string) error {
-	result, err := client.S3Client.GetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-	})
-	if err != nil {
-		log.Printf("Couldn't get object %v:%v. Here's why: %v\n", bucketName, objectKey, err)
-		return err
-	}
-	defer result.Body.Close()
-	file, err := os.Create(fileName)
-	if err != nil {
-		log.Printf("Couldn't create file %v. Here's why: %v\n", fileName, err)
-		return err
-	}
-	defer file.Close()
-	body, err := io.ReadAll(result.Body)
-	if err != nil {
-		log.Printf("Couldn't read object body from %v. Here's why: %v\n", objectKey, err)
-	}
-	_, err = file.Write(body)
-	return err
-}
-
 func isDocType(detectedType string, contentType string) bool {
 	if detectedType == "application/octet-stream" && contentType == "application/msword" {
 		return true
@@ -156,7 +167,7 @@ func isAllowedContentType(mimetype string) bool {
 }
 
 // openFile and validate file type
-func openFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
+func OpenFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
 	if fileHeader.Size > MAX_UPLOAD_SIZE {
 		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
 	}
@@ -184,4 +195,27 @@ func openFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, e
 		return nil, err
 	}
 	return file, nil
+}
+
+func OpenFileFromFileHeaderForAdmin(fileHeader *multipart.FileHeader) (multipart.File, error) {
+	if fileHeader.Size > MAX_UPLOAD_SIZE {
+		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return nil, err
+	}
+
+	headerContentType := fileHeader.Header["Content-Type"][0]
+	if !adminAllowContentType(headerContentType) {
+		return nil, fmt.Errorf("the provided file format is not allowed. got %s", headerContentType)
+	}
+	return file, nil
+}
+
+func adminAllowContentType(contentType string) bool {
+	// allow contentType image/*
+	first := strings.Split(contentType, "/")[0]
+	return first == "image"
 }

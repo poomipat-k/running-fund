@@ -1,5 +1,6 @@
 .git
 
+.env.prod
 *.env
 
 docker-compose-staging.yaml

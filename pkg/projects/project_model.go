@@ -14,13 +14,6 @@ type ReviewDashboardRow struct {
 	ReviewId         int        `json:"reviewId,omitempty"`
 	ReviewedAt       *time.Time `json:"reviewedAt,omitempty"`
 }
-
-type ReviewPeriod struct {
-	Id       int        `json:"id,omitempty"`
-	FromDate *time.Time `json:"fromDate,omitempty"`
-	ToDate   *time.Time `json:"toDate,omitempty"`
-}
-
 type ProjectReviewDetailsResponse struct {
 	UserId               int                `json:"userId,omitempty"`
 	ProjectId            int                `json:"projectId,omitempty"`
@@ -110,6 +103,7 @@ type ApplicantSelfScoreCriteria struct {
 	CriteriaVersion int    `json:"criteriaVersion,omitempty"`
 	OrderNumber     int    `json:"orderNumber,omitempty"`
 	Display         string `json:"display,omitempty"`
+	PdfDisplay      string `json:"pdfDisplay,omitempty"`
 }
 
 type Attachments struct {
@@ -143,6 +137,17 @@ type ApplicantDetailsData struct {
 	SumScore           *int       `json:"sumScore,omitempty"`
 }
 
+type AdminUpdateParam struct {
+	CreatedBy          int        `json:"createdBy,omitempty"`
+	ProjectHistoryId   int        `json:"projectHistoryId,omitempty"`
+	ProjectStatus      string     `json:"projectStatus,omitempty"`
+	AdminScore         *int       `json:"adminScore,omitempty"`
+	FundApprovedAmount *int64     `json:"fundApprovedAmount,omitempty"`
+	AdminComment       *string    `json:"adminComment,omitempty"`
+	AdminApprovedAt    *time.Time `json:"adminApprovedAt,omitempty"`
+	UpdatedAt          time.Time  `json:"updatedAt,omitempty"`
+}
+
 type S3ObjectDetails struct {
 	Key          string    `json:"key,omitempty"`
 	LastModified time.Time `json:"lastModified,omitempty"`
@@ -151,4 +156,36 @@ type S3ObjectDetails struct {
 type CommonSuccessResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+}
+
+type AddressDetails struct {
+	Postcode        int    `json:"postcode,omitempty"`
+	SubdistrictName string `json:"subdistrictName,omitempty"`
+	DistrictName    string `json:"districtName,omitempty"`
+	ProvinceName    string `json:"provinceName,omitempty"`
+}
+
+type AdminRequestDashboardRow struct {
+	ProjectCode      string    `json:"projectCode,omitempty"`
+	ProjectCreatedAt time.Time `json:"projectCreatedAt,omitempty"`
+	ProjectName      string    `json:"projectName,omitempty"`
+	ProjectStatus    string    `json:"projectStatus,omitempty"`
+	ProjectUpdatedAt time.Time `json:"projectUpdatedAt,omitempty"`
+	AdminComment     *string   `json:"adminComment,omitempty"`
+	AvgScore         *float64  `json:"avgScore,omitempty"`
+	Count            int       `json:"count,omitempty"`
+}
+
+type AdminSummaryData struct {
+	Status  string `json:"status"`
+	Count   int    `json:"count"`
+	FundSum *int64 `json:"fundSum"`
+}
+
+type AdminReportRow struct {
+	ProjectCode        string
+	ProjectName        string
+	CreatedAt          time.Time
+	FromDate           time.Time
+	FundApprovedAmount *int64
 }

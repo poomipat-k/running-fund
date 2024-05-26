@@ -2,7 +2,7 @@ package projects
 
 import "mime/multipart"
 
-func validateAttachment(marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles []*multipart.FileHeader) error {
+func validateAttachment(marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles []*multipart.FileHeader) error {
 	if len(marketingFiles) == 0 {
 		return &MarketingFilesRequiredError{}
 	}
@@ -14,9 +14,6 @@ func validateAttachment(marketingFiles, routeFiles, eventMapFiles, eventDetailsF
 	}
 	if len(eventDetailsFiles) == 0 {
 		return &EventDetailsFilesRequiredError{}
-	}
-	if len(screenshotFiles) == 0 {
-		return &ScreenshotFilesRequiredError{}
 	}
 	return nil
 }

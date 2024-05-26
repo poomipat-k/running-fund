@@ -1,6 +1,7 @@
 package projects
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -22,14 +23,22 @@ const MAX_UPLOAD_SIZE = 25 * 1024 * 1024 // 25MB
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
-	GetReviewPeriod() (ReviewPeriod, error)
+	// GetReviewPeriod() (ReviewPeriod, error)
 	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetailsResponse, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
 	AddProject(addProject AddProjectRequest, userId int, criteria []ApplicantSelfScoreCriteria, attachments []Attachments) (int, error)
 	GetAllProjectDashboardByApplicantId(applicantId int) ([]ApplicantDashboardItem, error)
-	GetApplicantProjectDetails(userId int, projectCode string) ([]ApplicantDetailsData, error)
+	GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
+	GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error)
+	UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error
+	GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
+	GetAdminStartedDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
+	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
+	GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error)
+	// GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
+	// AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
 }
 
 type ProjectHandler struct {
@@ -72,7 +81,6 @@ func (h *ProjectHandler) GetReviewerDashboard(w http.ResponseWriter, r *http.Req
 	utils.WriteJSON(w, http.StatusOK, projects)
 }
 
-// Here
 func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *http.Request) {
 	var reviewerId int
 	loggedInUserId, err := utils.GetUserIdFromRequestHeader(r)
@@ -83,6 +91,10 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
 	if userRole == "applicant" {
+		utils.ErrorJSON(w, errors.New("no permission"), "userRole", http.StatusForbidden)
+		return
+	}
+	if userRole == "admin" {
 		var payload ProjectReviewer
 		utils.ReadJSON(w, r, &payload)
 		if payload.ReviewerId == 0 {
@@ -113,17 +125,6 @@ func (h *ProjectHandler) GetReviewerProjectDetails(w http.ResponseWriter, r *htt
 		return
 	}
 	utils.WriteJSON(w, http.StatusOK, projectDetails)
-}
-
-func (h *ProjectHandler) GetReviewPeriod(w http.ResponseWriter, r *http.Request) {
-	period, err := h.store.GetReviewPeriod()
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "")
-		return
-	}
-
-	utils.WriteJSON(w, http.StatusOK, period)
 }
 
 func (h *ProjectHandler) GetProjectCriteria(w http.ResponseWriter, r *http.Request) {
@@ -188,10 +189,12 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 	formJsonString := r.FormValue("form")
 	payload := AddProjectRequest{}
-	slog.Info("AddProject payload", "userId", userId, "payload", r.Form)
+	// slog.Info("AddProject payload", "userId", userId, "payload", r.Form)
+	slog.Info("AddProject payload", "userId", userId)
 
 	err = json.Unmarshal([]byte(formJsonString), &payload)
 	if err != nil {
+		slog.Error(err.Error(), "payload", r.Form)
 		utils.ErrorJSON(w, err, "")
 		return
 	}
@@ -204,7 +207,6 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
-	screenshotFiles := r.MultipartForm.File["screenshotFiles"]
 	attachments := []Attachments{
 		{
 			DirName:         collaborationStr,
@@ -236,37 +238,32 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			InZipFilePrefix: "กำหนดการการจัดกิจกรรม",
 			Files:           eventDetailsFiles,
 		},
-		{
-			DirName:         formStr,
-			ZipName:         formStr,
-			InZipFilePrefix: formStr,
-			Files:           screenshotFiles,
-		},
 	}
 
 	v := os.Getenv("APPLICANT_CRITERIA_VERSION")
 	criteriaVersion, err := strconv.Atoi(v)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error(err.Error(), "criteriaVersion", criteriaVersion)
 		utils.ErrorJSON(w, err, "APPLICANT_CRITERIA_VERSION", http.StatusBadRequest)
 		return
 	}
 	criteria, err := h.store.GetApplicantCriteria(criteriaVersion)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("GetApplicantCriteria error", "error", err.Error())
 		utils.ErrorJSON(w, err, "", http.StatusInternalServerError)
 		return
 	}
 
-	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles, screenshotFiles)
+	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles)
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error("error validateAddProjectPayload", "error", err.Error(), "payload", payload)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
 
 	projectId, err := h.store.AddProject(payload, userId, criteria, attachments)
 	if err != nil {
+		slog.Error("error add project store", "error", err.Error(), "payload", payload)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
 	}
@@ -276,14 +273,22 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) GetApplicantProjectDetails(w http.ResponseWriter, r *http.Request) {
 	projectCode := chi.URLParam(r, "projectCode")
+	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole != "admin" && userRole != "applicant" {
+		utils.ErrorJSON(w, errors.New("access denied. No permission"), "userRole", http.StatusForbidden)
+		return
+	}
 
+	var userId int
 	userId, err := utils.GetUserIdFromRequestHeader(r)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId", http.StatusForbidden)
 		return
 	}
-	projectDetails, err := h.store.GetApplicantProjectDetails(userId, projectCode)
+	isAdmin := userRole == "admin"
+	projectDetails, err := h.store.GetApplicantProjectDetails(isAdmin, projectCode, userId)
+
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "userId + projectCode", http.StatusNotFound)
@@ -331,6 +336,7 @@ func (h *ProjectHandler) ListApplicantFiles(w http.ResponseWriter, r *http.Reque
 			LastModified: *obj.LastModified,
 		})
 	}
+
 	utils.WriteJSON(w, http.StatusOK, data)
 }
 
@@ -367,6 +373,10 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 		return
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
+	if userRole != "applicant" && userRole != "admin" {
+		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusForbidden)
+		return
+	}
 	if userRole == "admin" {
 		userId = payload.UserId
 	}
@@ -378,7 +388,8 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 	}
 
 	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
-	err = h.awsS3Service.UploadFilesToS3(additionFiles, objectPrefix)
+	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+	err = h.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
 	if err != nil {
 		slog.Error(err.Error())
 		utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)

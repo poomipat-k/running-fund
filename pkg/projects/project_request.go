@@ -25,6 +25,11 @@ type Review struct {
 	Scores        map[string]int    `json:"scores,omitempty"`
 }
 
+type AddProjectFilesRequest struct {
+	ProjectCode string `json:"projectCode,omitempty"`
+	UserId      int    `json:"userId,omitempty"`
+}
+
 type AddProjectRequest struct {
 	Collaborated *bool                    `json:"collaborated,omitempty"`
 	General      AddProjectGeneralDetails `json:"general,omitempty"`
@@ -32,11 +37,6 @@ type AddProjectRequest struct {
 	Details      Details                  `json:"details,omitempty"`
 	Experience   Experience               `json:"experience,omitempty"`
 	Fund         Fund                     `json:"fund,omitempty"`
-}
-
-type AddProjectFilesRequest struct {
-	ProjectCode string `json:"projectCode,omitempty"`
-	UserId      int    `json:"userId,omitempty"`
 }
 
 // Sub-types for AddProjectRequest
@@ -74,6 +74,7 @@ type EventDetails struct {
 	Category       Category         `json:"category,omitempty"`
 	DistanceAndFee []DistanceAndFee `json:"distanceAndFee,omitempty"`
 	VIP            *bool            `json:"vip,omitempty"`
+	VIPFee         *float64         `json:"vipFee,omitempty"`
 }
 
 type Category struct {
@@ -95,30 +96,14 @@ type DistanceAndFee struct {
 }
 
 type Contact struct {
-	ProjectHead        ProjectHead         `json:"projectHead,omitempty"`
-	ProjectManager     ProjectManager      `json:"projectManager,omitempty"`
-	ProjectCoordinator ProjectCoordinator  `json:"projectCoordinator,omitempty"`
+	ProjectHead        ContactPerson       `json:"projectHead,omitempty"`
+	ProjectManager     ContactPerson       `json:"projectManager,omitempty"`
+	ProjectCoordinator ContactPerson       `json:"projectCoordinator,omitempty"`
 	RaceDirector       RaceDirector        `json:"raceDirector,omitempty"`
 	Organization       ContactOrganization `json:"organization,omitempty"`
 }
 
-type ProjectHead struct {
-	Prefix               string `json:"prefix,omitempty"`
-	FirstName            string `json:"firstName,omitempty"`
-	LastName             string `json:"lastName,omitempty"`
-	OrganizationPosition string `json:"organizationPosition,omitempty"`
-	EventPosition        string `json:"eventPosition,omitempty"`
-}
-
-type ProjectManager struct {
-	Prefix               string `json:"prefix,omitempty"`
-	FirstName            string `json:"firstName,omitempty"`
-	LastName             string `json:"lastName,omitempty"`
-	OrganizationPosition string `json:"organizationPosition,omitempty"`
-	EventPosition        string `json:"eventPosition,omitempty"`
-}
-
-type ProjectCoordinator struct {
+type ContactPerson struct {
 	Prefix               string  `json:"prefix,omitempty"`
 	FirstName            string  `json:"firstName,omitempty"`
 	LastName             string  `json:"lastName,omitempty"`
@@ -129,7 +114,6 @@ type ProjectCoordinator struct {
 	LineId               string  `json:"lineId,omitempty"`
 	PhoneNumber          string  `json:"phoneNumber,omitempty"`
 }
-
 type RaceDirector struct {
 	Who         string                  `json:"who,omitempty"`
 	Alternative RaceDirectorAlternative `json:"alternative,omitempty"`
@@ -208,6 +192,7 @@ type SafetyReady struct {
 	Ambulance         bool `json:"ambulance,omitempty"`
 	FirstAid          bool `json:"firstAid,omitempty"`
 	AED               bool `json:"aed,omitempty"`
+	VolunteerDoctor   bool `json:"volunteerDoctor,omitempty"`
 	Insurance         bool `json:"insurance,omitempty"`
 	Other             bool `json:"other,omitempty"`
 }
@@ -327,4 +312,47 @@ type ListFilesRequest struct {
 
 type ProjectReviewer struct {
 	ReviewerId int `json:"reviewerId,omitempty"`
+}
+
+type AdminUpdateProjectRequest struct {
+	ProjectStatusPrimary   string     `json:"projectStatusPrimary,omitempty"`
+	ProjectStatusSecondary string     `json:"projectStatusSecondary,omitempty"`
+	AdminScore             *int       `json:"adminScore,omitempty"`
+	FundApprovedAmount     *int64     `json:"fundApprovedAmount,omitempty"`
+	AdminComment           *string    `json:"adminComment,omitempty"`
+	AdminApprovedAt        *time.Time `json:"adminApprovedAt,omitempty"`
+}
+
+type GetAdminDashboardRequest struct {
+	FromYear      int      `json:"fromYear,omitempty"`
+	FromMonth     int      `json:"fromMonth,omitempty"`
+	FromDay       int      `json:"fromDay,omitempty"`
+	ToYear        int      `json:"toYear,omitempty"`
+	ToMonth       int      `json:"toMonth,omitempty"`
+	ToDay         int      `json:"toDay,omitempty"`
+	PageNo        int      `json:"pageNo,omitempty"`
+	PageSize      int      `json:"pageSize,omitempty"`
+	SortBy        []string `json:"sortBy,omitempty"`
+	IsAsc         bool     `json:"isAsc,omitempty"`
+	ProjectCode   *string  `json:"projectCode,omitempty"`
+	ProjectName   *string  `json:"projectName,omitempty"`
+	ProjectStatus *string  `json:"projectStatus,omitempty"`
+}
+
+type GetAdminSummaryRequest struct {
+	FromYear  int `json:"fromYear,omitempty"`
+	FromMonth int `json:"fromMonth,omitempty"`
+	FromDay   int `json:"fromDay,omitempty"`
+	ToYear    int `json:"toYear,omitempty"`
+	ToMonth   int `json:"toMonth,omitempty"`
+	ToDay     int `json:"toDay,omitempty"`
+}
+
+type GenerateAdminReportRequest struct {
+	FromYear  int `json:"fromYear,omitempty"`
+	FromMonth int `json:"fromMonth,omitempty"`
+	FromDay   int `json:"fromDay,omitempty"`
+	ToYear    int `json:"toYear,omitempty"`
+	ToMonth   int `json:"toMonth,omitempty"`
+	ToDay     int `json:"toDay,omitempty"`
 }

@@ -3,11 +3,10 @@ package utils
 import (
 	"archive/zip"
 	"io"
-	"mime/multipart"
 )
 
 // Write to zip then seek start of the file
-func WriteToZip(zipWriter *zip.Writer, file multipart.File, filePath string) error {
+func WriteToZip(zipWriter *zip.Writer, file io.ReadSeeker, filePath string) error {
 	w, err := zipWriter.Create(filePath)
 	if err != nil {
 		return err

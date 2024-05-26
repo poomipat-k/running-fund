@@ -1,7 +1,5 @@
 package projects
 
-const getReviewPeriodSQL = "SELECT id, from_date, to_date FROM review_period ORDER BY id DESC LIMIT 1;"
-
 const getReviewerDashboardSQL = `
 SELECT 
 project.user_id as user_id,
@@ -15,6 +13,7 @@ LEFT JOIN review
 ON project.project_history_id = review.project_history_id AND review.user_id = $1
 WHERE project.created_at >= $2
 AND project.created_at < $3
+AND project_history.status = 'Reviewing'
 ORDER BY project_name;
 `
 const getReviewerProjectDetailsSQL = `
@@ -90,6 +89,12 @@ SELECT id, criteria_version, order_number, display
 FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
 ORDER BY order_number ASC;
 `
+const getApplicantCriteriaPdfSQL = `
+SELECT id, criteria_version, order_number, pdf_display
+FROM applicant_criteria WHERE criteria_version = $1 AND code = 'project_self_score' 
+ORDER BY order_number ASC;
+`
+
 const addAddressSQL = `
 INSERT INTO address (address, postcode_id) VALUES ($1, $2) RETURNING id;
 `
@@ -138,6 +143,7 @@ INSERT INTO project_history
 	cat_has_other,
 	cat_other_type,
 	vip,
+	vip_fee,
 	expected_participants,
 	has_organizer,
 	organizer_name,
@@ -170,6 +176,7 @@ INSERT INTO project_history
 	st_first_aid,
 	st_aed,
 	st_aed_count,
+	st_volunteer_doctor,
 	st_insurance,
 	st_other,
 	st_addition,
@@ -196,13 +203,10 @@ INSERT INTO project_history
 	exp_this_ordinal_number,
 	exp_this_latest_date,
 	exp_this_completed1_year,
-	exp_this_completed1_name,
 	exp_this_completed1_participant,
 	exp_this_completed2_year,
-	exp_this_completed2_name,
 	exp_this_completed2_participant,
 	exp_this_completed3_year,
-	exp_this_completed3_name,
 	exp_this_completed3_participant,
 	exp_other_done_before,
 	exp_other_completed1_year,
@@ -232,7 +236,7 @@ INSERT INTO project_history
 	$39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, 
 	$57, $58, $59, $60, $61, $62, $63, $64, $65, $66, $67, $68, $69, $70, $71, $72, $73, $74, 
 	$75, $76, $77, $78, $79, $80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $90, $91, $92, 
-	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102, $103, $104, $105
+	$93, $94, $95, $96, $97, $98, $99, $100, $101, $102, $103, $104
 ) RETURNING id;
 `
 
@@ -270,16 +274,37 @@ project_history.fund_approved_amount as fund_approved_amount,
 project_history.admin_comment as admin_comment,
 review.id as review_id,
 review.user_id as reviewer_id,
+review.created_at as reviewed_at
+FROM project
+INNER JOIN project_history ON project.project_code = project_history.project_code
+LEFT JOIN review ON review.project_history_id = project_history.id
+WHERE project.project_code = $1 AND project.user_id = $2
+ORDER BY reviewed_at ASC
+;
+`
+
+const getApplicantProjectDetailsByAdminSQL = `
+SELECT 
+project.project_code as project_code,
+project.user_id as user_id,
+project_history.project_name  as project_name,
+project_history.status as project_status,
+project_history.admin_score as admin_score,
+project_history.fund_approved_amount as fund_approved_amount,
+project_history.admin_comment as admin_comment,
+review.id as review_id,
+review.user_id as reviewer_id,
 review.created_at as reviewed_at,
 SUM(review_details.score)
 FROM project
 INNER JOIN project_history ON project.project_code = project_history.project_code
 LEFT JOIN review ON review.project_history_id = project_history.id
 LEFT JOIN review_details ON review.id = review_details.review_id
-WHERE project.user_id = $1 AND project.project_code = $2 
+WHERE project.project_code = $1 
 GROUP BY project.project_code, project.user_id, project_history.project_name, 
 project_history.status, project_history.admin_score, project_history.fund_approved_amount,
 project_history.admin_comment, review.id
+ORDER BY reviewed_at ASC
 ;
 `
 
@@ -287,4 +312,64 @@ const hasRightToAddAdditionalFilesSQL = `
 SELECT project.id as project_id, project_history.status as project_status
 FROM project INNER JOIN project_history ON project.project_history_id = project_history.id 
 WHERE project.user_id = $1 AND project.project_code = $2;
+`
+
+const getAddressDetailsSQL = `
+SELECT postcode.code as postcode, subdistrict."name" as subdistrict_name,
+district."name" as district_name, province."name" as province_name
+FROM postcode
+INNER JOIN subdistrict ON postcode.subdistrict_id = subdistrict.id
+INNER JOIN district ON subdistrict.district_id = district.id
+INNER JOIN province ON district.province_id = province.id
+WHERE postcode.id = $1;
+`
+
+const getProjectForAdminUpdateByProjectCodeSQL = `
+SELECT
+project.user_id as user_id,
+project_history.id as project_history_id,
+project_history.status as project_status,
+project_history.admin_score as admin_score,
+project_history.fund_approved_amount as fund_approved_amount,
+project_history.admin_comment as admin_comment,
+project_history.admin_approved_at as admin_approved_at,
+project_history.updated_at as updated_at
+FROM project
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.project_code = $1;
+`
+
+const updateProjectByAdminSQL = `
+UPDATE project_history
+SET
+status = $2,
+admin_score = $3,
+fund_approved_amount = $4,
+admin_comment = $5,
+admin_approved_at = $6,
+updated_at = $7
+WHERE project_history.id = $1 RETURNING id;
+`
+
+const getAdminSummarySQL = `
+SELECT 
+project_history.status,
+COUNT(*) as count,
+SUM(project_history.fund_approved_amount)
+FROM project INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.created_at >= $1 AND project.created_at < $2
+GROUP BY project_history.status;
+`
+
+const getAdminReportSQL = `
+SELECT 
+project_history.project_code as project_code,
+project_history.project_name as project_name,
+project.created_at as created_at,
+project_history.from_date as from_date,
+project_history.fund_approved_amount as fund_approved_amount
+FROM project
+INNER JOIN project_history ON project.project_history_id = project_history.id
+WHERE project.created_at >= $1 AND project.created_at < $2
+;
 `

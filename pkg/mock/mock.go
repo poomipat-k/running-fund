@@ -1,6 +1,8 @@
 package mock
 
 import (
+	"bytes"
+	"mime/multipart"
 	"time"
 
 	"github.com/poomipat-k/running-fund/pkg/projects"
@@ -50,23 +52,25 @@ func (m *MockUserStore) GetUserFullNameById(userId int) (users.UserFullName, err
 
 // projects
 type MockProjectStore struct {
+	AdminUpdateData projects.AdminUpdateParam
+
 	GetReviewerDashboardFunc                func(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error)
-	GetReviewPeriodFunc                     func() (projects.ReviewPeriod, error)
 	GetReviewerProjectDetailsFunc           func(userId int, projectCode string) (projects.ProjectReviewDetailsResponse, error)
 	GetProjectCriteriaFunc                  func(criteriaVersion int) ([]projects.ProjectReviewCriteria, error)
 	AddProjectFunc                          func(addProject projects.AddProjectRequest, userId int, criteria []projects.ApplicantSelfScoreCriteria, attachments []projects.Attachments) (int, error)
 	GetApplicantCriteriaFunc                func(version int) ([]projects.ApplicantSelfScoreCriteria, error)
 	GetAllProjectDashboardByApplicantIdFunc func(applicantId int) ([]projects.ApplicantDashboardItem, error)
-	GetApplicantProjectDetailsFunc          func(userId int, projectCode string) ([]projects.ApplicantDetailsData, error)
+	GetApplicantProjectDetailsFunc          func(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFilesFunc   func(userId int, projectCode string) bool
+	GetProjectStatusByProjectCodeFunc       func(projectCode string) (projects.AdminUpdateParam, error)
+	GetAdminRequestDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]projects.AdminRequestDashboardRow, error)
+	GetAdminStartedDashboardFunc            func(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]projects.AdminRequestDashboardRow, error)
+	GetAdminSummaryFunc                     func(fromDate, toDate time.Time) ([]projects.AdminSummaryData, error)
+	GenerateAdminReportFunc                 func(fromDate, toDate time.Time) (*bytes.Buffer, error)
 }
 
 func (m *MockProjectStore) GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]projects.ReviewDashboardRow, error) {
 	return m.GetReviewerDashboardFunc(userId, from, to)
-}
-
-func (m *MockProjectStore) GetReviewPeriod() (projects.ReviewPeriod, error) {
-	return m.GetReviewPeriodFunc()
 }
 
 func (m *MockProjectStore) GetReviewerProjectDetails(userId int, projectCode string) (projects.ProjectReviewDetailsResponse, error) {
@@ -89,10 +93,47 @@ func (m *MockProjectStore) GetAllProjectDashboardByApplicantId(applicantId int) 
 	return m.GetAllProjectDashboardByApplicantIdFunc(applicantId)
 }
 
-func (m *MockProjectStore) GetApplicantProjectDetails(userId int, projectCode string) ([]projects.ApplicantDetailsData, error) {
-	return m.GetApplicantProjectDetailsFunc(userId, projectCode)
+func (m *MockProjectStore) GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]projects.ApplicantDetailsData, error) {
+	return m.GetApplicantProjectDetailsFunc(isAdmin, projectCode, userId)
 }
 
 func (m *MockProjectStore) HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool {
 	return m.HasPermissionToAddAdditionalFilesFunc(userId, projectCode)
+}
+
+func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (projects.AdminUpdateParam, error) {
+	return m.GetProjectStatusByProjectCodeFunc(projectCode)
+}
+
+func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
+	m.AdminUpdateData = payload
+	return nil
+}
+
+func (m *MockProjectStore) GetAdminRequestDashboard(
+	fromDate,
+	toDate time.Time,
+	orderBy string,
+	limit, offset int,
+	projectCode, projectName, projectStatus *string,
+) ([]projects.AdminRequestDashboardRow, error) {
+	return m.GetAdminRequestDashboardFunc(fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
+}
+
+func (m *MockProjectStore) GetAdminStartedDashboard(
+	fromDate,
+	toDate time.Time,
+	orderBy string,
+	limit, offset int,
+	projectCode, projectName, projectStatus *string,
+) ([]projects.AdminRequestDashboardRow, error) {
+	return m.GetAdminRequestDashboardFunc(fromDate, toDate, orderBy, limit, offset, projectCode, projectName, projectStatus)
+}
+
+func (m *MockProjectStore) GetAdminSummary(fromDate, toDate time.Time) ([]projects.AdminSummaryData, error) {
+	return m.GetAdminSummaryFunc(fromDate, toDate)
+}
+
+func (m *MockProjectStore) GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error) {
+	return m.GenerateAdminReportFunc(fromDate, toDate)
 }

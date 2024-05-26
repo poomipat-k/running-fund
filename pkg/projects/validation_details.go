@@ -109,6 +109,7 @@ func validateSafety(payload AddProjectRequest) error {
 		!payload.Details.Safety.Ready.Ambulance &&
 		!payload.Details.Safety.Ready.FirstAid &&
 		!payload.Details.Safety.Ready.AED &&
+		!payload.Details.Safety.Ready.VolunteerDoctor &&
 		!payload.Details.Safety.Ready.Insurance &&
 		!payload.Details.Safety.Ready.Other {
 		return &SafetyReadyRequiredOneError{}

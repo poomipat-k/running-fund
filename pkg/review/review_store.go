@@ -5,11 +5,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 )
 
 const dbTimeout = time.Second * 5
+
+const hardCodeReviewedCountCriteria = 4
 
 type store struct {
 	db *sql.DB
@@ -96,6 +101,28 @@ func (s *store) AddReview(payload AddReviewRequest, userId int, criteriaList []P
 	}
 	_, err = stmt.ExecContext(ctx, values...)
 	if err != nil {
+		return fail(err)
+	}
+	// ReviewerCountBefore change project status
+	reviewerThresholdRaw := os.Getenv("REVIEWER_THRESHOLD")
+	reviewerThreshold, err := strconv.Atoi(reviewerThresholdRaw)
+	if err != nil {
+		slog.Error("REVIEWER_THRESHOLD is not set")
+		return fail(err)
+	}
+	if reviewerThreshold == 0 {
+		reviewerThreshold = hardCodeReviewedCountCriteria
+	}
+
+	var updateStatusId int
+	err = tx.QueryRowContext(
+		ctx,
+		updateProjectStatusToReviewed,
+		payload.ProjectHistoryId,
+		now,
+		reviewerThreshold,
+	).Scan(&updateStatusId)
+	if err != nil && err != sql.ErrNoRows {
 		return fail(err)
 	}
 
