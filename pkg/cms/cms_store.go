@@ -481,15 +481,15 @@ func (s *store) addWebsiteConfig(ctx context.Context, tx *sql.Tx, payload AdminU
 
 func (s *store) addLandingPageBanners(ctx context.Context, tx *sql.Tx, banners []Image, websiteConfigId int) (int64, error) {
 	const initialSQL = `
-	INSERT INTO website_image (code, full_path, object_key, link_to, website_config_id)
+	INSERT INTO website_image (code, full_path, object_key, link_to, order_number, website_config_id)
 	VALUES 
 	`
 
 	valuesStrPlaceholder := []string{}
 	values := []any{}
 	for i, banner := range banners {
-		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", 5*i+1, 5*i+2, 5*i+3, 5*i+4, 5*i+5))
-		values = append(values, "banner", banner.FullPath, banner.ObjectKey, banner.LinkTo, websiteConfigId)
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d)", 6*i+1, 6*i+2, 6*i+3, 6*i+4, 6*i+5, 6*i+6))
+		values = append(values, "banner", banner.FullPath, banner.ObjectKey, banner.LinkTo, i+1, websiteConfigId)
 	}
 	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
@@ -507,15 +507,15 @@ func (s *store) addLandingPageBanners(ctx context.Context, tx *sql.Tx, banners [
 
 func (s *store) addFooterLogos(ctx context.Context, tx *sql.Tx, logos []Image, websiteConfigId int) (int64, error) {
 	const initialSQL = `
-	INSERT INTO website_image (code, full_path, object_key, link_to, website_config_id)
+	INSERT INTO website_image (code, full_path, object_key, link_to, order_number, website_config_id)
 	VALUES 
 	`
 
 	valuesStrPlaceholder := []string{}
 	values := []any{}
 	for i, logo := range logos {
-		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", 5*i+1, 5*i+2, 5*i+3, 5*i+4, 5*i+5))
-		values = append(values, "footer_logo", logo.FullPath, logo.ObjectKey, logo.LinkTo, websiteConfigId)
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d)", 6*i+1, 6*i+2, 6*i+3, 6*i+4, 6*i+5, 6*i+6))
+		values = append(values, "footer_logo", logo.FullPath, logo.ObjectKey, logo.LinkTo, i+1, websiteConfigId)
 	}
 	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
@@ -533,15 +533,15 @@ func (s *store) addFooterLogos(ctx context.Context, tx *sql.Tx, logos []Image, w
 
 func (s *store) addFaqList(ctx context.Context, tx *sql.Tx, faqList []FAQ, websiteConfigId int) (int64, error) {
 	const initialSQL = `
-	INSERT INTO faq (question, answer, website_config_id)
+	INSERT INTO faq (question, answer, order_number, website_config_id)
 	VALUES 
 	`
 
 	valuesStrPlaceholder := []string{}
 	values := []any{}
 	for i, faq := range faqList {
-		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
-		values = append(values, faq.Question, faq.Answer, websiteConfigId)
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
+		values = append(values, faq.Question, faq.Answer, i+1, websiteConfigId)
 	}
 	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
@@ -559,15 +559,15 @@ func (s *store) addFaqList(ctx context.Context, tx *sql.Tx, faqList []FAQ, websi
 
 func (s *store) addHowToCreate(ctx context.Context, tx *sql.Tx, howToCreateList []HowToCreate, websiteConfigId int) (int64, error) {
 	const initialSQL = `
-	INSERT INTO how_to_create (header, content, website_config_id)
+	INSERT INTO how_to_create (header, content, order_number, website_config_id)
 	VALUES 
 	`
 
 	valuesStrPlaceholder := []string{}
 	values := []any{}
 	for i, item := range howToCreateList {
-		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d)", 3*i+1, 3*i+2, 3*i+3))
-		values = append(values, item.Header, item.Content, websiteConfigId)
+		valuesStrPlaceholder = append(valuesStrPlaceholder, fmt.Sprintf("($%d, $%d, $%d, $%d)", 4*i+1, 4*i+2, 4*i+3, 4*i+4))
+		values = append(values, item.Header, item.Content, i+1, websiteConfigId)
 	}
 	customSQL := initialSQL + strings.Join(valuesStrPlaceholder, ",") + ";"
 	stmt, err := tx.Prepare(customSQL)
