@@ -11,6 +11,7 @@ var FundOkPayload = projects.Fund{
 	Budget: projects.Budget{
 		Total:               50000,
 		SupportOrganization: "ABC",
+		NoAlcoholSponsor:    true,
 	},
 	Request: projects.FundRequest{
 		Type: projects.FundRequestType{
@@ -67,6 +68,28 @@ var Fund = []TestCase{
 		expectedStatus: http.StatusBadRequest,
 		expectedError:  &projects.BudgetSupportOrganizationRequiredError{},
 	},
+	{
+		name: "should error when fund.budget.noAlcoholSponsor is empty",
+		payload: projects.AddProjectRequest{
+			Collaborated: newFalse(),
+			General:      GeneralDetailsOkPayload,
+			Contact:      ContactOkPayload,
+			Details:      DetailsOkPayload,
+			Experience:   ExperienceOkPayload,
+			Fund: projects.Fund{
+				Budget: projects.Budget{
+					Total:               40000,
+					SupportOrganization: "ABC",
+				},
+			},
+		},
+		store: &mock.MockProjectStore{
+			AddProjectFunc:           addProjectSuccess,
+			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
+		},
+		expectedStatus: http.StatusBadRequest,
+		expectedError:  &projects.NoAlcoholSponsorError{},
+	},
 	// fund.request
 	{
 		name: "should error when none of fund.request.type is checked",
@@ -80,6 +103,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 			},
 		},
@@ -102,6 +126,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 				Request: projects.FundRequest{
 					Type: projects.FundRequestType{
@@ -129,6 +154,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 				Request: projects.FundRequest{
 					Type: projects.FundRequestType{
@@ -159,6 +185,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 				Request: projects.FundRequest{
 					Type: projects.FundRequestType{
@@ -190,6 +217,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 				Request: projects.FundRequest{
 					Type: projects.FundRequestType{
@@ -222,6 +250,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 				Request: projects.FundRequest{
 					Type: projects.FundRequestType{
@@ -255,6 +284,7 @@ var Fund = []TestCase{
 				Budget: projects.Budget{
 					Total:               50000,
 					SupportOrganization: "ABC",
+					NoAlcoholSponsor:    true,
 				},
 				Request: projects.FundRequest{
 					Type: projects.FundRequestType{

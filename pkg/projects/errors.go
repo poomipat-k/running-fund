@@ -774,6 +774,12 @@ func (e *BudgetSupportOrganizationRequiredError) Error() string {
 	return "budget supportOrganization is required"
 }
 
+type NoAlcoholSponsorError struct{}
+
+func (e *NoAlcoholSponsorError) Error() string {
+	return "budget noAlcohol sponsor must be checked"
+}
+
 type FundRequestTypeRequiredOneError struct{}
 
 func (e *FundRequestTypeRequiredOneError) Error() string {
