@@ -99,12 +99,6 @@ const addAddressSQL = `
 INSERT INTO address (address, postcode_id) VALUES ($1, $2) RETURNING id;
 `
 
-const addContactMainSQL = `
-INSERT INTO contact 
-(prefix, first_name, last_name, organization_position, event_position) 
-VALUES ($1, $2, $3, $4, $5) RETURNING id;
-`
-
 const addContactFullSQL = `
 INSERT INTO contact 
 (prefix, first_name, last_name, organization_position, event_position, address_id, email, line_id, phone_number) 
