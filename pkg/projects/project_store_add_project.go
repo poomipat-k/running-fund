@@ -294,6 +294,7 @@ func addProjectHistory(
 		payload.Fund.Request.Details.Seminar,
 		payload.Fund.Request.Type.Other,
 		payload.Fund.Request.Details.Other,
+		payload.Fund.Budget.NoAlcoholSponsor,
 		baseFilePrefix,
 	).Scan(&id)
 	if err != nil {

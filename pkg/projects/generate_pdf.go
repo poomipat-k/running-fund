@@ -809,6 +809,30 @@ func (s *store) generateFundRequestSection(pdf *gofpdf.Fpdf, payload AddProjectR
 	pdf.Ln(4)
 
 	pdf.SetFont(srB, "B", 16)
+	pdf.MultiCell(0, 16, indent("5.1.3 โปรดยืนยันว่าโครงการที่ท่านส่งยื่นขอรับการสนับสนุนในครั้งนี้ไม่มีส่วนการรับสนับสนุนจากผลิตภัณฑ์เครื่องดื่มแอลกอฮอล์และบุหรี่ รวมทั้งผลิตภัณฑ์อื่น ๆ ที่มีตราสัญลักษณ์ของเครื่องดื่มแอลกอฮอล์ หากพบภายหลังจากพิจารณาสนับสนุนทุนไปแล้ว ขอเพิกถอนสิทธิ์การสนับสนุนทันทีและมีผลต่อการพิจารณาสนับสนุนในอนาคต", 8), gofpdf.BorderNone, gofpdf.AlignLeft, false)
+	pdf.SetFont(sr, "", 16)
+	if payload.Fund.Budget.NoAlcoholSponsor {
+		pdf.MultiCell(
+			0,
+			16,
+			indent("- ข้าพเจ้าขอยืนยันและยินยอมต่อเงื่อนไขการสนับสนุน", 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	} else {
+		pdf.MultiCell(
+			0,
+			16,
+			indent("- ข้าพเจ้าไม่ขอยืนยันและไม่ยินยอมต่อเงื่อนไขการสนับสนุน", 6),
+			gofpdf.BorderNone,
+			gofpdf.AlignLeft,
+			false,
+		)
+	}
+	pdf.Ln(4)
+
+	pdf.SetFont(srB, "B", 16)
 	pdf.MultiCell(0, 16, indent("5.2 ความต้องการการสนับสนุนจากสสส. และสมาพันธ์ฯ", 0), gofpdf.BorderNone, gofpdf.AlignLeft, false)
 	pdf.SetFont(sr, "", 16)
 	if payload.Fund.Request.Type.Fund {
