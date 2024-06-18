@@ -23,7 +23,6 @@ const MAX_UPLOAD_SIZE = 25 * 1024 * 1024 // 25MB
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
-	// GetReviewPeriod() (ReviewPeriod, error)
 	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetailsResponse, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
@@ -37,8 +36,6 @@ type projectStore interface {
 	GetAdminStartedDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
 	GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error)
-	// GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
-	// AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
 }
 
 type ProjectHandler struct {
@@ -207,6 +204,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
+	etcFiles := r.MultipartForm.File["etcFiles"]
 	attachments := []Attachments{
 		{
 			DirName:         collaborationStr,
@@ -237,6 +235,12 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			ZipName:         attachmentsStr,
 			InZipFilePrefix: "กำหนดการการจัดกิจกรรม",
 			Files:           eventDetailsFiles,
+		},
+		{
+			DirName:         fmt.Sprintf("%s/เอกสารอื่นๆ", attachmentsStr),
+			ZipName:         attachmentsStr,
+			InZipFilePrefix: "เอกสารอื่นๆ",
+			Files:           etcFiles,
 		},
 	}
 
