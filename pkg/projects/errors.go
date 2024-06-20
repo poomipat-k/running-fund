@@ -846,10 +846,10 @@ func (e *EventDetailsFilesRequiredError) Error() string {
 	return "eventDetailsFiles are required"
 }
 
-type AdditionFilesRequiredError struct{}
+type FilesRequiredError struct{}
 
-func (e *AdditionFilesRequiredError) Error() string {
-	return "additionFiles are required"
+func (e *FilesRequiredError) Error() string {
+	return "additionFiles or etcFiles are required"
 }
 
 type ProjectNotFoundError struct{}

@@ -372,13 +372,14 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 
 	// validation
 	additionFiles := r.MultipartForm.File["additionFiles"]
-	if len(additionFiles) == 0 {
-		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusBadRequest)
+	etcFiles := r.MultipartForm.File["etcFiles"]
+	if len(additionFiles) == 0 && len(etcFiles) == 0 {
+		utils.ErrorJSON(w, &FilesRequiredError{}, "additionFiles or etcFiles", http.StatusBadRequest)
 		return
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
 	if userRole != "applicant" && userRole != "admin" {
-		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusForbidden)
+		utils.ErrorJSON(w, errors.New("permission denied"), "additionFiles  or etcFiles", http.StatusForbidden)
 		return
 	}
 	if userRole == "admin" {
@@ -391,13 +392,25 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 		return
 	}
 
-	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
-	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-	err = h.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)
-		return
+	if additionFiles != nil {
+		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		err = h.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)
+			return
+		}
+	}
+	if etcFiles != nil {
+		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/เอกสารแนบ/เอกสารอื่นๆ", userId, payload.ProjectCode)
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		err = h.awsS3Service.UploadFilesToS3(etcFiles, bucketName, objectPrefix)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "etcFiles", http.StatusForbidden)
+			return
+		}
 	}
 
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})
