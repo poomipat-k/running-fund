@@ -3,7 +3,6 @@ package s3Service
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -14,16 +13,24 @@ import (
 
 // params userId, projectCode,
 func (client *S3Service) UpdateAttachmentZipContent(userId int, projectCode string) error {
-	downloader := manager.NewDownloader(client.S3Client)
-	folderPath := filepath.Join("../home", "tmp/zip")
+	folderPath := filepath.Join("../home/tmp/zip")
 	err := os.MkdirAll(folderPath, os.ModePerm)
 	if err != nil {
 		return err
 	}
-	localTmpZipFilePath := filepath.Join("../home", fmt.Sprintf("tmp/zip/%s.zip", projectCode))
-	// localTmpZipFilePath := fmt.Sprintf("home/tmp/zip/%s.zip", projectCode)
-	log.Println("===localTmpZipFilePath", localTmpZipFilePath)
-	zipFile, err := os.Create(localTmpZipFilePath)
+
+	zipFileTargetPath := filepath.Join(folderPath, fmt.Sprintf("%s.zip", projectCode))
+	err = client.downloadZipToLocal(zipFileTargetPath, userId, projectCode)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (client *S3Service) downloadZipToLocal(zipFileTargetPath string, userId int, projectCode string) error {
+	downloader := manager.NewDownloader(client.S3Client)
+
+	zipFile, err := os.Create(zipFileTargetPath)
 	if err != nil {
 		return err
 	}
@@ -39,8 +46,6 @@ func (client *S3Service) UpdateAttachmentZipContent(userId int, projectCode stri
 	if err != nil {
 		return err
 	}
-
-	log.Println("===Zip file downloaded")
 	return nil
 }
 

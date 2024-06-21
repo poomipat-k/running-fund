@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -411,13 +412,15 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 			utils.ErrorJSON(w, err, "etcFiles", http.StatusForbidden)
 			return
 		}
-	}
-	// update attachment zip file (for reviewer to download)
-	err = h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode)
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
-		return
+
+		// update attachment zip file (for reviewer to download)
+		err = h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
+			return
+		}
+		log.Println("===updated zip file")
 	}
 
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})
