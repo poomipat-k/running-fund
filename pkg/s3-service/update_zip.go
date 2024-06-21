@@ -17,26 +17,27 @@ import (
 )
 
 // params userId, projectCode,
-func (client *S3Service) UpdateAttachmentZipContent(userId int, projectCode string, newFiles []*multipart.FileHeader) error {
+func (client *S3Service) UpdateAttachmentZipContent(userId int, projectCode string, newFiles []*multipart.FileHeader) (*os.File, error) {
 	folderPath := filepath.Join("../home/tmp/zip")
 	err := os.MkdirAll(folderPath, os.ModePerm)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	zipFileTargetPath := filepath.Join(folderPath, fmt.Sprintf("%s.zip", projectCode))
 	// Download current zip file from S3
-	err = client.downloadZipToLocal(zipFileTargetPath, userId, projectCode)
+	zipFile, err := client.downloadZipToLocal(zipFileTargetPath, userId, projectCode)
 	if err != nil {
 		slog.Error("error downloading zip file to local", "error", err)
-		return err
+		return nil, err
 	}
+
 	err = client.updateZipFile(zipFileTargetPath, newFiles, projectCode)
 	if err != nil {
 		slog.Error("error updating the zip file", "error", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return zipFile, nil
 }
 
 func (client *S3Service) updateZipFile(zipFileTargetPath string, newFiles []*multipart.FileHeader, projectCode string) error {
@@ -110,14 +111,13 @@ func (client *S3Service) updateZipFile(zipFileTargetPath string, newFiles []*mul
 	return nil
 }
 
-func (client *S3Service) downloadZipToLocal(zipFileTargetPath string, userId int, projectCode string) error {
+func (client *S3Service) downloadZipToLocal(zipFileTargetPath string, userId int, projectCode string) (*os.File, error) {
 	downloader := manager.NewDownloader(client.S3Client)
 
 	zipFile, err := os.Create(zipFileTargetPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer zipFile.Close()
 
 	basePrefix := getBasePrefix(userId, projectCode)
 	zipObjectKey := fmt.Sprintf("%s/zip/%s_เอกสารแนบ.zip", basePrefix, projectCode)
@@ -127,9 +127,9 @@ func (client *S3Service) downloadZipToLocal(zipFileTargetPath string, userId int
 		Key:    aws.String(zipObjectKey),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return zipFile, nil
 }
 
 func getBasePrefix(userId int, projectCode string) string {

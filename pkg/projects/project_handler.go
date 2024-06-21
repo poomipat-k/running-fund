@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"mime/multipart"
 	"net/http"
@@ -404,23 +403,32 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 		}
 	}
 	if etcFiles != nil {
-		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/เอกสารแนบ/เอกสารอื่นๆ", userId, payload.ProjectCode)
+		// update attachment zip file (for reviewer to download)
+		zipFile, err := h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode, etcFiles)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
+			return
+		}
+		defer zipFile.Close()
+
+		// upload the updated zip file to s3 bucket
 		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		s3ZipFilePath := fmt.Sprintf("applicant/user_%d/%s/zip/%s_เอกสารแนบ.zip", userId, payload.ProjectCode, payload.ProjectCode)
+		err = h.awsS3Service.DoUploadFileToS3(zipFile, bucketName, s3ZipFilePath)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "upload zip file", http.StatusBadRequest)
+			return
+		}
+
+		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/เอกสารแนบ/เอกสารอื่นๆ", userId, payload.ProjectCode)
 		err = h.awsS3Service.UploadFilesToS3(etcFiles, bucketName, objectPrefix)
 		if err != nil {
 			slog.Error(err.Error())
 			utils.ErrorJSON(w, err, "etcFiles", http.StatusForbidden)
 			return
 		}
-
-		// update attachment zip file (for reviewer to download)
-		err = h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode, etcFiles)
-		if err != nil {
-			slog.Error(err.Error())
-			utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
-			return
-		}
-		log.Println("===updated zip file")
 	}
 
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})
