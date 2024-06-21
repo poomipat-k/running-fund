@@ -412,6 +412,13 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 			return
 		}
 	}
+	// update attachment zip file (for reviewer to download)
+	err = h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode)
+	if err != nil {
+		slog.Error(err.Error())
+		utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
+		return
+	}
 
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})
 }
