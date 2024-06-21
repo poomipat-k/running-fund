@@ -105,7 +105,7 @@ func (m *MockProjectStore) GetProjectStatusByProjectCode(projectCode string) (pr
 	return m.GetProjectStatusByProjectCodeFunc(projectCode)
 }
 
-func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
+func (m *MockProjectStore) UpdateProjectByAdmin(payload projects.AdminUpdateParam, userId int, projectCode string, additionFiles, etcFiles []*multipart.FileHeader) error {
 	m.AdminUpdateData = payload
 	return nil
 }
