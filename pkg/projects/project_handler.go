@@ -403,25 +403,28 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 		}
 	}
 	if etcFiles != nil {
-		// update attachment zip file (for reviewer to download)
-		zipFile, err := h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode, etcFiles)
-		if err != nil {
-			slog.Error(err.Error())
-			utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
-			return
-		}
-		defer zipFile.Close()
+		// Unused update zip file content
 
-		// upload the updated zip file to s3 bucket
+		// // update attachment zip file (for reviewer to download)
+		// zipFile, err := h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode, etcFiles)
+		// if err != nil {
+		// 	slog.Error(err.Error())
+		// 	utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
+		// 	return
+		// }
+		// defer zipFile.Close()
+
+		// // upload the updated zip file to s3 bucket
+		// s3ZipFilePath := fmt.Sprintf("applicant/user_%d/%s/zip/%s_เอกสารแนบ.zip", userId, payload.ProjectCode, payload.ProjectCode)
+		// err = h.awsS3Service.DoUploadFileToS3(zipFile, bucketName, s3ZipFilePath)
+		// if err != nil {
+		// 	slog.Error(err.Error())
+		// 	utils.ErrorJSON(w, err, "upload zip file", http.StatusBadRequest)
+		// 	return
+		// }
+
+		// END unused update zip file content
 		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-		s3ZipFilePath := fmt.Sprintf("applicant/user_%d/%s/zip/%s_เอกสารแนบ.zip", userId, payload.ProjectCode, payload.ProjectCode)
-		err = h.awsS3Service.DoUploadFileToS3(zipFile, bucketName, s3ZipFilePath)
-		if err != nil {
-			slog.Error(err.Error())
-			utils.ErrorJSON(w, err, "upload zip file", http.StatusBadRequest)
-			return
-		}
-
 		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/เอกสารแนบ/เอกสารอื่นๆ", userId, payload.ProjectCode)
 		err = h.awsS3Service.UploadFilesToS3(etcFiles, bucketName, objectPrefix)
 		if err != nil {

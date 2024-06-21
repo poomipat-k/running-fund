@@ -1,137 +1,121 @@
 package s3Service
 
-import (
-	"archive/zip"
-	"context"
-	"fmt"
-	"io"
-	"log/slog"
-	"mime/multipart"
-	"os"
-	"path/filepath"
-	"time"
+// // params userId, projectCode,
+// func (client *S3Service) UpdateAttachmentZipContent(userId int, projectCode string, newFiles []*multipart.FileHeader) (*os.File, error) {
+// 	folderPath := filepath.Join("../home/tmp/zip")
+// 	err := os.MkdirAll(folderPath, os.ModePerm)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go/aws"
-)
+// 	zipFileTargetPath := filepath.Join(folderPath, fmt.Sprintf("%s.zip", projectCode))
+// 	// Download current zip file from S3
+// 	zipFile, err := client.downloadZipToLocal(zipFileTargetPath, userId, projectCode)
+// 	if err != nil {
+// 		slog.Error("error downloading zip file to local", "error", err)
+// 		return nil, err
+// 	}
 
-// params userId, projectCode,
-func (client *S3Service) UpdateAttachmentZipContent(userId int, projectCode string, newFiles []*multipart.FileHeader) (*os.File, error) {
-	folderPath := filepath.Join("../home/tmp/zip")
-	err := os.MkdirAll(folderPath, os.ModePerm)
-	if err != nil {
-		return nil, err
-	}
+// 	err = client.updateZipFile(zipFileTargetPath, newFiles, projectCode)
+// 	if err != nil {
+// 		slog.Error("error updating the zip file", "error", err)
+// 		return nil, err
+// 	}
+// 	return zipFile, nil
+// }
 
-	zipFileTargetPath := filepath.Join(folderPath, fmt.Sprintf("%s.zip", projectCode))
-	// Download current zip file from S3
-	zipFile, err := client.downloadZipToLocal(zipFileTargetPath, userId, projectCode)
-	if err != nil {
-		slog.Error("error downloading zip file to local", "error", err)
-		return nil, err
-	}
+// func (client *S3Service) updateZipFile(zipFileTargetPath string, newFiles []*multipart.FileHeader, projectCode string) error {
+// 	// Open the zip file for reading
+// 	zipReader, err := zip.OpenReader(zipFileTargetPath)
+// 	if err != nil {
+// 		slog.Error("error open a zip file to read", "error", err)
+// 		return err
+// 	}
+// 	defer zipReader.Close()
 
-	err = client.updateZipFile(zipFileTargetPath, newFiles, projectCode)
-	if err != nil {
-		slog.Error("error updating the zip file", "error", err)
-		return nil, err
-	}
-	return zipFile, nil
-}
+// 	// Open the zip file for writing
+// 	zipFile, err := os.OpenFile(zipFileTargetPath, os.O_APPEND|os.O_WRONLY, 0644)
+// 	if err != nil {
+// 		slog.Error("error open a zip file to write", "error", err)
+// 		return err
+// 	}
+// 	defer zipFile.Close()
 
-func (client *S3Service) updateZipFile(zipFileTargetPath string, newFiles []*multipart.FileHeader, projectCode string) error {
-	// Open the zip file for reading
-	zipReader, err := zip.OpenReader(zipFileTargetPath)
-	if err != nil {
-		slog.Error("error open a zip file to read", "error", err)
-		return err
-	}
-	defer zipReader.Close()
+// 	// Create a new zip writer
+// 	zipWriter := zip.NewWriter(zipFile)
+// 	defer zipWriter.Close()
 
-	// Open the zip file for writing
-	zipFile, err := os.OpenFile(zipFileTargetPath, os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		slog.Error("error open a zip file to write", "error", err)
-		return err
-	}
-	defer zipFile.Close()
+// 	// Copy all files in existing zip
+// 	for _, file := range zipReader.File {
+// 		writer, err := zipWriter.Create(file.Name)
+// 		if err != nil {
+// 			slog.Error("error creating a zipWriter", "error", err, "fileName", file.Name)
+// 			return err
+// 		}
+// 		reader, err := file.Open()
+// 		if err != nil {
+// 			slog.Error("error open a file reader", "error", err, "fileName", file.Name)
+// 			return err
+// 		}
+// 		_, err = io.Copy(writer, reader)
+// 		if err != nil {
+// 			slog.Error("error at io.Copy", "error", err, "fileName", file.Name)
+// 			return err
+// 		}
+// 		reader.Close()
+// 	}
+// 	// Write new files to the zip
+// 	for _, newFileHeader := range newFiles {
+// 		// newFile, err := OpenFileFromFileHeader(newFileHeader)
+// 		newFile, err := newFileHeader.Open()
+// 		if err != nil {
+// 			return err
+// 		}
+// 		defer newFile.Close()
 
-	// Create a new zip writer
-	zipWriter := zip.NewWriter(zipFile)
-	defer zipWriter.Close()
+// 		header := &zip.FileHeader{
+// 			UncompressedSize64: uint64(newFileHeader.Size),
+// 		}
 
-	// Copy all files in existing zip
-	for _, file := range zipReader.File {
-		writer, err := zipWriter.Create(file.Name)
-		if err != nil {
-			slog.Error("error creating a zipWriter", "error", err, "fileName", file.Name)
-			return err
-		}
-		reader, err := file.Open()
-		if err != nil {
-			slog.Error("error open a file reader", "error", err, "fileName", file.Name)
-			return err
-		}
-		_, err = io.Copy(writer, reader)
-		if err != nil {
-			slog.Error("error at io.Copy", "error", err, "fileName", file.Name)
-			return err
-		}
-		reader.Close()
-	}
-	// Write new files to the zip
-	for _, newFileHeader := range newFiles {
-		// newFile, err := OpenFileFromFileHeader(newFileHeader)
-		newFile, err := newFileHeader.Open()
-		if err != nil {
-			return err
-		}
-		defer newFile.Close()
+// 		// Set the file name in the zip header
+// 		header.Name = fmt.Sprintf("%s_เอกสารอื่นๆ/%s", projectCode, newFileHeader.Filename) // Todo
+// 		header.Method = zip.Deflate
+// 		header.Modified = time.Now()
 
-		header := &zip.FileHeader{
-			UncompressedSize64: uint64(newFileHeader.Size),
-		}
+// 		writer, err := zipWriter.CreateHeader(header)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		_, err = io.Copy(writer, newFile)
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 	}
 
-		// Set the file name in the zip header
-		header.Name = fmt.Sprintf("%s_เอกสารอื่นๆ/%s", projectCode, newFileHeader.Filename) // Todo
-		header.Method = zip.Deflate
-		header.Modified = time.Now()
+// 	return nil
+// }
 
-		writer, err := zipWriter.CreateHeader(header)
-		if err != nil {
-			panic(err)
-		}
-		_, err = io.Copy(writer, newFile)
-		if err != nil {
-			panic(err)
-		}
-	}
+// func (client *S3Service) downloadZipToLocal(zipFileTargetPath string, userId int, projectCode string) (*os.File, error) {
+// 	downloader := manager.NewDownloader(client.S3Client)
 
-	return nil
-}
+// 	zipFile, err := os.Create(zipFileTargetPath)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-func (client *S3Service) downloadZipToLocal(zipFileTargetPath string, userId int, projectCode string) (*os.File, error) {
-	downloader := manager.NewDownloader(client.S3Client)
+// 	basePrefix := getBasePrefix(userId, projectCode)
+// 	zipObjectKey := fmt.Sprintf("%s/zip/%s_เอกสารแนบ.zip", basePrefix, projectCode)
 
-	zipFile, err := os.Create(zipFileTargetPath)
-	if err != nil {
-		return nil, err
-	}
+// 	_, err = downloader.Download(context.TODO(), zipFile, &s3.GetObjectInput{
+// 		Bucket: aws.String(os.Getenv("AWS_S3_STORE_BUCKET_NAME")),
+// 		Key:    aws.String(zipObjectKey),
+// 	})
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return zipFile, nil
+// }
 
-	basePrefix := getBasePrefix(userId, projectCode)
-	zipObjectKey := fmt.Sprintf("%s/zip/%s_เอกสารแนบ.zip", basePrefix, projectCode)
-
-	_, err = downloader.Download(context.TODO(), zipFile, &s3.GetObjectInput{
-		Bucket: aws.String(os.Getenv("AWS_S3_STORE_BUCKET_NAME")),
-		Key:    aws.String(zipObjectKey),
-	})
-	if err != nil {
-		return nil, err
-	}
-	return zipFile, nil
-}
-
-func getBasePrefix(userId int, projectCode string) string {
-	return fmt.Sprintf("applicant/user_%d/%s", userId, projectCode)
-}
+// func getBasePrefix(userId int, projectCode string) string {
+// 	return fmt.Sprintf("applicant/user_%d/%s", userId, projectCode)
+// }
