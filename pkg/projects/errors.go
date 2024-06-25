@@ -774,6 +774,12 @@ func (e *BudgetSupportOrganizationRequiredError) Error() string {
 	return "budget supportOrganization is required"
 }
 
+type NoAlcoholSponsorError struct{}
+
+func (e *NoAlcoholSponsorError) Error() string {
+	return "budget noAlcohol sponsor must be checked"
+}
+
 type FundRequestTypeRequiredOneError struct{}
 
 func (e *FundRequestTypeRequiredOneError) Error() string {
@@ -840,10 +846,10 @@ func (e *EventDetailsFilesRequiredError) Error() string {
 	return "eventDetailsFiles are required"
 }
 
-type AdditionFilesRequiredError struct{}
+type FilesRequiredError struct{}
 
-func (e *AdditionFilesRequiredError) Error() string {
-	return "additionFiles are required"
+func (e *FilesRequiredError) Error() string {
+	return "additionFiles or etcFiles are required"
 }
 
 type ProjectNotFoundError struct{}

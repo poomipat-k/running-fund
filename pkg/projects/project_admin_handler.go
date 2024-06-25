@@ -28,6 +28,7 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	additionFiles := r.MultipartForm.File["additionFiles"]
+	etcFiles := r.MultipartForm.File["etcFiles"]
 	field, err := validateAdminUpdateProjectPayload(payload)
 	if err != nil {
 		utils.ErrorJSON(w, err, field)
@@ -39,7 +40,7 @@ func (h *ProjectHandler) AdminUpdateProject(w http.ResponseWriter, r *http.Reque
 		utils.ErrorJSON(w, err, "", http.StatusNotFound)
 		return
 	}
-	err = h.doUpdateProject(currentProject, payload, projectCode, additionFiles)
+	err = h.doUpdateProject(currentProject, payload, projectCode, additionFiles, etcFiles)
 	if err != nil {
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
 		return
@@ -171,7 +172,13 @@ func (h *ProjectHandler) GenerateAdminReport(w http.ResponseWriter, r *http.Requ
 	utils.WriteJSON(w, http.StatusOK, buffer.String())
 }
 
-func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payload AdminUpdateProjectRequest, projectCode string, additionFiles []*multipart.FileHeader) error {
+func (h *ProjectHandler) doUpdateProject(
+	currentProject AdminUpdateParam,
+	payload AdminUpdateProjectRequest,
+	projectCode string,
+	additionFiles []*multipart.FileHeader,
+	etcFiles []*multipart.FileHeader,
+) error {
 	currentStatus := currentProject.ProjectStatus
 	primaryStatusChanged := hasPrimaryStatusChanged(currentStatus, payload.ProjectStatusPrimary)
 	secondaryStatusChanged := payload.ProjectStatusSecondary != currentStatus
@@ -191,6 +198,7 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 			currentProject.CreatedBy,
 			projectCode,
 			additionFiles,
+			etcFiles,
 		)
 		if err != nil {
 			return err
@@ -227,6 +235,7 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 			currentProject.CreatedBy,
 			projectCode,
 			additionFiles,
+			etcFiles,
 		)
 		if err != nil {
 			return err
@@ -248,6 +257,7 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 			currentProject.CreatedBy,
 			projectCode,
 			additionFiles,
+			etcFiles,
 		)
 		if err != nil {
 			return err
@@ -267,6 +277,7 @@ func (h *ProjectHandler) doUpdateProject(currentProject AdminUpdateParam, payloa
 		currentProject.CreatedBy,
 		projectCode,
 		additionFiles,
+		etcFiles,
 	)
 	if err != nil {
 		return err

@@ -23,7 +23,6 @@ const MAX_UPLOAD_SIZE = 25 * 1024 * 1024 // 25MB
 
 type projectStore interface {
 	GetReviewerDashboard(userId int, from time.Time, to time.Time) ([]ReviewDashboardRow, error)
-	// GetReviewPeriod() (ReviewPeriod, error)
 	GetReviewerProjectDetails(reviewerId int, projectCode string) (ProjectReviewDetailsResponse, error)
 	GetProjectCriteria(criteriaVersion int) ([]ProjectReviewCriteria, error)
 	GetApplicantCriteria(version int) ([]ApplicantSelfScoreCriteria, error)
@@ -32,13 +31,11 @@ type projectStore interface {
 	GetApplicantProjectDetails(isAdmin bool, projectCode string, userId int) ([]ApplicantDetailsData, error)
 	HasPermissionToAddAdditionalFiles(userId int, projectCode string) bool
 	GetProjectStatusByProjectCode(projectCode string) (AdminUpdateParam, error)
-	UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error
+	UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader, etcFiles []*multipart.FileHeader) error
 	GetAdminRequestDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminStartedDashboard(fromDate, toDate time.Time, orderBy string, limit, offset int, projectCode, projectName, projectStatus *string) ([]AdminRequestDashboardRow, error)
 	GetAdminSummary(fromDate, toDate time.Time) ([]AdminSummaryData, error)
 	GenerateAdminReport(fromDate, toDate time.Time) (*bytes.Buffer, error)
-	// GetAdminWebsiteDashboardDateConfigPreview(fromDate, toDate time.Time, limit, offset int) ([]AdminDateConfigPreviewRow, error)
-	// AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest) error
 }
 
 type ProjectHandler struct {
@@ -207,6 +204,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 	routeFiles := r.MultipartForm.File["routeFiles"]
 	eventMapFiles := r.MultipartForm.File["eventMapFiles"]
 	eventDetailsFiles := r.MultipartForm.File["eventDetailsFiles"]
+	etcFiles := r.MultipartForm.File["etcFiles"]
 	attachments := []Attachments{
 		{
 			DirName:         collaborationStr,
@@ -237,6 +235,12 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 			ZipName:         attachmentsStr,
 			InZipFilePrefix: "กำหนดการการจัดกิจกรรม",
 			Files:           eventDetailsFiles,
+		},
+		{
+			DirName:         fmt.Sprintf("%s/เอกสารอื่นๆ", attachmentsStr),
+			ZipName:         attachmentsStr,
+			InZipFilePrefix: "เอกสารอื่นๆ",
+			Files:           etcFiles,
 		},
 	}
 
@@ -368,13 +372,14 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 
 	// validation
 	additionFiles := r.MultipartForm.File["additionFiles"]
-	if len(additionFiles) == 0 {
-		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusBadRequest)
+	etcFiles := r.MultipartForm.File["etcFiles"]
+	if len(additionFiles) == 0 && len(etcFiles) == 0 {
+		utils.ErrorJSON(w, &FilesRequiredError{}, "additionFiles or etcFiles", http.StatusBadRequest)
 		return
 	}
 	userRole := utils.GetUserRoleFromRequestHeader(r)
 	if userRole != "applicant" && userRole != "admin" {
-		utils.ErrorJSON(w, &AdditionFilesRequiredError{}, "additionFiles", http.StatusForbidden)
+		utils.ErrorJSON(w, errors.New("permission denied"), "additionFiles  or etcFiles", http.StatusForbidden)
 		return
 	}
 	if userRole == "admin" {
@@ -387,13 +392,46 @@ func (h *ProjectHandler) AddProjectAdditionFiles(w http.ResponseWriter, r *http.
 		return
 	}
 
-	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
-	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-	err = h.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
-	if err != nil {
-		slog.Error(err.Error())
-		utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)
-		return
+	if additionFiles != nil {
+		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, payload.ProjectCode)
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		err = h.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "additionFiles", http.StatusForbidden)
+			return
+		}
+	}
+	if etcFiles != nil {
+		// Unused update zip file content
+
+		// // update attachment zip file (for reviewer to download)
+		// zipFile, err := h.awsS3Service.UpdateAttachmentZipContent(userId, payload.ProjectCode, etcFiles)
+		// if err != nil {
+		// 	slog.Error(err.Error())
+		// 	utils.ErrorJSON(w, err, "updateZip", http.StatusBadRequest)
+		// 	return
+		// }
+		// defer zipFile.Close()
+
+		// // upload the updated zip file to s3 bucket
+		// s3ZipFilePath := fmt.Sprintf("applicant/user_%d/%s/zip/%s_เอกสารแนบ.zip", userId, payload.ProjectCode, payload.ProjectCode)
+		// err = h.awsS3Service.DoUploadFileToS3(zipFile, bucketName, s3ZipFilePath)
+		// if err != nil {
+		// 	slog.Error(err.Error())
+		// 	utils.ErrorJSON(w, err, "upload zip file", http.StatusBadRequest)
+		// 	return
+		// }
+
+		// END unused update zip file content
+		bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
+		objectPrefix := fmt.Sprintf("applicant/user_%d/%s/เอกสารแนบ/เอกสารอื่นๆ", userId, payload.ProjectCode)
+		err = h.awsS3Service.UploadFilesToS3(etcFiles, bucketName, objectPrefix)
+		if err != nil {
+			slog.Error(err.Error())
+			utils.ErrorJSON(w, err, "etcFiles", http.StatusForbidden)
+			return
+		}
 	}
 
 	utils.WriteJSON(w, http.StatusOK, CommonSuccessResponse{Success: true, Message: "upload files successfully"})

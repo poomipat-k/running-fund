@@ -48,17 +48,20 @@ ORDER BY website_config.id DESC LIMIT 1
 
 const getLandingPageBannerSQL = `
 SELECT  website_image.id, website_image.full_path, website_image.object_key, website_image.link_to
-FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2;
+FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2
+ORDER BY website_image.order_number;
 `
 
 const getFaqSQL = `
 SELECT  faq.id, faq.question, faq.answer
-FROM faq WHERE faq.website_config_id = $1;
+FROM faq WHERE faq.website_config_id = $1
+ORDER BY faq.order_number;
 `
 
 const getHowToCreateSQL = `
 SELECT  how_to_create.id, how_to_create.header, how_to_create.content
-FROM how_to_create WHERE how_to_create.website_config_id = $1;
+FROM how_to_create WHERE how_to_create.website_config_id = $1
+ORDER BY how_to_create.order_number;
 `
 
 const getFooterLogoSQL = `
@@ -67,7 +70,8 @@ website_image.id,
 website_image.full_path, 
 website_image.object_key, 
 website_image.link_to
-FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2;
+FROM website_image WHERE website_image.website_config_id = $1 AND website_image.code = $2
+ORDER BY website_image.order_number;
 `
 
 const getLatestWebsiteConfigWithFooterSQL = `

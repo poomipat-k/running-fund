@@ -16,6 +16,9 @@ func validateFund(payload AddProjectRequest) error {
 	if fund.Budget.SupportOrganization == "" {
 		return &BudgetSupportOrganizationRequiredError{}
 	}
+	if !fund.Budget.NoAlcoholSponsor {
+		return &NoAlcoholSponsorError{}
+	}
 	// request
 	if !fund.Request.Type.Fund &&
 		!fund.Request.Type.BIB &&

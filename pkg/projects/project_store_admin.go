@@ -41,7 +41,7 @@ func (s *store) GetProjectStatusByProjectCode(projectCode string) (AdminUpdatePa
 	}
 }
 
-func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles []*multipart.FileHeader) error {
+func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, projectCode string, additionFiles, etcFiles []*multipart.FileHeader) error {
 	// start transaction
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -69,10 +69,16 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 	}
 
 	// upload additionFiles
-	objectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, projectCode)
-
 	bucketName := os.Getenv("AWS_S3_STORE_BUCKET_NAME")
-	err = s.awsS3Service.UploadFilesToS3(additionFiles, bucketName, objectPrefix)
+
+	additionObjectPrefix := fmt.Sprintf("applicant/user_%d/%s/addition", userId, projectCode)
+	err = s.awsS3Service.UploadFilesToS3(additionFiles, bucketName, additionObjectPrefix)
+	if err != nil {
+		return err
+	}
+
+	etcObjectPrefix := fmt.Sprintf("applicant/user_%d/%s/เอกสารแนบ/เอกสารอื่นๆ", userId, projectCode)
+	err = s.awsS3Service.UploadFilesToS3(etcFiles, bucketName, etcObjectPrefix)
 	if err != nil {
 		return err
 	}
