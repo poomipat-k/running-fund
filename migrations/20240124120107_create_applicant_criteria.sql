@@ -112,6 +112,13 @@ VALUES (
     '7. <u>การรับฝากของส่วนตัวของนักวิ่ง</u> มีเจ้าหน้าที่ สถานที่ และอุปกรณ์พร้อมสำหรับการรับฝากของ',
     'มีเจ้าหน้าที่ สถานที่ และอุปกรณ์พร้อมสำหรับการรับฝากของ'
   );
+INSERT INTO applicant_criteria (
+  code,
+  criteria_version,
+  order_number,
+  display,
+  pdf_display
+)
 VALUES (
     'project_self_score',
     1,

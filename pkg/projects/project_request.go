@@ -281,6 +281,7 @@ type Fund struct {
 type Budget struct {
 	Total               int    `json:"total,omitempty"`
 	SupportOrganization string `json:"supportOrganization,omitempty"`
+	NoAlcoholSponsor    bool   `json:"noAlcoholSponsor,omitempty"`
 }
 
 type FundRequest struct {

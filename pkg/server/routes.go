@@ -79,6 +79,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	s3Handler := s3Service.NewS3Handler(presigner)
 
 	emailService := appEmail.NewEmailService()
+	emailHandler := appEmail.NewEmailHandler()
 
 	userStore := users.NewStore(db, emailService)
 	userHandler := users.NewUserHandler(userStore)
@@ -158,6 +159,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Get("/content/cms", mw.IsAdmin(cmsHandler.GetWebsiteConfigData))
 		r.Post("/admin/cms/upload", mw.IsAdmin(cmsHandler.AdminUploadContentFiles))
 		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
+
+		r.Put("/system/email/bounces", emailHandler.HandlingBounces)
 	})
 
 	return mux
