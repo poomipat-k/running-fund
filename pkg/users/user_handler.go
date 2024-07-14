@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -92,6 +93,8 @@ func (h *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		fail(w, err, "")
 		return
 	}
+	// force email to be lower case
+	payload.Email = strings.ToLower(payload.Email)
 
 	toBeDeletedUserId, fieldName, err := validateSignUpRequest(h.store, payload)
 	if err != nil {
@@ -132,6 +135,7 @@ func (h *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		fail(w, err, "")
 		return
 	}
+	payload.Email = strings.ToLower(payload.Email)
 	fieldName, err := validateSignInRequest(payload)
 	if err != nil {
 		fail(w, err, fieldName)
@@ -283,6 +287,7 @@ func (h *UserHandler) ActivateUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var payload ForgotPasswordRequest
+	payload.Email = strings.ToLower(payload.Email)
 	err := utils.ReadJSONAllowUnknownFields(w, r, &payload)
 	if err != nil {
 		fail(w, err, "")
