@@ -19,7 +19,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
-const MAX_UPLOAD_SIZE = 25 << 20 // 25 mb
+const MAX_UPLOAD_SIZE = 50 << 20 // 50 mb
 
 type S3Service struct {
 	S3Client *s3.Client
@@ -169,7 +169,7 @@ func isAllowedContentType(mimetype string) bool {
 // openFile and validate file type
 func OpenFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, error) {
 	if fileHeader.Size > MAX_UPLOAD_SIZE {
-		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+		return nil, fmt.Errorf("the uploaded file is too big: %s. Please use an file less than 25MB in size", fileHeader.Filename)
 	}
 
 	file, err := fileHeader.Open()
@@ -199,7 +199,7 @@ func OpenFileFromFileHeader(fileHeader *multipart.FileHeader) (multipart.File, e
 
 func OpenFileFromFileHeaderForAdmin(fileHeader *multipart.FileHeader) (multipart.File, error) {
 	if fileHeader.Size > MAX_UPLOAD_SIZE {
-		return nil, fmt.Errorf("the uploaded image is too big: %s. Please use an image less than 25MB in size", fileHeader.Filename)
+		return nil, fmt.Errorf("the uploaded file is too big: %s. Please use an file less than 25MB in size", fileHeader.Filename)
 	}
 
 	file, err := fileHeader.Open()
