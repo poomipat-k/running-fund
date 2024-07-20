@@ -39,14 +39,10 @@ var PRIMARY_STATUS = map[string]bool{
 
 func validateAddProjectPayload(
 	payload AddProjectRequest,
-	collaborateFiles []*multipart.FileHeader,
 	criteria []ApplicantSelfScoreCriteria,
 	marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles []*multipart.FileHeader) error {
 	if payload.Collaborated == nil {
 		return &CollaboratedRequiredError{}
-	}
-	if *payload.Collaborated && len(collaborateFiles) == 0 {
-		return &CollaboratedFilesRequiredError{}
 	}
 
 	if err := validateGeneral(payload); err != nil {

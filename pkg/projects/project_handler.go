@@ -258,7 +258,7 @@ func (h *ProjectHandler) AddProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validateAddProjectPayload(payload, collaborateFiles, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles)
+	err = validateAddProjectPayload(payload, criteria, marketingFiles, routeFiles, eventMapFiles, eventDetailsFiles)
 	if err != nil {
 		slog.Error("error validateAddProjectPayload", "error", err.Error(), "payload", payload)
 		utils.ErrorJSON(w, err, "", http.StatusBadRequest)
