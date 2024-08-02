@@ -62,7 +62,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 		expectedError:  &projects.CollaboratedRequiredError{},
 	},
 	{
-		name: "should error when collaborated and collaborateFiles is empty",
+		name: "should not error when collaborated and collaborateFiles is empty",
 		payload: projects.AddProjectRequest{
 			Collaborated: newTrue()},
 		store: &mock.MockProjectStore{
@@ -70,7 +70,7 @@ var GeneralAndCollaboratedTestCases = []TestCase{
 			GetApplicantCriteriaFunc: getApplicantCriteriaSuccess,
 		},
 		expectedStatus: http.StatusBadRequest,
-		expectedError:  &projects.CollaboratedFilesRequiredError{},
+		expectedError:  &projects.ProjectNameRequiredError{},
 	},
 	// STEP 0 END
 	// 1 START - general
