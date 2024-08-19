@@ -67,7 +67,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Reviewing",
-				AdminScore:             newInt(-10),
+				AdminScore:             newFloat64(-10),
 			},
 			store:          &mock.MockProjectStore{},
 			expectedStatus: http.StatusBadRequest,
@@ -78,7 +78,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Reviewing",
-				AdminScore:             newInt(110),
+				AdminScore:             newFloat64(110),
 			},
 			store:          &mock.MockProjectStore{},
 			expectedStatus: http.StatusBadRequest,
@@ -89,7 +89,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Reviewing",
-				AdminScore:             newInt(60),
+				AdminScore:             newFloat64(60),
 				FundApprovedAmount:     newInt64(-20),
 			},
 			store:          &mock.MockProjectStore{},
@@ -105,7 +105,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Reviewing",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 1"),
 			},
@@ -122,7 +122,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Reviewing",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 1"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -133,7 +133,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "Approved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 1"),
 			},
@@ -150,7 +150,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Approved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 1"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -161,7 +161,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "NotApproved",
 				ProjectStatusSecondary: "NotApproved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 1"),
 			},
@@ -178,7 +178,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "NotApproved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 1"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -215,7 +215,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "Reviewed",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -232,7 +232,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Approved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -243,7 +243,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "Reviewing",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -260,7 +260,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Approved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -271,7 +271,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Approved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -288,7 +288,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Approved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -299,7 +299,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "NotApproved",
 				ProjectStatusSecondary: "Approved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -316,7 +316,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Approved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -327,7 +327,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "NotApproved",
 				ProjectStatusSecondary: "Reviewed",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        newTime(time.Date(2024, 1, 20, 15, 30, 45, 9, time.UTC)),
@@ -345,7 +345,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "NotApproved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    nil,
@@ -356,7 +356,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "NotApproved",
 				ProjectStatusSecondary: "Approved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        nil,
@@ -374,7 +374,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "NotApproved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    nil,
@@ -385,7 +385,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "NotApproved",
 				ProjectStatusSecondary: "Approved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        nil,
@@ -403,7 +403,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "NotApproved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    nil,
@@ -414,7 +414,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "NotApproved",
-				AdminScore:             newInt(70),
+				AdminScore:             newFloat64(70),
 				FundApprovedAmount:     newInt64(200000),
 				AdminComment:           newString("Admin comment 2"),
 				AdminApprovedAt:        nil,
@@ -432,7 +432,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "NotApproved",
-				AdminScore:         newInt(70),
+				AdminScore:         newFloat64(70),
 				FundApprovedAmount: newInt64(200000),
 				AdminComment:       newString("Admin comment 2"),
 				AdminApprovedAt:    nil,
@@ -502,7 +502,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "Start",
-				AdminScore:             newInt(60),
+				AdminScore:             newFloat64(60),
 				FundApprovedAmount:     newInt64(202020),
 				AdminComment:           nil,
 				AdminApprovedAt:        nil,
@@ -512,7 +512,7 @@ func TestAdminUpdateProject(t *testing.T) {
 					return projects.AdminUpdateParam{
 						ProjectHistoryId:   1,
 						ProjectStatus:      "Approved",
-						AdminScore:         newInt(55),
+						AdminScore:         newFloat64(55),
 						FundApprovedAmount: newInt64(200),
 						AdminApprovedAt:    nil,
 					}, nil
@@ -522,7 +522,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Start",
-				AdminScore:         newInt(60),
+				AdminScore:         newFloat64(60),
 				FundApprovedAmount: newInt64(202020),
 				AdminComment:       nil,
 				AdminApprovedAt:    nil,
@@ -533,7 +533,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "Completed",
-				AdminScore:             newInt(60),
+				AdminScore:             newFloat64(60),
 				FundApprovedAmount:     newInt64(202020),
 				AdminComment:           nil,
 				AdminApprovedAt:        nil,
@@ -543,7 +543,7 @@ func TestAdminUpdateProject(t *testing.T) {
 					return projects.AdminUpdateParam{
 						ProjectHistoryId:   1,
 						ProjectStatus:      "Start",
-						AdminScore:         newInt(55),
+						AdminScore:         newFloat64(55),
 						FundApprovedAmount: newInt64(200),
 						AdminApprovedAt:    nil,
 					}, nil
@@ -553,7 +553,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Completed",
-				AdminScore:         newInt(60),
+				AdminScore:         newFloat64(60),
 				FundApprovedAmount: newInt64(202020),
 				AdminComment:       nil,
 				AdminApprovedAt:    nil,
@@ -564,7 +564,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "Approved",
 				ProjectStatusSecondary: "Completed",
-				AdminScore:             newInt(60),
+				AdminScore:             newFloat64(60),
 				FundApprovedAmount:     newInt64(202020),
 				AdminComment:           nil,
 				AdminApprovedAt:        nil,
@@ -574,7 +574,7 @@ func TestAdminUpdateProject(t *testing.T) {
 					return projects.AdminUpdateParam{
 						ProjectHistoryId:   1,
 						ProjectStatus:      "Approved",
-						AdminScore:         newInt(55),
+						AdminScore:         newFloat64(55),
 						FundApprovedAmount: newInt64(200),
 						AdminApprovedAt:    nil,
 					}, nil
@@ -584,7 +584,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Completed",
-				AdminScore:         newInt(60),
+				AdminScore:         newFloat64(60),
 				FundApprovedAmount: newInt64(202020),
 				AdminComment:       nil,
 				AdminApprovedAt:    nil,
@@ -595,7 +595,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "NotApproved",
 				ProjectStatusSecondary: "Completed",
-				AdminScore:             newInt(60),
+				AdminScore:             newFloat64(60),
 				FundApprovedAmount:     newInt64(202020),
 				AdminComment:           nil,
 				AdminApprovedAt:        nil,
@@ -605,7 +605,7 @@ func TestAdminUpdateProject(t *testing.T) {
 					return projects.AdminUpdateParam{
 						ProjectHistoryId:   1,
 						ProjectStatus:      "NotApproved",
-						AdminScore:         newInt(55),
+						AdminScore:         newFloat64(55),
 						FundApprovedAmount: newInt64(200),
 						AdminApprovedAt:    nil,
 					}, nil
@@ -615,7 +615,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Completed",
-				AdminScore:         newInt(60),
+				AdminScore:         newFloat64(60),
 				FundApprovedAmount: newInt64(202020),
 				AdminComment:       nil,
 				AdminApprovedAt:    nil,
@@ -626,7 +626,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			payload: projects.AdminUpdateProjectRequest{
 				ProjectStatusPrimary:   "CurrentBeforeApprove",
 				ProjectStatusSecondary: "Start",
-				AdminScore:             newInt(60),
+				AdminScore:             newFloat64(60),
 				FundApprovedAmount:     newInt64(202020),
 				AdminComment:           nil,
 				AdminApprovedAt:        nil,
@@ -636,7 +636,7 @@ func TestAdminUpdateProject(t *testing.T) {
 					return projects.AdminUpdateParam{
 						ProjectHistoryId:   1,
 						ProjectStatus:      "Reviewing",
-						AdminScore:         newInt(55),
+						AdminScore:         newFloat64(55),
 						FundApprovedAmount: newInt64(200),
 						AdminApprovedAt:    nil,
 					}, nil
@@ -646,7 +646,7 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedUpdatedData: projects.AdminUpdateParam{
 				ProjectHistoryId:   1,
 				ProjectStatus:      "Start",
-				AdminScore:         newInt(60),
+				AdminScore:         newFloat64(60),
 				FundApprovedAmount: newInt64(202020),
 				AdminComment:       nil,
 				AdminApprovedAt:    nil,

@@ -51,13 +51,22 @@ func (s *store) UpdateProjectByAdmin(payload AdminUpdateParam, userId int, proje
 		return err
 	}
 	defer tx.Rollback()
+
+	var adminScoreX100 int
+	if payload.AdminScore != nil {
+		adminScoreX100 = int(*payload.AdminScore * 100)
+	}
+	var adminScoreAddress *int
+	if adminScoreX100 != 0 {
+		adminScoreAddress = &adminScoreX100
+	}
 	var id int
 	err = tx.QueryRowContext(
 		ctx,
 		updateProjectByAdminSQL,
 		payload.ProjectHistoryId,
 		payload.ProjectStatus,
-		payload.AdminScore,
+		adminScoreAddress,
 		payload.FundApprovedAmount,
 		payload.AdminComment,
 		payload.AdminApprovedAt,

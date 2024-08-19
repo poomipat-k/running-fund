@@ -197,7 +197,7 @@ func assertUpdatedData(t testing.TB, got, want projects.AdminUpdateParam) {
 		t.Error("AdminScore should be nil")
 	}
 	if got.AdminScore != nil && want.AdminScore != nil && *got.AdminScore != *want.AdminScore {
-		t.Errorf("AdminScore: got %d, want %d", *got.AdminScore, *want.AdminScore)
+		t.Errorf("AdminScore: got %f, want %f", *got.AdminScore, *want.AdminScore)
 	}
 	// FundApprovedAmount
 	if got.FundApprovedAmount == nil && want.FundApprovedAmount != nil {
