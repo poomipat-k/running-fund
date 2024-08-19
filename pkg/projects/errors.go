@@ -906,6 +906,14 @@ func (e *FundApprovedAmountNegativeError) Error() string {
 	return "fundApprovedAmount is negative"
 }
 
+type AdminCommentTooLongError struct {
+	Length int
+}
+
+func (e *AdminCommentTooLongError) Error() string {
+	return fmt.Sprintf("adminComment length is over 512 characters, got %d", e.Length)
+}
+
 type FromYearRequiredError struct{}
 
 func (e *FromYearRequiredError) Error() string {

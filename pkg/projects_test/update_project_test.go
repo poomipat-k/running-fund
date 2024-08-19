@@ -96,6 +96,32 @@ func TestAdminUpdateProject(t *testing.T) {
 			expectedStatus: http.StatusBadRequest,
 			expectedError:  &projects.FundApprovedAmountNegativeError{},
 		},
+		{
+			name: "should error when adminComment is longer than 512 characters",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
+				AdminScore:             newFloat64(60),
+				FundApprovedAmount:     newInt64(200000),
+				AdminComment:           newString("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012"),
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.AdminCommentTooLongError{Length: 513},
+		},
+		{
+			name: "should error when adminComment is longer than 512 characters (Thai)",
+			payload: projects.AdminUpdateProjectRequest{
+				ProjectStatusPrimary:   "CurrentBeforeApprove",
+				ProjectStatusSecondary: "Reviewing",
+				AdminScore:             newFloat64(60),
+				FundApprovedAmount:     newInt64(200000),
+				AdminComment:           newString("การเดินทางตลอดหนึ่งปีที่ผ่านมา เราต้องเจอกับเรื่องราวมากมาย เผชิญหน้ากับเหตุการณ์ไม่คาดคิด และรับมือกับหลายความรู้สึกที่เกาะกุมอยู่ในใจ ด้วยเหตุนี้ ยิ่งใกล้ช่วงท้ายปี หลายคนเลยอยากปล่อยให้ ‘ปีเก่า’ เป็นเรื่องราวของ ‘ปีเก่า’ พร้อมทิ้งเรื่องราวเดิมๆ ไว้ข้างหลังและมุ่งหน้าสู่การเดินทางใหม่ที่กำลังจะมาถึงการเดินทางตลอดหนึ่งปีที่ผ่านมา เราต้องเจอกับเรื่องราวมากมาย เผชิญหน้ากับเหตุการณ์ไม่คาดคิด และรับมือกับหลายความรู้สึกที่เกาะกุมอยู่ในใจ ด้วยเหตุนี้ ยิ่งใกล้ช่วงท้ายปี หลายคนเลยอยากปล่อยให้ ‘ปีเก่า’ เป็นเรื่องราวของ ‘ปีเก่า’ พร้อมทิ้งเรื่องราวเดิมๆ ไว้ข้างหลังและมุ่งหน้าสู่การเดินทางใหม่ที่กำลังจะมาถึง"),
+			},
+			store:          &mock.MockProjectStore{},
+			expectedStatus: http.StatusBadRequest,
+			expectedError:  &projects.AdminCommentTooLongError{Length: 604},
+		},
 
 		// Success cases
 
