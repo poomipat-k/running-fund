@@ -1,6 +1,6 @@
 package projects
 
-const MIN_YEAR = 2010
+const MIN_YEAR = 1957
 
 func validateExperience(payload AddProjectRequest) error {
 	experience := payload.Experience
