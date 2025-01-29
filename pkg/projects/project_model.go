@@ -128,7 +128,7 @@ type ApplicantDetailsData struct {
 	UserId             int        `json:"userId,omitempty"`
 	ProjectName        string     `json:"projectName,omitempty"`
 	ProjectStatus      string     `json:"projectStatus,omitempty"`
-	AdminScore         *int       `json:"adminScore,omitempty"`
+	AdminScore         *float64   `json:"adminScore,omitempty"`
 	FundApprovedAmount *int       `json:"fundApprovedAmount,omitempty"`
 	AdminComment       *string    `json:"adminComment,omitempty"`
 	ReviewId           *int       `json:"reviewId,omitempty"`
@@ -141,7 +141,7 @@ type AdminUpdateParam struct {
 	CreatedBy          int        `json:"createdBy,omitempty"`
 	ProjectHistoryId   int        `json:"projectHistoryId,omitempty"`
 	ProjectStatus      string     `json:"projectStatus,omitempty"`
-	AdminScore         *int       `json:"adminScore,omitempty"`
+	AdminScore         *float64   `json:"adminScore,omitempty"`
 	FundApprovedAmount *int64     `json:"fundApprovedAmount,omitempty"`
 	AdminComment       *string    `json:"adminComment,omitempty"`
 	AdminApprovedAt    *time.Time `json:"adminApprovedAt,omitempty"`

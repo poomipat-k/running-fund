@@ -27,3 +27,8 @@ func FormatInt(n int64) string {
 		}
 	}
 }
+
+func NewFloat64(f float64) *float64 {
+	v := f
+	return &v
+}

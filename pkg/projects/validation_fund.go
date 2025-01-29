@@ -10,7 +10,7 @@ var requestFundAmountOptions = map[int]bool{
 func validateFund(payload AddProjectRequest) error {
 	// budget
 	fund := payload.Fund
-	if fund.Budget.Total == 0 {
+	if fund.Budget.Total <= 0 {
 		return &TotalBudgetRequiredError{}
 	}
 	if fund.Budget.SupportOrganization == "" {

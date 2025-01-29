@@ -10,6 +10,7 @@ import (
 
 	"github.com/patrickmn/go-cache"
 	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
+	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
 const applicantCriteriaCachePrefix = "applicant_criteria"
@@ -127,7 +128,10 @@ func (s *store) GetApplicantProjectDetails(isAdmin bool, projectCode string, use
 		if err != nil {
 			return nil, err
 		}
-
+		if row.AdminScore != nil {
+			adminScore := utils.NewFloat64(*row.AdminScore / 100)
+			row.AdminScore = adminScore
+		}
 		data = append(data, row)
 	}
 	err = rows.Err()

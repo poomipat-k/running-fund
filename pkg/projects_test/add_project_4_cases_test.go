@@ -128,7 +128,7 @@ var Experience = []TestCase{
 		expectedError:  &projects.HistoryYearRequiredError{},
 	},
 	{
-		name: "should error when experience.thisSeries.firstTime is false and (experience.thisSeries.history.year < 2010 or experience.thisSeries.history.year > currentYear)",
+		name: "should error when experience.thisSeries.firstTime is false and (experience.thisSeries.history.year < 1957 or experience.thisSeries.history.year > currentYear)",
 		payload: projects.AddProjectRequest{
 			Collaborated: newFalse(),
 			General:      GeneralDetailsOkPayload,
@@ -139,7 +139,7 @@ var Experience = []TestCase{
 					FirstTime: newFalse(),
 					History: projects.ThisSeriesHistory{
 						OrdinalNumber: 2,
-						Year:          2005, // 2010 <= validYear <= currentYear
+						Year:          1940, // 2010 <= validYear <= currentYear
 					},
 				},
 			},
@@ -372,7 +372,7 @@ var Experience = []TestCase{
 						Month:         2,
 						Day:           20,
 						Completed1: projects.HistoryCompleted{
-							Year: 2009,
+							Year: 1900,
 						},
 					},
 				},
@@ -502,7 +502,7 @@ var Experience = []TestCase{
 							Participant: 100,
 						},
 						Completed2: projects.HistoryCompleted{
-							Year:        2000,
+							Year:        1900,
 							Name:        "x",
 							Participant: 100,
 						},
@@ -644,7 +644,7 @@ var Experience = []TestCase{
 							Participant: 100,
 						},
 						Completed3: projects.HistoryCompleted{
-							Year:        2000,
+							Year:        1900,
 							Name:        "x",
 							Participant: 100,
 						},
@@ -843,7 +843,7 @@ var Experience = []TestCase{
 					DoneBefore: newTrue(),
 					History: projects.OtherSeriesHistory{
 						Completed1: projects.HistoryCompleted{
-							Year: 1999,
+							Year: 1900,
 						},
 					},
 				},
@@ -1078,7 +1078,7 @@ var Experience = []TestCase{
 							Participant: 3000,
 						},
 						Completed2: projects.HistoryCompleted{
-							Year:        2000,
+							Year:        1900,
 							Name:        "A",
 							Participant: 300,
 						},
@@ -1333,7 +1333,7 @@ var Experience = []TestCase{
 							Participant: 3000,
 						},
 						Completed3: projects.HistoryCompleted{
-							Year:        2000,
+							Year:        1900,
 							Name:        "A",
 							Participant: 300,
 						},
