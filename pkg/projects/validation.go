@@ -30,8 +30,10 @@ var sortByWhiteList = map[string]bool{
 	"project_history.created_at":   true,
 	"project_history.updated_at":   true,
 	"project_history.status":       true,
-	"POSITION(project_history.status::text IN 'Reviewing,Reviewed,Revise,NotApproved,Approved')": true,
-	"POSITION(project_history.status::text IN 'Start,Completed')":                                true,
+	// "POSITION(project_history.status::text IN 'Reviewing,Reviewed,Revise,NotApproved,Approved')": true, // move NotApproved to started table (bottom table)
+	"POSITION(project_history.status::text IN 'Reviewing,Reviewed,Revise,Approved')": true,
+	// "POSITION(project_history.status::text IN 'Start,Completed')":        true,
+	"POSITION(project_history.status::text IN 'Start,Completed,NotApproved')": true,
 }
 
 var PRIMARY_STATUS = map[string]bool{
