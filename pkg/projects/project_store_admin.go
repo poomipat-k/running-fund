@@ -278,9 +278,9 @@ func prepareAdminDashboardQuery(
 	curPlaceholder := 3
 	var where []string
 	if dashboardType == "request" {
-		where = []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed')"}
+		where = []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status != 'Start' AND project_history.status != 'Completed' AND project_history.status != 'NotApproved')"}
 	} else {
-		where = []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status = 'Start' OR project_history.status = 'Completed')"}
+		where = []string{"project.created_at >= $1 AND project.created_at < $2 AND (project_history.status = 'Start' OR project_history.status = 'Completed' OR project_history.status = 'NotApproved')"}
 	}
 	values := []any{fromDate, toDate}
 	if projectCode != nil {
