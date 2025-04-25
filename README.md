@@ -58,8 +58,7 @@ cp .env.example .env
 Build and start the application using Docker Compose:
 
 ```
-make build
-make up
+make up_build_dev
 ```
 
 Access the application at `http://localhost:8080`
