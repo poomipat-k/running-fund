@@ -29,7 +29,6 @@ func IsLoggedIn(next http.HandlerFunc) http.HandlerFunc {
 		} else {
 			utils.ErrorJSON(w, errors.New("corrupt token"), "authToken", http.StatusForbidden)
 			return
-
 		}
 	})
 }

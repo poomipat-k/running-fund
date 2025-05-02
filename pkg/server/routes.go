@@ -113,7 +113,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Post("/project/review/{projectCode}", mw.IsLoggedIn(projectHandler.GetReviewerProjectDetails))
-		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
+		r.Post("/project", mw.AllowCreateNewProject(mw.IsApplicant(projectHandler.AddProject)))
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
