@@ -21,6 +21,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/cms"
 	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
+	operationConfig "github.com/poomipat-k/running-fund/pkg/operation-config"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
 	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
@@ -102,6 +103,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	cmsStore := cms.NewStore(db, c)
 	cmsHandler := cms.NewCmsHandler(serverS3Service, cmsStore)
 
+	operationConfigStore := operationConfig.NewStore(db)
+
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			utils.WriteJSON(w, http.StatusOK, "API landing Page")
@@ -113,7 +116,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Post("/project/review/{projectCode}", mw.IsLoggedIn(projectHandler.GetReviewerProjectDetails))
-		r.Post("/project", mw.AllowCreateNewProject(mw.IsApplicant(projectHandler.AddProject)))
+		r.Post("/project", mw.AllowCreateNewProject(mw.IsApplicant(projectHandler.AddProject), operationConfigStore))
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
