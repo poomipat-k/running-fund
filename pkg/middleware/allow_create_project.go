@@ -16,7 +16,7 @@ func AllowCreateNewProject(next http.HandlerFunc, confStore operationConfig.Oper
 			return
 		}
 
-		if !conf.AllowNewProject {
+		if !*conf.AllowNewProject {
 			utils.ErrorJSON(w, errors.New("ปิดรับข้อเสนอโครงการ"), "newProjectNotAllow", http.StatusBadRequest)
 			return
 		}

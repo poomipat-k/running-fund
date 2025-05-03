@@ -101,6 +101,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 	assistHandler := assist.NewAssistHandler(emailService)
 
 	operationConfigStore := operationConfig.NewStore(db)
+	operationConfigHandler := operationConfig.NewOperationConfigHandler(operationConfigStore)
 
 	cmsStore := cms.NewStore(db, c, operationConfigStore)
 	cmsHandler := cms.NewCmsHandler(serverS3Service, cmsStore)
@@ -164,6 +165,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
 
 		r.Put("/system/email/bounces", emailHandler.HandlingBounces)
+
+		r.Get("/operation/config", mw.IsApplicant(operationConfigHandler.GetOperationConfig))
 	})
 
 	return mux
