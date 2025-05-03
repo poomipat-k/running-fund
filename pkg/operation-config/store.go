@@ -4,6 +4,10 @@ import (
 	"database/sql"
 )
 
+type OperationConfigStore interface {
+	GetLatestConfig() (OperationConfig, error)
+}
+
 type store struct {
 	db *sql.DB
 }

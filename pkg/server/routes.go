@@ -100,10 +100,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 	assistHandler := assist.NewAssistHandler(emailService)
 
-	cmsStore := cms.NewStore(db, c)
-	cmsHandler := cms.NewCmsHandler(serverS3Service, cmsStore)
-
 	operationConfigStore := operationConfig.NewStore(db)
+
+	cmsStore := cms.NewStore(db, c, operationConfigStore)
+	cmsHandler := cms.NewCmsHandler(serverS3Service, cmsStore)
 
 	mux.Route("/api/v1", func(r chi.Router) {
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
