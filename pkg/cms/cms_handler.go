@@ -217,6 +217,9 @@ func validateAdminWebsiteDashboardDateConfigPreviewRequest(payload GetAdminDashb
 }
 
 func validateAdminUpdateWebsiteConfigRequest(payload AdminUpdateWebsiteConfigRequest) (string, error) {
+	if payload.Landing.AllowNewProject == nil {
+		return "allowNewProject", &AllowNewProjectRequiredError{}
+	}
 	fn, err := validateFormDateToDate(
 		payload.Dashboard.FromYear,
 		payload.Dashboard.FromMonth,

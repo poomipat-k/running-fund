@@ -21,6 +21,7 @@ import (
 	"github.com/poomipat-k/running-fund/pkg/cms"
 	appEmail "github.com/poomipat-k/running-fund/pkg/email"
 	mw "github.com/poomipat-k/running-fund/pkg/middleware"
+	operationConfig "github.com/poomipat-k/running-fund/pkg/operation-config"
 	"github.com/poomipat-k/running-fund/pkg/projects"
 	"github.com/poomipat-k/running-fund/pkg/review"
 	s3Service "github.com/poomipat-k/running-fund/pkg/s3-service"
@@ -99,7 +100,10 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 	assistHandler := assist.NewAssistHandler(emailService)
 
-	cmsStore := cms.NewStore(db, c)
+	operationConfigStore := operationConfig.NewStore(db)
+	operationConfigHandler := operationConfig.NewOperationConfigHandler(operationConfigStore)
+
+	cmsStore := cms.NewStore(db, c, operationConfigStore)
 	cmsHandler := cms.NewCmsHandler(serverS3Service, cmsStore)
 
 	mux.Route("/api/v1", func(r chi.Router) {
@@ -113,7 +117,7 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 
 		r.Post("/project/reviewer", mw.IsReviewer(projectHandler.GetReviewerDashboard))
 		r.Post("/project/review/{projectCode}", mw.IsLoggedIn(projectHandler.GetReviewerProjectDetails))
-		r.Post("/project", mw.IsApplicant(projectHandler.AddProject))
+		r.Post("/project", mw.AllowCreateNewProject(mw.IsApplicant(projectHandler.AddProject), operationConfigStore))
 		r.Post("/project/addition-files", mw.IsLoggedIn(projectHandler.AddProjectAdditionFiles))
 		r.Get("/project/applicant/dashboard", mw.IsApplicant(projectHandler.GetAllProjectDashboardByApplicantId))
 
@@ -161,6 +165,8 @@ func (app *Server) Routes(db *sql.DB) http.Handler {
 		r.Put("/admin/cms/website/config", mw.IsAdmin(cmsHandler.AdminUpdateWebsiteConfig))
 
 		r.Put("/system/email/bounces", emailHandler.HandlingBounces)
+
+		r.Get("/operation/config", mw.IsApplicant(operationConfigHandler.GetOperationConfig))
 	})
 
 	return mux

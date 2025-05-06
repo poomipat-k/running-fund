@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
+	operationConfig "github.com/poomipat-k/running-fund/pkg/operation-config"
 	"github.com/poomipat-k/running-fund/pkg/utils"
 )
 
@@ -31,7 +32,7 @@ type store struct {
 	c  *cache.Cache
 }
 
-func NewStore(db *sql.DB, c *cache.Cache) *store {
+func NewStore(db *sql.DB, c *cache.Cache, operationStore operationConfig.OperationConfigStore) *store {
 	return &store{
 		db: db,
 		c:  c,
@@ -107,7 +108,14 @@ func (s *store) GetLandingPageContent() (LandingConfig, error) {
 		return LandingConfig{}, err
 	}
 
+	// operation config
+	operationConf, err := s.getOperationConfig()
+	if err != nil {
+		return LandingConfig{}, err
+	}
+
 	responseBody := LandingConfig{
+		AllowNewProject: operationConf.AllowNewProject,
 		WebsiteConfigId: configId,
 		Content:         landingContent,
 		Banner:          banners,
@@ -219,6 +227,17 @@ func (s *store) GetWebsiteConfigData() (AdminUpdateWebsiteConfigRequest, string,
 	s.c.Set(CONTENT_CMS_DATA_CACHE_KEY, cmsData, cache.NoExpiration)
 
 	return cmsData, "", nil
+}
+
+func (s *store) getOperationConfig() (OperationConfig, error) {
+	// Query count from database
+	row := s.db.QueryRow("SELECT allow_new_project FROM operation_config ORDER BY id DESC LIMIT 1;")
+	var conf OperationConfig
+	err := row.Scan(&conf.AllowNewProject)
+	if err != nil {
+		return OperationConfig{}, err
+	}
+	return conf, nil
 }
 
 func getOperatingHourFromStr(s string) []string {
@@ -446,6 +465,12 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 		}
 	}
 
+	// Operation config
+	err = s.updateOperationConfig(ctx, tx, *payload.Landing.AllowNewProject)
+	if err != nil {
+		return err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		return err
@@ -453,6 +478,19 @@ func (s *store) AdminUpdateWebsiteConfig(payload AdminUpdateWebsiteConfigRequest
 	// Remove cache to have it refreshed later on the first visit
 	for _, cacheKey := range ReCacheOnUpdateCmsData {
 		s.c.Delete(cacheKey)
+	}
+	return nil
+}
+
+func (s *store) updateOperationConfig(ctx context.Context, tx *sql.Tx, allowNewProject bool) error {
+	var id int
+	err := tx.QueryRowContext(
+		ctx,
+		updateOperationConfigSQL,
+		allowNewProject,
+	).Scan(&id)
+	if err != nil {
+		return err
 	}
 	return nil
 }

@@ -41,6 +41,7 @@ type AdminUpdateWebsiteConfigRequest struct {
 }
 
 type LandingConfig struct {
+	AllowNewProject *bool   `json:"allowNewProject,omitempty"`
 	WebsiteConfigId int     `json:"websiteConfigId,omitempty"`
 	Banner          []Image `json:"banner,omitempty"`
 	Content         string  `json:"content,omitempty"`
@@ -109,4 +110,8 @@ type AdminDateConfigPreviewRow struct {
 type UploadFileRequest struct {
 	Name       string `json:"name,omitempty"`
 	PathPrefix string `json:"pathPrefix,omitempty"`
+}
+
+type OperationConfig struct {
+	AllowNewProject *bool `json:"allowNewProject,omitempty"`
 }

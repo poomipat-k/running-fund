@@ -1,5 +1,11 @@
 package cms
 
+type AllowNewProjectRequiredError struct{}
+
+func (e *AllowNewProjectRequiredError) Error() string {
+	return "allowNewProject is required"
+}
+
 type FromYearRequiredError struct{}
 
 func (e *FromYearRequiredError) Error() string {
